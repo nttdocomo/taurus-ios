@@ -95,16 +95,6 @@
             // Copy the properties over onto the new prototype
             for (var name in protoProps) {
                 // Check if we're overwriting an existing function
-                if (name == 'config') {
-                    var config = protoProps[name];
-                    _.each(config,function(item,key){
-                        var capitalizedName = key.charAt(0).toUpperCase() + key.substr(1);
-                        child.prototype['get' + capitalizedName] = function(){
-                            return item
-                        }
-                    })
-                    return;
-                }
                 if (typeof protoProps[name] == "function" && fnTest.test(protoProps[name])) {
                     child.prototype[name] = makeWrapper(parentProto, name, protoProps[name]);
                 }
@@ -125,3 +115,4 @@
 
     return inherits;
 }));
+
