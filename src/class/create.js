@@ -17,6 +17,9 @@
     };
     _.extend(create,{
         preprocessors:{},
+        process:function(){
+            var preprocessors = this.preprocessors;
+        },
         registerPreprocessor: function(name, fn) {
             this.preprocessors[name] = {
                 name: name,
@@ -25,6 +28,9 @@
 
             return this;
         }
+    })
+    create.registerPreprocessor('config',function(){
+
     })
     return create
 }))
