@@ -26,4 +26,5 @@
 	var component = new Component({
 		name:'aaa'
 	})
+	console.log(component)
 }));

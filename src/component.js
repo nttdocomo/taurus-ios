@@ -4,18 +4,18 @@
  (function (root, factory) {
 	if(typeof define === "function") {
 		if(define.amd){
-			define(['./base','./virtual-dom/h',"./virtual-dom/diff","./virtual-dom/patch",'./virtual-dom/create-element','renderQueue','./dom2hscript/index','underscore','backbone-super'], factory);
+			define(['./class/create','./base','./virtual-dom/h',"./virtual-dom/diff","./virtual-dom/patch",'./virtual-dom/create-element','renderQueue','./dom2hscript/index','underscore','backbone-super'], factory);
 		}
 		if(define.cmd){
 			define(function(require, exports, module){
-				return factory(require('./base'),require('./virtual-dom/h'),require("./virtual-dom/diff"),require("./virtual-dom/patch"),require('./virtual-dom/create-element'),require('renderQueue'),require('./dom2hscript/index'),require('underscore'),require('backbone-super'));
+				return factory(require('./class/create'),require('./base'),require('./virtual-dom/h'),require("./virtual-dom/diff"),require("./virtual-dom/patch"),require('./virtual-dom/create-element'),require('renderQueue'),require('./dom2hscript/index'),require('underscore'),require('backbone-super'));
 			})
 		}
 	} else if(typeof module === "object" && module.exports) {
-		module.exports = factory(require('./base'),require('./virtual-dom/h'),require("./virtual-dom/diff"),require("./virtual-dom/patch"),require('./virtual-dom/create-element'),require('renderQueue'),require('./dom2hscript/index'),require('underscore'),require('backbone-super'));
+		module.exports = factory(require('./class/create'),require('./base'),require('./virtual-dom/h'),require("./virtual-dom/diff"),require("./virtual-dom/patch"),require('./virtual-dom/create-element'),require('renderQueue'),require('./dom2hscript/index'),require('underscore'),require('backbone-super'));
 	}
-}(this, function(Base,h,diff,patch,createElement,renderQueue,dom2hscript,_){
-	return Base.extend({
+}(this, function(create,Base,h,diff,patch,createElement,renderQueue,dom2hscript,_){
+	return create(Base,{
         replaceElement:true,
         config:{
             tpl:'<div><%=title%></div>'
@@ -93,5 +93,5 @@
             me._vDomElement = h(tag, attrs)
             return createElement(me._vDomElement)
         }
-	});
+	})
 }));

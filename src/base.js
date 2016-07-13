@@ -1,22 +1,22 @@
 (function (root, factory) {
    if(typeof define === "function") {
        if(define.amd){
-           define(['backbone','underscore','backbone-super'], factory);
+           define(['./class/create','backbone','underscore','backbone-super'], factory);
        }
        if(define.cmd){
            define(function(require, exports, module){
-               return factory(require('backbone'),require('underscore'),require('backbone-super'));
+               return factory(require('./class/create'),require('backbone'),require('underscore'),require('backbone-super'));
            })
        }
    } else if(typeof module === "object" && module.exports) {
-       module.exports = factory(require('backbone'),require('underscore'),require('backbone-super'));
+       module.exports = factory(require('./class/create'),require('backbone'),require('underscore'),require('backbone-super'));
    }
-}(this, function(Backbone,_){
-    var configNameCache = {};
-    return Backbone.View.extend({
+}(this, function(create,Backbone,_){
+    return create(Backbone.View,{
         initConfigList:[],
         initConfig:function(instanceConfig){
             var me = this,
+            configNameCache = create.configNameCache,
             prototype = me.constructor.prototype,
             initConfigList = me.initConfigList,
             defaultConfig = me.config;
@@ -34,6 +34,17 @@
                 nameMap = configNameCache[name];
                 me[nameMap.get] = me[nameMap.initGet];
             }
+            for (i = 0,ln = initConfigList.length; i < ln; i++) {
+                name = initConfigList[i];
+                nameMap = configNameCache[name];
+                getName = nameMap.get;
+
+                if (this.hasOwnProperty(getName)) {
+                    this[nameMap.set].call(this, config[name]);
+                    delete this[getName];
+                }
+            }
+            console.log(this)
         }
     })
 }))
