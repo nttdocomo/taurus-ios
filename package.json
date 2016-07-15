@@ -1,0 +1,27 @@
+{
+  "name": "taurus-ios",
+  "version": "1.0.0",
+  "description": "mobile UI framework",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "standard --verbose | snazzy --format"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nttdocomo/taurus-ios.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nttdocomo/taurus-ios/issues"
+  },
+  "homepage": "https://github.com/nttdocomo/taurus-ios#readme",
+  "devDependencies": {
+    "snazzy": "^4.0.0",
+    "standard": "^7.1.2"
+  }
+}
