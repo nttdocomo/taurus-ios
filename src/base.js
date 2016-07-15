@@ -1,5 +1,5 @@
 (function (root, factory) {
-   if(typeof define === "function") {
+   if (typeof define === "function") {
        if(define.amd){
            define(['./class/create','backbone','underscore','backbone-super'], factory);
        }
