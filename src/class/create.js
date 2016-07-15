@@ -12,9 +12,9 @@
        module.exports = factory(require('underscore'));
    }
 }(this, function(_){
-    var create = function(Class,data){
+    var create = function(Class,data,classProps){
         create.process(Class, data);
-        return Class.extend(data)
+        return Class.extend(data,classProps)
     };
     _.extend(create,{
         preprocessors:{},
@@ -167,6 +167,7 @@
                 }
             }
         }
+        Class.addConfig && Class.addConfig(config, true);
     })
     return create
 }))

@@ -14,12 +14,16 @@
 }(this, function(create,Backbone,_){
     return create(Backbone.View,{
         initConfigList:[],
+        initConfigMap: {},
+        defaultConfig:{},
         initConfig:function(instanceConfig){
             var me = this,
             configNameCache = create.configNameCache,
             prototype = me.constructor.prototype,
             initConfigList = me.initConfigList,
-            defaultConfig = me.config;
+            config = me.configClass,
+            defaultConfig = me.defaultConfig;
+            me.config = config;
             if (instanceConfig) {
                 initConfigList = initConfigList.slice();
                 for (name in instanceConfig) {
@@ -45,6 +49,47 @@
                 }
             }
             console.log(this)
+        }
+    }, {
+        /**
+         * @private
+         * @static
+         * @inheritable
+         */
+        addConfig: function(config, fullMerge) {
+            var prototype = this.prototype,
+                initConfigList = prototype.initConfigList,
+                initConfigMap = prototype.initConfigMap,
+                defaultConfig = prototype.defaultConfig,
+                hasInitConfigItem, name, value;
+
+            for (name in config) {
+                if (config.hasOwnProperty(name) && (fullMerge || !(name in defaultConfig))) {
+                    value = config[name];
+                    hasInitConfigItem = initConfigMap[name];
+
+                    if (value !== null) {
+                        if (!hasInitConfigItem) {
+                            initConfigMap[name] = true;
+                            initConfigList.push(name);
+                        }
+                    }
+                    else if (hasInitConfigItem) {
+                        initConfigMap[name] = false;
+                        initConfigList = _.without(initConfigList, name);
+                        //Ext.Array.remove(initConfigList, name);
+                    }
+                }
+            }
+
+            if (fullMerge) {
+                _.extend(defaultConfig, config);
+            }
+            else {
+                _.defaults(defaultConfig, config);
+            }
+
+            prototype.configClass = _.clone(defaultConfig);
         }
     })
 }))

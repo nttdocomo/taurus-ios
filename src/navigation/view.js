@@ -62,7 +62,15 @@
                     type: 'slide',
                     direction: 'left'
                 }
-            }
+            },
+
+            /**
+             * @cfg {Boolean} useTitleForBackButtonText
+             * Set to `false` if you always want to display the {@link #defaultBackButtonText} as the text
+             * on the back button. `true` if you want to use the previous views title.
+             * @accessor
+             */
+            useTitleForBackButtonText: false
         },
         // @private
         initialize: function() {
@@ -90,6 +98,82 @@
                 Ext.Logger.error('The base layout for a NavigationView must always be a Card Layout');
             }
             //</debug>
+        },
+        // @private
+        applyNavigationBar: function(config) {
+            var me = this;
+            if (!config) {
+                config = {
+                    hidden: true,
+                    docked: 'top'
+                };
+            }
+
+            if (config.title) {
+                delete config.title;
+                //<debug>
+                Ext.Logger.warn("Ext.navigation.View: The 'navigationBar' configuration does not accept a 'title' property. You " +
+                    "set the title of the navigationBar by giving this navigation view's children a 'title' property.");
+                //</debug>
+            }
+
+            config.view = this;
+            config.useTitleForBackButtonText = this.getUseTitleForBackButtonText();
+
+            // Blackberry specific nav setup where title is on the top title bar and the bottom toolbar is used for buttons and BACK
+            if (config.splitNavigation) {
+                this.$titleContainer = this.add({
+                    docked: 'top',
+                    xtype: 'titlebar',
+                    ui: 'light',
+                    title: this.$currentTitle || ''
+                });
+
+                var containerConfig = (config.splitNavigation === true) ? {} : config.splitNavigation;
+
+                this.$backButtonContainer = this.add({
+                    xtype: 'toolbar',
+                    docked: 'bottom',
+                    hidden: true
+                });
+
+                // Any item that is added to the BackButtonContainer should be monitored for visibility
+                // this will allow the toolbar to be hidden when no items exist in it.
+                this.$backButtonContainer.on ({
+                    scope: me,
+                    add: me.onBackButtonContainerAdd,
+                    remove: me.onBackButtonContainerRemove
+                });
+
+                this.$backButton = this.$backButtonContainer.add({
+                    xtype: 'button',
+                    text: 'Back',
+                    hidden: true,
+                    ui: 'back'
+                });
+
+                // Default config items go into the bottom bar
+                if(config.items) {
+                    this.$backButtonContainer.add(config.items);
+                }
+
+                // If the user provided items and splitNav items, default items go into the bottom bar, split nav items go into the top
+                if(containerConfig.items) {
+                    this.$titleContainer.add(containerConfig.items);
+                }
+
+                this.$backButton.on({
+                    scope: this,
+                    tap: this.onBackButtonTap
+                });
+
+                config = {
+                    hidden: true,
+                    docked: 'top'
+                };
+            }
+
+            return Ext.factory(config, Ext.navigation.Bar, this.getNavigationBar());
         }
 	});
 }));
