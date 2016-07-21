@@ -67,7 +67,8 @@
      * do a virtual dom diff and update the real DOM
      */
     _vDomRender: function () {
-      var me = this,newTree = me.template(me.model)
+      var me = this
+      var newTree = me.template(me.model)
 
       if (me._vDomElement) {
         var patches = diff(me._vDomElement, newTree)
