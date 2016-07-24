@@ -2,18 +2,18 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./class/create', './component'], factory)
+      define(['./core/define', './container'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./class/create'), require('./component'))
+        return factory(require('./core/define'), require('./container'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./class/create'), require('./component'))
+    module.exports = factory(require('./core/define'), require('./container'))
   }
-}(this, function (create, Component) {
-  return create(Component, {
+}(this, function (define, Container) {
+  return define(Container, {
     config: {
       /**
        * @cfg
@@ -86,6 +86,25 @@
        * @accessor
        */
       maxButtonWidth: '40%'
+    },
+
+    beforeInitialize: function () {
+      this.applyItems = this.applyInitialItems
+    },
+
+    initialize: function () {
+      delete this.applyItems
+
+      this.add(this.initialItems)
+      delete this.initialItems
+
+      this.on({
+        painted: 'refreshTitlePosition',
+        single: true
+      })
+    },
+    applyInitialItems: function () {
+      console.log('applyInitialItems')
     }
   })
 }))

@@ -5,18 +5,18 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../class/create', '../container', './bar'], factory)
+      define(['../core/define', '../container', './bar', '../core/factory'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../class/create'), require('../container'), require('./bar'))
+        return factory(require('../core/define'), require('../container'), require('./bar'), require('../core/factory'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../class/create'), require('../container'), require('./bar'))
+    module.exports = factory(require('../core/define'), require('../container'), require('./bar'), require('../core/factory'))
   }
-}(this, function (create, Component, Bar) {
-  return create(Component, {
+}(this, function (define, Component, Bar, factory) {
+  return define(Component, {
     config: {
       baseCls: 'navigationview',
       /**
@@ -100,6 +100,24 @@
       }
     // </debug>
     },
+
+    /**
+     * @private
+     */
+    applyActiveItem: function (activeItem, currentActiveItem) {
+      var me = this
+      var innerItems = me.getInnerItems()
+
+      // Make sure the items are already initialized
+      me.getItems()
+
+      // If we are not initialzed yet, we should set the active item to the last item in the stack
+      if (!me.initialized) {
+        activeItem = innerItems.length - 1
+      }
+
+      return this._super(activeItem, currentActiveItem)
+    },
     // @private
     applyNavigationBar: function (config) {
       var me = this
@@ -175,7 +193,7 @@
       }
 
       // return Ext.factory(config, Ext.navigation.Bar, this.getNavigationBar())
-      return new Bar(config)
+      return factory(config, Bar) // new Bar(config)
     }
   })
 }))

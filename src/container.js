@@ -5,18 +5,68 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./class/create', './component', 'underscore'], factory)
+      define(['./core/define', './component', 'underscore', './core/factory'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./class/create'), require('./component'), require('underscore'))
+        return factory(require('./core/define'), require('./component'), require('underscore'), require('./core/factory'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./class/create'), require('./component'), require('underscore'))
+    module.exports = factory(require('./core/define'), require('./component'), require('underscore'), require('./core/factory'))
   }
-}(this, function (create, Component, _) {
-  return create(Component, {
+}(this, function (define, Component, _, factory) {
+  return define(Component, {
+    eventedConfig: {
+      /**
+       * @cfg {Object/String/Number} activeItem The item from the {@link #cfg-items} collection that will be active first. This is
+       * usually only meaningful in a {@link Ext.layout.Card card layout}, where only one item can be active at a
+       * time. If passes a string, it will be assumed to be a {@link Ext.ComponentQuery} selector.
+       * @accessor
+       * @evented
+       */
+      activeItem: 0
+    },
+    config: {
+      /**
+       * @cfg {Object} defaults A set of default configurations to apply to all child Components in this Container.
+       * It's often useful to specify defaults when creating more than one items with similar configurations. For
+       * example here we can specify that each child is a panel and avoid repeating the xtype declaration for each
+       * one:
+       *
+       *     Ext.create('Ext.Container', {
+       *         defaults: {
+       *             xtype: 'panel'
+       *         },
+       *         items: [
+       *             {
+       *                 html: 'Panel 1'
+       *             },
+       *             {
+       *                 html: 'Panel 2'
+       *             }
+       *         ]
+       *     })
+       *
+       * @accessor
+       */
+      defaults: null,
+      /**
+         * @cfg {Array/Object} items The child items to add to this Container. This is usually an array of Component
+         * configurations or instances, for example:
+         *
+         *     Ext.create('Ext.Container', {
+         *         items: [
+         *             {
+         *                 xtype: 'panel',
+         *                 html: 'This is an item'
+         *             }
+         *         ]
+         *     })
+         * @accessor
+         */
+      items: null
+    },
     constructor: function (config) {
       var me = this
 
@@ -54,6 +104,80 @@
       return item
     },
 
+    /**
+     * @private
+     */
+    applyActiveItem: function (activeItem, currentActiveItem) {
+      var innerItems = this.getInnerItems()
+
+      // Make sure the items are already initialized
+      this.getItems()
+
+      // No items left to be active, reset back to 0 on falsy changes
+      if (!activeItem && innerItems.length === 0) {
+        return 0
+      } else if (typeof activeItem === 'number') {
+        activeItem = Math.max(0, Math.min(activeItem, innerItems.length - 1))
+        activeItem = innerItems[activeItem]
+
+        if (activeItem) {
+          return activeItem
+        } else if (currentActiveItem) {
+          return null
+        }
+      } else if (activeItem) {
+        var item
+
+        // ComponentQuery selector?
+        if (typeof activeItem === 'string') {
+          item = this.child(activeItem)
+
+          activeItem = {
+            xtype: activeItem
+          }
+        }
+
+        if (!item || !item.isComponent) {
+          item = this.factoryItem(activeItem)
+        }
+        this.pendingActiveItem = item
+
+        // <debug error>
+        if (!item.isInnerItem()) {
+          // Ext.Logger.error("Setting activeItem to be a non-inner item")
+        }
+        // </debug>
+
+        if (!this.has(item)) {
+          this.add(item)
+        }
+
+        return item
+      }
+    },
+
+    applyItems: function (items, collection) {
+      if (items) {
+        var me = this
+
+        me.getDefaultType()
+        me.getDefaults()
+
+        if (me.initialized && collection.length > 0) {
+          me.removeAll()
+        }
+
+        me.add(items)
+
+        // Don't need to call setActiveItem when Container is first initialized
+        if (me.initialized) {
+          var activeItem = me.initialConfig.activeItem || me.config.activeItem || 0
+
+          me.setActiveItem(activeItem)
+        }
+      }
+    },
+
     factoryItem: function (item) {
       // <debug error>
       if (!item) {
@@ -62,7 +186,7 @@
       }
       // </debug>
 
-      return Ext.factory(item, this.defaultItemClass)
+      return factory(item, this.defaultItemClass)
     },
 
     getElementConfig: function () {
@@ -71,9 +195,18 @@
         classList: ['x-container', 'x-unsized'],
         children: [{
           reference: 'innerElement',
-          className: 'x-inner'
+          classList: ['x-inner']
         }]
       }
+    },
+
+    /**
+     * Returns all inner {@link #property-items} of this container. `inner` means that the item is not `docked` or
+     * `floating`.
+     * @return {Array} The inner items of this container.
+     */
+    getInnerItems: function () {
+      return this.innerItems
     }
   })
 }))

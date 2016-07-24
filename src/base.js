@@ -2,24 +2,24 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./class/create', 'backbone', 'underscore', './util/observable', 'backbone-super', './underscore/deepClone'], factory)
+      define(['./core/define', 'backbone', 'underscore', './util/observable', 'backbone-super', './underscore/deepClone'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./class/create'), require('backbone'), require('underscore'), require('./util/observable'), require('backbone-super'), require('./underscore/deepClone'))
+        return factory(require('./core/define'), require('backbone'), require('underscore'), require('./util/observable'), require('backbone-super'), require('./underscore/deepClone'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./class/create'), require('backbone'), require('underscore'), require('./util/observable'), require('backbone-super'), require('./underscore/deepClone'))
+    module.exports = factory(require('./core/define'), require('backbone'), require('underscore'), require('./util/observable'), require('backbone-super'), require('./underscore/deepClone'))
   }
-}(this, function (create, Backbone, _, Observable) {
-  var Base = create(Backbone.View, {
+}(this, function (define, Backbone, _, Observable) {
+  var Base = define(Backbone.View, {
     initConfigList: [],
     initConfigMap: {},
     defaultConfig: {},
     initConfig: function (instanceConfig) {
       var me = this
-      var configNameCache = create.configNameCache
+      var configNameCache = define.configNameCache
       // var prototype = me.constructor.prototype
       var initConfigList = me.initConfigList
       var initConfigMap = this.initConfigMap
@@ -43,6 +43,7 @@
         nameMap = configNameCache[name]
         me[nameMap.get] = me[nameMap.initGet]
       }
+      me.beforeInitConfig(config)
       for (i = 0, ln = initConfigList.length; i < ln; i++) {
         name = initConfigList[i]
         nameMap = configNameCache[name]
@@ -63,9 +64,9 @@
      */
     addConfig: function (config, fullMerge) {
       var prototype = this.prototype
-      var initConfigList = prototype.initConfigList = []
+      var initConfigList = prototype.initConfigList
       var initConfigMap = prototype.initConfigMap
-      var defaultConfig = _.deepClone(prototype.defaultConfig)
+      var defaultConfig = prototype.defaultConfig
       var hasInitConfigItem, name, value
 
       for (name in config) {
@@ -95,6 +96,45 @@
       prototype.configClass = _.omit(_.deepClone(defaultConfig), function (value, key, object) {
         return _.isUndefined(value)
       })
+    },
+    generateSetter: function (nameMap) {
+      var internalName = nameMap.internal
+      var applyName = nameMap.apply
+      var changeEventName = nameMap.changeEvent
+      var doSetName = nameMap.doSet
+
+      return function (value) {
+        var initialized = this.initialized
+        var oldValue = this[internalName]
+        var applier = this[applyName]
+
+        if (applier) {
+          value = applier.call(this, value, oldValue)
+
+          if (typeof value === 'undefined') {
+            return this
+          }
+        }
+
+        // The old value might have been changed at this point
+        // (after the apply call chain) so it should be read again
+        oldValue = this[internalName]
+
+        if (value !== oldValue) {
+          if (initialized) {
+            this.fireAction(changeEventName, [this, value, oldValue], this.doSet, this, {
+              nameMap: nameMap
+            })
+          }else {
+            this[internalName] = value
+            if (this[doSetName]) {
+              this[doSetName](value, oldValue)
+            }
+          }
+        }
+
+        return this
+      }
     },
 
     // <feature classSystem.mixins>
@@ -136,6 +176,37 @@
       // </feature>
 
       prototype.mixins[name] = mixin
+    },
+    onClassExtended: function (Class, data) {
+      if (!data.hasOwnProperty('eventedConfig')) {
+        return
+      }
+
+      var ExtClass = define,
+        config = data.config,
+        eventedConfig = data.eventedConfig,
+        name, nameMap
+
+      data.config = (config) ? _.extend(config, eventedConfig) : eventedConfig
+
+      /*
+       * These are generated setters for eventedConfig
+       *
+       * If the component is initialized, it invokes fireAction to fire the event as well,
+       * which indicate something has changed. Otherwise, it just executes the action
+       * (happens during initialization)
+       *
+       * This is helpful when we only want the event to be fired for subsequent changes.
+       * Also it's a major performance improvement for instantiation when fired events
+       * are mostly useless since there's no listeners
+       */
+      for (name in eventedConfig) {
+        if (eventedConfig.hasOwnProperty(name)) {
+          nameMap = ExtClass.getConfigNameMap(name)
+
+          data[nameMap.set] = this.generateSetter(nameMap)
+        }
+      }
     }
   })
   /* Base.extend = function (protoProps, classProps) {
@@ -146,6 +217,6 @@
     parentPrototype.initConfigMap = _.clone(parentPrototype.initConfigMap)
     return Backbone.View.extend.apply(this, protoProps, classProps)
   }*/
-  Base.mixin(Observable);
+  Base.mixin(Observable)
   return Base
 }))

@@ -5,18 +5,18 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./class/create', './base', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'backbone-super'], factory)
+      define(['./core/define', './dom/element', './base', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'backbone-super'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./class/create'), require('./base'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'))
+        return factory(require('./core/define'), require('./dom/element'), require('./base'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./class/create'), require('./base'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'))
+    module.exports = factory(require('./core/define'), require('./dom/element'), require('./base'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'))
   }
-}(this, function (create, Base, h, diff, patch, createElement, renderQueue, dom2hscript, _) {
-  return create(Base, {
+}(this, function (define, Element, Base, h, diff, patch, createElement, renderQueue, dom2hscript, _) {
+  return define(Base, {
     replaceElement: true,
     config: {
       tpl: '<div><%=title%></div>'
@@ -32,6 +32,19 @@
       me.initElement()
       me.initConfig(me.initialConfig)
       Base.apply(me, arguments)
+      me.initialize()
+    },
+    beforeInitConfig: function (config) {
+      this.beforeInitialize.apply(this, arguments)
+    },
+
+    /**
+     * @private
+     */
+    beforeInitialize: function () {},
+    initElement: function () {
+      var renderElement = Element.create(this.getElementConfig(), true)
+      this.setElement(renderElement)
     },
     getTplData: function (model) {
       return {
@@ -53,7 +66,7 @@
       		me.el.appendChild(me._vDomElement)
       	}
       }*/
-      } else {// queue the render to the next animation frame
+      } else { // queue the render to the next animation frame
         renderQueue(me)
       }
 
@@ -61,7 +74,8 @@
     },
     template: function (model) {
       var me = this
-      return new Function('h', 'return ' + dom2hscript.parseHTML(_.template(me.tpl)(me.getTplData(model))))(h)
+      // return new Function('h', 'return ' + dom2hscript.parseHTML(_.template(me.tpl)(me.getTplData(model))))(h)
+      return this.getElementConfig()
     },
     /**
      * do a virtual dom diff and update the real DOM
