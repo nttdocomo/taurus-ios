@@ -14,15 +14,22 @@
   }
 }(this, function (_, Tau, createNS) {
   var define = function (className, Class, data, classProps) {
+    var args = Array.prototype.slice.call(arguments)
     if (typeof className !== 'string') {
       classProps = data
       data = Class
       Class = className
     } else {
       data.$className = className
+      args.splice(0, 1)
+    }
+    var child = Class.extend()
+    Class.triggerExtended.apply(Class, args)
+    if (data.onClassExtended) {
+      Class.onExtended(data.onClassExtended, Class)
+      delete data.onClassExtended
     }
     Class.onClassExtended && Class.onClassExtended(Class, data)
-    var child = Class.extend()
     var prototype = Class.prototype
     child.prototype.config = child.prototype.defaultConfig = prototype.config ? _.deepClone(prototype.config) : {}
     child.prototype.initConfigList = prototype.initConfigList ? prototype.initConfigList.slice() : []

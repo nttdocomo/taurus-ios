@@ -31,8 +31,8 @@
 
     insertInnerItem: function (item, index) {
       var container = this.container
-      // var containerDom = container.innerElement
-      var itemDom = item.$el
+      var containerDom = container.el
+      var itemDom = item.el
       var nextSibling = index !== -1 ? container.getInnerAt(index + 1) : null
       var nextSiblingDom = null
       var translatable
@@ -46,7 +46,7 @@
         }
       }
 
-      itemDom.insertBefore(nextSiblingDom)
+      containerDom.insertBefore(itemDom, nextSiblingDom)
 
       return this
     },

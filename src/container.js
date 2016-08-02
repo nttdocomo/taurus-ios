@@ -86,7 +86,7 @@
        *                 style: 'background-color: green'
        *             }
        *         ]
-       *     });
+       *     })
        *
        * See the [Layouts Guide](../../../core_concepts/layouts.html) for more information.
        *
@@ -233,7 +233,7 @@
 
       if (this.isRendered() && item.setRendered(true)) {
         layout['onItemAdd'](item, index)
-        // item.trigger('renderedchange', [this, item, true], 'onItemAdd', layout, { args: [item, index] })
+      // item.trigger('renderedchange', [this, item, true], 'onItemAdd', layout, { args: [item, index] })
       } else {
         layout.onItemAdd(item, index)
       }
@@ -309,6 +309,32 @@
 
       if (this.initialized) {
         this.trigger('add', this, item, index)
+      }
+    },
+
+    updateBaseCls: function (newBaseCls, oldBaseCls) {
+      var me = this
+      var ui = me.getUi()
+
+      if (oldBaseCls) {
+        this.element.removeClass(oldBaseCls)
+        this.innerElement.removeClass(newBaseCls, null, 'inner')
+
+        if (ui) {
+          this.element.removeClass(this.currentUi)
+        }
+      }
+
+      if (newBaseCls) {
+        this.element.addClass(newBaseCls)
+        this.innerElement.addClass(function(newBaseCls, null, 'inner') {
+          return "item-" + index;
+        })
+
+        if (ui) {
+          this.element.addClass(newBaseCls, null, ui)
+          this.currentUi = newBaseCls + '-' + ui
+        }
       }
     }
   })

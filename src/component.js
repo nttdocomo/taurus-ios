@@ -18,6 +18,109 @@
 }(this, function (define, Element, AbstractComponent, h, diff, patch, createElement, renderQueue, dom2hscript, _) {
   return define('Tau.Component', AbstractComponent, {
     replaceElement: true,
+    cachedConfig: {
+      /**
+       * @cfg {String} baseCls
+       * The base CSS class to apply to this component's element. This will also be prepended to
+       * other elements within this component. To add specific styling for sub-classes, use the {@link #cls} config.
+       * @accessor
+       */
+      baseCls: null,
+
+      /**
+       * @cfg {String/String[]} cls The CSS class to add to this component's element, in addition to the {@link #baseCls}
+       * @accessor
+       */
+      cls: null,
+
+      /**
+       * @cfg {String} [floatingCls="x-floating"] The CSS class to add to this component when it is floatable.
+       * @accessor
+       */
+      floatingCls: 'floating',
+
+      /**
+       * @cfg {String} [hiddenCls="x-item-hidden"] The CSS class to add to the component when it is hidden
+       * @accessor
+       */
+      hiddenCls: 'item-hidden',
+
+      /**
+       * @cfg {String} ui The ui to be used on this Component
+       */
+      ui: null,
+
+      /**
+       * @cfg {Number/String} margin The margin to use on this Component. Can be specified as a number (in which case
+       * all edges get the same margin) or a CSS string like '5 10 10 10'
+       * @accessor
+       */
+      margin: null,
+
+      /**
+       * @cfg {Number/String} padding The padding to use on this Component. Can be specified as a number (in which
+       * case all edges get the same padding) or a CSS string like '5 10 10 10'
+       * @accessor
+       */
+      padding: null,
+
+      /**
+       * @cfg {Number/String} border The border width to use on this Component. Can be specified as a number (in which
+       * case all edges get the same border width) or a CSS string like '5 10 10 10'.
+       *
+       * Please note that this will not add
+       * a `border-color` or `border-style` CSS property to the component; you must do that manually using either CSS or
+       * the {@link #style} configuration.
+       *
+       * ## Using {@link #style}:
+       *
+       *     Ext.Viewport.add({
+       *         centered: true,
+       *         width: 100,
+       *         height: 100,
+       *
+       *         border: 3,
+       *         style: 'border-color: blue; border-style: solid;'
+       *         // ...
+       *     })
+       *
+       * ## Using CSS:
+       *
+       *     Ext.Viewport.add({
+       *         centered: true,
+       *         width: 100,
+       *         height: 100,
+       *
+       *         border: 3,
+       *         cls: 'my-component'
+       *         // ...
+       *     })
+       *
+       * And your CSS file:
+       *
+       *     .my-component {
+       *         border-color: red
+       *         border-style: solid
+       *     }
+       *
+       * @accessor
+       */
+      border: null,
+
+      /**
+       * @cfg {String} [styleHtmlCls="x-html"]
+       * The class that is added to the content target when you set `styleHtmlContent` to `true`.
+       * @accessor
+       */
+      styleHtmlCls: 'html',
+
+      /**
+       * @cfg {Boolean} [styleHtmlContent=false]
+       * `true` to automatically style the HTML inside the content target of this component (body for panels).
+       * @accessor
+       */
+      styleHtmlContent: null
+    },
     eventedConfig: {
       /**
        * @cfg {String} docked

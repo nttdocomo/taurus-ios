@@ -52,6 +52,7 @@
   })
   Class.extend = Backbone.View.extend
   _.extend(Class, {
+    '$onExtended': [],
     mixin: function (mixinClass) {
       var mixin = mixinClass.prototype
       var prototype = this.prototype
@@ -84,7 +85,7 @@
       return this
       // </feature>
 
-      // prototype.mixins[name] = mixin
+    // prototype.mixins[name] = mixin
     },
     /**
      * @private
@@ -125,6 +126,37 @@
       prototype.configClass = _.omit(_.deepClone(defaultConfig), function (value, key, object) {
         return _.isUndefined(value)
       })
+    },
+
+    /**
+     * @private
+     * @static
+     * @inheritable
+     */
+    onExtended: function (fn, scope) {
+      this.$onExtended.push({
+        fn: fn,
+        scope: scope
+      })
+
+      return this
+    },
+    /**
+     * @private
+     * @static
+     * @inheritable
+     */
+    triggerExtended: function () {
+      var callbacks = this.$onExtended
+      var ln = callbacks.length
+      var i, callback
+
+      if (ln > 0) {
+        for (i = 0; i < ln; i++) {
+          callback = callbacks[i]
+          callback.fn.apply(callback.scope || this, arguments)
+        }
+      }
     }
   })
   return Class
