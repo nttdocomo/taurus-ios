@@ -5,18 +5,18 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../container', './bar', '../core/factory'], factory)
+      define(['../core/define', '../container', './bar', '../layout/card', '../core/factory'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../container'), require('./bar'), require('../core/factory'))
+        return factory(require('../core/define'), require('../container'), require('./bar'), require('../layout/card'), require('../core/factory'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../container'), require('./bar'), require('../core/factory'))
+    module.exports = factory(require('../core/define'), require('../container'), require('./bar'), require('../layout/card'), require('../core/factory'))
   }
-}(this, function (define, Component, Bar, factory) {
-  return define(Component, {
+}(this, function (define, Component, Bar, Card, factory) {
+  return define('Tau.navigation.View', Component, {
     config: {
       baseCls: 'navigationview',
       /**
@@ -56,7 +56,7 @@
        * @accessor
        */
       layout: {
-        type: 'card',
+        xclass: Card,
         animation: {
           duration: 300,
           easing: 'ease-out',
@@ -96,7 +96,7 @@
       // <debug>
       var layout = me.getLayout()
       if (layout && !layout.isCard) {
-        Ext.Logger.error('The base layout for a NavigationView must always be a Card Layout')
+        // Ext.Logger.error('The base layout for a NavigationView must always be a Card Layout')
       }
     // </debug>
     },
@@ -131,8 +131,8 @@
       if (config.title) {
         delete config.title
         // <debug>
-        Ext.Logger.warn("Ext.navigation.View: The 'navigationBar' configuration does not accept a 'title' property. You " +
-          "set the title of the navigationBar by giving this navigation view's children a 'title' property.")
+        // Ext.Logger.warn("Ext.navigation.View: The 'navigationBar' configuration does not accept a 'title' property. You " +
+          // "set the title of the navigationBar by giving this navigation view's children a 'title' property.")
       // </debug>
       }
 
@@ -194,6 +194,54 @@
 
       // return Ext.factory(config, Ext.navigation.Bar, this.getNavigationBar())
       return factory(config, Bar) // new Bar(config)
+    },
+
+    // @private
+    updateNavigationBar: function (newNavigationBar, oldNavigationBar) {
+      if (oldNavigationBar) {
+        this.remove(oldNavigationBar, true)
+      }
+
+      if (newNavigationBar) {
+        this.add(newNavigationBar)
+      }
+    },
+
+    /**
+     * @private
+     */
+    onItemAdd: function (item, index) {
+      // Check for title configuration
+      if (item && item.getDocked() && item.config.title === true) {
+        this.$titleContainer = item
+      }
+
+      this.doItemLayoutAdd(item, index)
+
+      var navigaitonBar = this.getInitialConfig().navigationBar
+
+      if (!this.isItemsInitializing && item.isInnerItem()) {
+        this.setActiveItem(item)
+
+        // Update the navigationBar
+        if (navigaitonBar) {
+          this.getNavigationBar().onViewAdd(this, item, index)
+        }
+
+        // Update the custom backButton
+        if (this.$backButtonContainer) {
+          this.$backButton.show()
+        }
+      }
+
+      if (item && item.isInnerItem()) {
+        // Update the title container title
+        this.updateTitleContainerTitle((item.getTitle) ? item.getTitle() : item.config.title)
+      }
+
+      if (this.initialized) {
+        this.fireEvent('add', this, item, index)
+      }
     }
   })
 }))

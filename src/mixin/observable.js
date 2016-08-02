@@ -2,20 +2,18 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../class/create', 'backbone', 'underscore', 'backbone-super', '../underscore/deepClone'], factory)
+      define(['../core/define', 'class', 'underscore', '../underscore/deepClone'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../class/create'), require('backbone'), require('underscore'), require('backbone-super'), require('../underscore/deepClone'))
+        return factory(require('../core/define'), require('class'), require('underscore'), require('../underscore/deepClone'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../class/create'), require('backbone'), require('underscore'), require('backbone-super'), require('../underscore/deepClone'))
+    module.exports = factory(require('../core/define'), require('class'), require('underscore'), require('../underscore/deepClone'))
   }
-}(this, function (create, Backbone, _) {
-  var Class = function () {}
-  Class.extend = Backbone.View.extend
-  return create(Class, {
+}(this, function (define, Class, _) {
+  return define(Class, {
     /**
      * @private
      * Creates an event handling function which re-fires the event from this object as the passed event name.
@@ -51,7 +49,7 @@
 
           object.on(oldName, this.createEventRelayer(newName), this)
         }
-      }else {
+      } else {
         for (oldName in events) {
           if (events.hasOwnProperty(oldName)) {
             newName = prefix + events[oldName]

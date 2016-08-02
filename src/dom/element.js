@@ -16,7 +16,7 @@
     module.exports = factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'))
   }
 }(this, function (define, Class, Backbone, inherits, _, h, createElement) {
-  var Element = define(Backbone.View, {
+  var Element = define(Class, {
     constructor: function () {}
   }, {
     hyperScript: function (attributes) {

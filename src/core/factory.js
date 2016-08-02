@@ -13,7 +13,17 @@
     module.exports = factory(require('underscore'), require('tau'))
   }
 }(this, function (_, Tau) {
-  return function (config, classReference) {
+  return function (config, ClassReference, instance) {
+    if (!config || config.isInstance) {
+      if (instance && instance !== config) {
+        instance.destroy()
+      }
+
+      return config
+    }
+    if (typeof config === 'function') {
+      return new config()
+    }
     if ('xclass' in config) {
       var Cls = config.xclass
       var newInstance = new Cls(config) // manager.instantiate(config.xclass, config)
@@ -21,6 +31,6 @@
         return newInstance
       }
     }
-    return new classReference(config);
+    return new ClassReference(config)
   }
 }))

@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './container'], factory)
+      define(['./core/define', './container', './component'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./container'))
+        return factory(require('./core/define'), require('./container'), require('./component'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./container'))
+    module.exports = factory(require('./core/define'), require('./container'), require('./component'))
   }
-}(this, function (define, Container) {
+}(this, function (define, Container, Component) {
   return define(Container, {
     config: {
       /**
@@ -103,8 +103,85 @@
         single: true
       })
     },
-    applyInitialItems: function () {
-      console.log('applyInitialItems')
+    applyInitialItems: function (items) {
+      var me = this
+      // var titleAlign = me.getTitleAlign()
+      // var defaults = me.getDefaults() || {}
+
+      me.initialItems = items
+
+      me.leftBox = me.add({
+        xclass: Container,
+        style: 'position: relative',
+        layout: {
+          type: 'hbox',
+          align: 'center'
+        },
+        listeners: {
+          resize: 'refreshTitlePosition',
+          scope: me
+        }
+      })
+
+      me.spacer = me.add({
+        xclass: Component,
+        style: 'position: relative',
+        flex: 1,
+        listeners: {
+          resize: 'refreshTitlePosition',
+          scope: me
+        }
+      })
+
+      me.rightBox = me.add({
+        xclass: Container,
+        style: 'position: relative',
+        layout: {
+          type: 'hbox',
+          align: 'center'
+        },
+        listeners: {
+          resize: 'refreshTitlePosition',
+          scope: me
+        }
+      })
+
+      /* switch (titleAlign) {
+        case 'left':
+          me.titleComponent = me.leftBox.add({
+            xtype: 'title',
+            cls: Ext.baseCSSPrefix + 'title-align-left',
+            hidden: defaults.hidden
+          })
+          me.refreshTitlePosition = Ext.emptyFn
+          break
+        case 'right':
+          me.titleComponent = me.rightBox.add({
+            xtype: 'title',
+            cls: Ext.baseCSSPrefix + 'title-align-right',
+            hidden: defaults.hidden
+          })
+          me.refreshTitlePosition = Ext.emptyFn
+          break
+        default:
+          me.titleComponent = me.add({
+            xtype: 'title',
+            hidden: defaults.hidden,
+            centered: true
+          })
+          break
+      }*/
+
+      me.doAdd = me.doBoxAdd
+    /* me.remove = me.doBoxRemove
+    me.doInsert = me.doBoxInsert*/
+    },
+    doBoxAdd: function (item) {
+      if (item.config.align === 'right') {
+        this.rightBox.add(item)
+      } else {
+        this.leftBox.add(item)
+      }
     }
   })
 }))

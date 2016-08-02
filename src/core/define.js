@@ -2,27 +2,39 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['underscore', 'tau', '../underscore/deepClone'], factory)
+      define(['underscore', 'tau', '../util/namespace', '../underscore/deepClone', '../polyfill/object/create'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('underscore'), require('tau'), require('../underscore/deepClone'))
+        return factory(require('underscore'), require('tau'), require('../util/namespace'), require('../underscore/deepClone'), require('../polyfill/object/create'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('underscore'), require('tau'), require('../underscore/deepClone'))
+    module.exports = factory(require('underscore'), require('tau'), require('../util/namespace'), require('../underscore/deepClone'), require('../polyfill/object/create'))
   }
-}(this, function (_, Tau) {
-  var define = function (Class, data, classProps) {
+}(this, function (_, Tau, createNS) {
+  var define = function (className, Class, data, classProps) {
+    if (typeof className !== 'string') {
+      classProps = data
+      data = Class
+      Class = className
+    } else {
+      data.$className = className
+    }
     Class.onClassExtended && Class.onClassExtended(Class, data)
     var child = Class.extend()
     var prototype = Class.prototype
     child.prototype.config = child.prototype.defaultConfig = prototype.config ? _.deepClone(prototype.config) : {}
     child.prototype.initConfigList = prototype.initConfigList ? prototype.initConfigList.slice() : []
+    child.prototype.initConfigMap = Object.create(prototype.initConfigMap)
     define.process(child, data)
     child = child.extend(data, classProps)
     /* child.prototype.initConfigList = prototype.initConfigList ? prototype.initConfigList.slice() : []
     child.prototype.initConfigMap = prototype.initConfigMap ? _.deepClone(prototype.initConfigMap) : {}*/
+    if (typeof className === 'string') {
+      data.$className = className
+      createNS(className, child)
+    }
     return child
   }
   _.extend(define, {

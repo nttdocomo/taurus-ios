@@ -51,7 +51,7 @@
       this.backButtonStack = []
       this.activeAnimations = []
 
-      TitleBar.apply(this, config)
+      TitleBar.call(this, config)
     }
   })
 }))

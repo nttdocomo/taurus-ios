@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './component', 'underscore', './core/factory'], factory)
+      define(['./core/define', './component', './itemCollection', 'underscore', './core/factory', './layout/default'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./component'), require('underscore'), require('./core/factory'))
+        return factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./component'), require('underscore'), require('./core/factory'))
+    module.exports = factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'))
   }
-}(this, function (define, Component, _, factory) {
+}(this, function (define, Component, ItemCollection, _, factory, Default) {
   return define(Component, {
     eventedConfig: {
       /**
@@ -65,12 +65,39 @@
          *     })
          * @accessor
          */
-      items: null
+      items: null,
+      /**
+       * @cfg {Object/String} layout Configuration for this Container's layout. Example:
+       *
+       *     Ext.create('Ext.Container', {
+       *         layout: {
+       *             type: 'hbox',
+       *             align: 'middle'
+       *         },
+       *         items: [
+       *             {
+       *                 xtype: 'panel',
+       *                 flex: 1,
+       *                 style: 'background-color: red;'
+       *             },
+       *             {
+       *                 xtype: 'panel',
+       *                 flex: 2,
+       *                 style: 'background-color: green'
+       *             }
+       *         ]
+       *     });
+       *
+       * See the [Layouts Guide](../../../core_concepts/layouts.html) for more information.
+       *
+       * @accessor
+       */
+      layout: null
     },
     constructor: function (config) {
       var me = this
 
-      me._items = me.items = []
+      me._items = me.items = new ItemCollection()
       me.innerItems = []
 
       me.onItemAdd = me.onFirstItemAdd
@@ -178,6 +205,40 @@
       }
     },
 
+    /**
+     * @private
+     * @param {Ext.Component} item
+     */
+    doAdd: function (item) {
+      var me = this
+      var items = me.getItems()
+      var index
+
+      if (!items.has(item)) {
+        index = items.length
+        items.add(item)
+
+        if (item.isInnerItem()) {
+          me.insertInner(item)
+        }
+
+        item.setParent(me)
+
+        me.onItemAdd(item, index)
+      }
+    },
+
+    doItemLayoutAdd: function (item, index) {
+      var layout = this.getLayout()
+
+      if (this.isRendered() && item.setRendered(true)) {
+        layout['onItemAdd'](item, index)
+        // item.trigger('renderedchange', [this, item, true], 'onItemAdd', layout, { args: [item, index] })
+      } else {
+        layout.onItemAdd(item, index)
+      }
+    },
+
     factoryItem: function (item) {
       // <debug error>
       if (!item) {
@@ -207,6 +268,48 @@
      */
     getInnerItems: function () {
       return this.innerItems
+    },
+    getLayout: function () {
+      var layout = this.layout
+      if (!layout) {
+        layout = this.link('_layout', this.link('layout', factory(this._layout || Default, Default, null, 'layout')))
+        layout.setContainer(this)
+      }
+
+      return layout
+    },
+    innerIndexOf: function (item) {
+      return this.innerItems.indexOf(item)
+    },
+
+    /**
+     * Initialize layout and event listeners the very first time an item is added
+     * @private
+     */
+    onFirstItemAdd: function () {
+      delete this.onItemAdd
+
+      if (this.innerHtmlElement && !this.getHtml()) {
+        this.innerHtmlElement.destroy()
+        delete this.innerHtmlElement
+      }
+
+      this.on('innerstatechange', 'onItemInnerStateChange', this, {
+        delegate: '> component'
+      })
+
+      return this.onItemAdd.apply(this, arguments)
+    },
+
+    /**
+     * @private
+     */
+    onItemAdd: function (item, index) {
+      this.doItemLayoutAdd(item, index)
+
+      if (this.initialized) {
+        this.trigger('add', this, item, index)
+      }
     }
   })
 }))

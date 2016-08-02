@@ -5,13 +5,13 @@
     // value to the root (window) and returning it as well to
     // the AMD loader.
     if (define.amd) {
-      define(function () {
+      define(['backbone', 'underscore', 'backbone-super'], function () {
         return (root.Class = factory())
       })
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return (root.Class = factory())
+        return (root.Class = factory(require('backbone'), require('underscore'), require('backbone-super')))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -19,70 +19,113 @@
     // run into a scenario where plain modules depend on CommonJS
     // *and* I happen to be loading in a CJS browser environment
     // but I'm including it for the sake of being thorough
-    module.exports = (root.Class = factory())
+    module.exports = (root.Class = factory(require('backbone'), require('underscore'), require('backbone-super')))
   } else {
     root.Class = factory()
   }
-}(this, function () {
-  var initializing = false,
-    fnTest = /xyz/.test(function () {
-      xyz
-    }) ? /\b_super\b/ : /.*/
-
-  // The base Class implementation (does nothing)
+}(this, function (Backbone, _) {
   var Class = function () {}
+  _.extend(Class.prototype, Backbone.Events, {
+    initConfigMap: {},
+    isInstance: true,
+    // </feature>
 
-  // Create a new Class that inherits from this class
-  Class.extend = function (prop) {
-    var _super = this.prototype
+    /**
+     * @private
+     * @param {String} name
+     * @param {Mixed} value
+     * @return {Mixed}
+     */
+    link: function (name, value) {
+      this.$links = {}
+      this.link = this.doLink
+      return this.link.apply(this, arguments)
+    },
 
-    // Instantiate a base class (but only create the instance,
-    // don't run the init constructor)
-    initializing = true
-    var prototype = new this()
-    initializing = false
+    doLink: function (name, value) {
+      this.$links[name] = true
 
-    // Copy the properties over onto the new prototype
-    for (var name in prop) {
-      // Check if we're overwriting an existing function
-      prototype[name] = typeof prop[name] == 'function' &&
-      typeof _super[name] == 'function' && fnTest.test(prop[name]) ?
-        (function (name, fn) {
-          return function () {
-            var tmp = this._super
+      this[name] = value
 
-            // Add a new ._super() method that is the same method
-            // but on the super-class
-            this._super = _super[name]
+      return value
+    }
+  })
+  Class.extend = Backbone.View.extend
+  _.extend(Class, {
+    mixin: function (mixinClass) {
+      var mixin = mixinClass.prototype
+      var prototype = this.prototype
+      var key
 
-            // The method only need to be bound temporarily, so we
-            // remove it when we're done executing
-            var ret = fn.apply(this, arguments)
-            this._super = tmp
+      if (typeof mixin.onClassMixedIn !== 'undefined') {
+        mixin.onClassMixedIn.call(mixinClass, this)
+      }
 
-            return ret
+      if (!prototype.hasOwnProperty('mixins')) {
+        if ('mixins' in prototype) {
+          prototype.mixins = _.clone(prototype.mixins)
+        } else {
+          prototype.mixins = {}
+        }
+      }
+
+      for (key in mixin) {
+        if (key === 'mixins') {
+          _.extend(prototype.mixins, mixin[key])
+        } else if (typeof prototype[key] === 'undefined' && key !== 'mixinId' && key !== 'config') {
+          prototype[key] = mixin[key]
+        }
+      }
+
+      // <feature classSystem.config>
+      if ('config' in mixin) {
+        this.addConfig(mixin.config, false)
+      }
+      return this
+      // </feature>
+
+      // prototype.mixins[name] = mixin
+    },
+    /**
+     * @private
+     * @static
+     * @inheritable
+     */
+    addConfig: function (config, fullMerge) {
+      var prototype = this.prototype
+      var initConfigList = prototype.initConfigList
+      var initConfigMap = prototype.initConfigMap
+      var defaultConfig = prototype.defaultConfig
+      var hasInitConfigItem, name, value
+
+      for (name in config) {
+        if (config.hasOwnProperty(name) && (fullMerge || !(name in defaultConfig))) {
+          value = config[name]
+          hasInitConfigItem = initConfigMap[name]
+
+          if (value !== null) {
+            if (!hasInitConfigItem) {
+              initConfigMap[name] = true
+              initConfigList.push(name)
+            }
+          } else if (hasInitConfigItem) {
+            initConfigMap[name] = false
+            initConfigList = _.without(initConfigList, name)
+          // Ext.Array.remove(initConfigList, name)
           }
-        })(name, prop[name]) :
-        prop[name]
+        }
+      }
+
+      if (fullMerge) {
+        _.extend(defaultConfig, config)
+      } else {
+        _.defaults(defaultConfig, config)
+      }
+
+      prototype.configClass = _.omit(_.deepClone(defaultConfig), function (value, key, object) {
+        return _.isUndefined(value)
+      })
     }
-
-    // The dummy class constructor
-    function Class () {
-      // All construction is actually done in the init method
-      if (!initializing && this.init)
-        this.init.apply(this, arguments)
-    }
-
-    // Populate our constructed prototype object
-    Class.prototype = prototype
-
-    // Enforce the constructor to be what we expect
-    Class.prototype.constructor = Class
-
-    // And make this class extendable
-    Class.extend = arguments.callee
-
-    return Class
-  }
+  })
   return Class
 }))
