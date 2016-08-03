@@ -5,15 +5,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './dom/element', './abstractComponent', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'backbone-super'], factory)
+      define(['./core/define', './dom/element', './abstractComponent', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'backbone-super', './jquery/replaceClass'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'))
+        return factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'), require('./jquery/replaceClass'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'))
+    module.exports = factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'), require('./jquery/replaceClass'))
   }
 }(this, function (define, Element, AbstractComponent, h, diff, patch, createElement, renderQueue, dom2hscript, _) {
   return define('Tau.Component', AbstractComponent, {
@@ -291,6 +291,38 @@
       this.$el.toggleClass(className)
 
       return this
+    },
+    updateBaseCls: function (newBaseCls, oldBaseCls) {
+      var me = this
+      var ui = me.getUi()
+
+      if (oldBaseCls) {
+        me.element.removeClass(oldBaseCls)
+
+        if (ui) {
+          me.element.removeClass(me.currentUi)
+        }
+      }
+
+      if (newBaseCls) {
+        me.element.addClass(newBaseCls)
+
+        if (ui) {
+          me.element.addClass(function () {
+            return [newBaseCls, ui].join('-')
+          })
+          me.currentUi = newBaseCls + '-' + ui
+        }
+      }
+    },
+    /**
+     * @private
+     * All cls methods directly report to the {@link #cls} configuration, so anytime it changes, {@link #updateCls} will be called
+     */
+    updateCls: function (newCls, oldCls) {
+      if (this.element && ((newCls && !oldCls) || (!newCls && oldCls) || newCls.length !== oldCls.length || _.difference(newCls, oldCls).length > 0)) {
+        this.element.replaceClass(oldCls, newCls)
+      }
     },
     /**
      * do a virtual dom diff and update the real DOM

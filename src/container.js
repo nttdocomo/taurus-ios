@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './component', './itemCollection', 'underscore', './core/factory', './layout/default'], factory)
+      define(['./core/define', './component', './itemCollection', 'underscore', './core/factory', './layout/default', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'))
+        return factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'))
+    module.exports = factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'), require('tau'))
   }
-}(this, function (define, Component, ItemCollection, _, factory, Default) {
+}(this, function (define, Component, ItemCollection, _, factory, Default, Tau) {
   return define(Component, {
     eventedConfig: {
       /**
@@ -253,10 +253,10 @@
     getElementConfig: function () {
       return {
         reference: 'element',
-        classList: ['x-container', 'x-unsized'],
+        classList: [Tau.baseCSSPrefix + 'container', Tau.baseCSSPrefix + 'unsized'],
         children: [{
           reference: 'innerElement',
-          classList: ['x-inner']
+          classList: [Tau.baseCSSPrefix + 'inner']
         }]
       }
     },
@@ -318,7 +318,9 @@
 
       if (oldBaseCls) {
         this.element.removeClass(oldBaseCls)
-        this.innerElement.removeClass(newBaseCls, null, 'inner')
+        this.innerElement.removeClass(function (index, currentClassName) {
+          return [newBaseCls, 'inner'].join('-')
+        })
 
         if (ui) {
           this.element.removeClass(this.currentUi)
@@ -327,8 +329,8 @@
 
       if (newBaseCls) {
         this.element.addClass(newBaseCls)
-        this.innerElement.addClass(function(newBaseCls, null, 'inner') {
-          return "item-" + index;
+        this.innerElement.addClass(function (index, currentClassName) {
+          return [newBaseCls, 'inner'].join('-')
         })
 
         if (ui) {

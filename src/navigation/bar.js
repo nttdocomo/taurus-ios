@@ -2,30 +2,30 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../titleBar'], factory)
+      define(['../core/define', '../titleBar', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../titleBar'))
+        return factory(require('../core/define'), require('../titleBar'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../titleBar'))
+    module.exports = factory(require('../core/define'), require('../titleBar'), require('tau'))
   }
-}(this, function (define, TitleBar) {
+}(this, function (define, TitleBar, Tau) {
   return define(TitleBar, {
     config: {
       /**
        * @cfg
        * @inheritdoc
        */
-      baseCls: 'toolbar',
+      baseCls: Tau.baseCSSPrefix + 'toolbar',
 
       /**
        * @cfg
        * @inheritdoc
        */
-      cls: 'navigation-bar',
+      cls: Tau.baseCSSPrefix + 'navigation-bar',
       /**
          * @cfg {String} title
          * The title of the toolbar. You should NEVER set this, it is used internally. You set the title of the

@@ -2,30 +2,30 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './container', './component'], factory)
+      define(['./core/define', './container', './component', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./container'), require('./component'))
+        return factory(require('./core/define'), require('./container'), require('./component'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./container'), require('./component'))
+    module.exports = factory(require('./core/define'), require('./container'), require('./component'), require('tau'))
   }
-}(this, function (define, Container, Component) {
+}(this, function (define, Container, Component, Tau) {
   return define(Container, {
     config: {
       /**
        * @cfg
        * @inheritdoc
        */
-      baseCls: 'toolbar',
+      baseCls: Tau.baseCSSPrefix + 'toolbar',
 
       /**
        * @cfg
        * @inheritdoc
        */
-      cls: 'navigation-bar',
+      cls: Tau.baseCSSPrefix + 'navigation-bar',
 
       /**
        * @cfg {String} ui
