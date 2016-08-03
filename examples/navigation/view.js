@@ -1,6 +1,7 @@
 /*global define*/
 define(function (require) {
   var View = require('../../src/navigation/view')
+  var List = require('../../src/dataview/list')
   var Button = require('../../src/button')
   // var factory = require('../../src/core/factory')
   var define = require('../../src/core/define')
@@ -37,9 +38,13 @@ define(function (require) {
 	          duration: 200
 	        }*/
         }]
-      }
+      },
+      items: [{
+        xclass: List
+      }]
     }
   })
+  // var Contacts = define()
   var navigationView = new NavigationView()
   $(document.body).append(navigationView.$el)
 })

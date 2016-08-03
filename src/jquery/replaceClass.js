@@ -37,8 +37,10 @@
       var el = this[i]
       if (el.nodeType === 1) {
         var classNames = el.className.split(/\s+/)
-        for (var n = classNames.length; n--;) {
-          if (removeTest(oldClass, classNames[n])) classNames.splice(n, 1)
+        if (oldClass) {
+          for (var n = classNames.length; n--;) {
+            if (removeTest(oldClass, classNames[n])) classNames.splice(n, 1)
+          }
         }
         if (newClass) classNames.push(newClass)
         el.className = classNames.join(' ')

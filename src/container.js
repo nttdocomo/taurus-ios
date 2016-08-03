@@ -51,6 +51,12 @@
        * @accessor
        */
       defaults: null,
+      /** @cfg {String} defaultType
+       * The default {@link Ext.Component xtype} of child Components to create in this Container when a child item
+       * is specified as a raw configuration object, rather than as an instantiated Component.
+       * @accessor
+       */
+      defaultType: null,
       /**
          * @cfg {Array/Object} items The child items to add to this Container. This is usually an array of Component
          * configurations or instances, for example:
