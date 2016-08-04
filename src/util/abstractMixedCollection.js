@@ -75,6 +75,15 @@
       me.keys.push(myKey)
       me.trigger('add', me.length - 1, myObj, myKey)
       return myObj
+    },
+
+    /**
+     * Returns index within the collection of the passed Object.
+     * @param {Object} o The item to find the index of.
+     * @return {Number} index of the item. Returns -1 if not found.
+     */
+    indexOf: function(o){
+      return _.indexOf(this.items, o)
     }
   }).mixin(Observable)
 }))

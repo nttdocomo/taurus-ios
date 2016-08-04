@@ -43,6 +43,16 @@
       navigationBar: {
         docked: 'top'
       },
+
+      /**
+       * @cfg {String} defaultBackButtonText
+       * The text to be displayed on the back button if:
+       *
+       * - The previous view does not have a title.
+       * - The {@link #useTitleForBackButtonText} configuration is `true`.
+       * @accessor
+       */
+      defaultBackButtonText: 'Back',
       /**
        * @cfg {Object}
        * Layout used in this navigation view, type must be set to 'card'.
@@ -130,9 +140,9 @@
 
       if (config.title) {
         delete config.title
-        // <debug>
-        // Ext.Logger.warn("Ext.navigation.View: The 'navigationBar' configuration does not accept a 'title' property. You " +
-          // "set the title of the navigationBar by giving this navigation view's children a 'title' property.")
+      // <debug>
+      // Ext.Logger.warn("Ext.navigation.View: The 'navigationBar' configuration does not accept a 'title' property. You " +
+      // "set the title of the navigationBar by giving this navigation view's children a 'title' property.")
       // </debug>
       }
 
@@ -241,6 +251,26 @@
 
       if (this.initialized) {
         this.fireEvent('add', this, item, index)
+      }
+    },
+
+    /**
+     * @private
+     * Updates the title of the titleContainer, if it exists
+     */
+    updateTitleContainerTitle: function (title) {
+      if (this.$titleContainer) {
+        // <debug>
+        if (!this.$titleContainer.setTitle) {
+          /* Ext.Logger.error('You have selected to display a title in a component that does not \
+                    support titles in NavigationView. Please remove the `title` configuration from your \
+                    NavigationView item, or change it to a component that has a `setTitle` method.')*/
+        }
+        // </debug>
+
+        this.$titleContainer.setTitle(title)
+      }else {
+        this.$currentTitle = title
       }
     }
   })

@@ -267,6 +267,10 @@
       }
     },
 
+    getInnerAt: function (index) {
+      return this.innerItems[index]
+    },
+
     /**
      * Returns all inner {@link #property-items} of this container. `inner` means that the item is not `docked` or
      * `floating`.
@@ -284,8 +288,54 @@
 
       return layout
     },
+
+    /**
+     * @private
+     */
+    has: function (item) {
+      return this.getItems().indexOf(item) !== -1
+    },
     innerIndexOf: function (item) {
       return this.innerItems.indexOf(item)
+    },
+
+    /**
+     * @private
+     * @param {Ext.Component} item
+     * @param {Number} index
+     */
+    insertInner: function (item, index) {
+      var items = this.getItems().items
+      var innerItems = this.innerItems
+      var currentInnerIndex = innerItems.indexOf(item)
+      var newInnerIndex = -1
+      var nextSibling
+
+      if (currentInnerIndex !== -1) {
+        innerItems.splice(currentInnerIndex, 1)
+      }
+
+      if (typeof index === 'number') {
+        do {
+          nextSibling = items[++index]
+        } while (nextSibling && !nextSibling.isInnerItem())
+
+        if (nextSibling) {
+          newInnerIndex = innerItems.indexOf(nextSibling)
+          innerItems.splice(newInnerIndex, 0, item)
+        }
+      }
+
+      if (newInnerIndex === -1) {
+        innerItems.push(item)
+        newInnerIndex = innerItems.length - 1
+      }
+
+      if (currentInnerIndex !== -1) {
+        this.onInnerItemMove(item, newInnerIndex, currentInnerIndex)
+      }
+
+      return this
     },
 
     /**

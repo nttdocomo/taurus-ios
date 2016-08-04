@@ -44,6 +44,12 @@
        * @accessor
        */
       hiddenCls: 'item-hidden',
+      /**
+       * @cfg {String/Ext.Element/HTMLElement} html Optional HTML content to render inside this Component, or a reference
+       * to an existing element on the page.
+       * @accessor
+       */
+      html: null,
 
       /**
        * @cfg {String} ui The ui to be used on this Component
@@ -167,6 +173,11 @@
        */
       itemId: undefined
     },
+
+    /**
+     * @private
+     */
+    isInner: true,
     template: [],
     floating: false,
     LAYOUT_BOTH: 0x3,

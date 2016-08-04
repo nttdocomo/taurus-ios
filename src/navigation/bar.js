@@ -16,6 +16,16 @@
   return define(TitleBar, {
     config: {
       /**
+       * @cfg {Ext.Button/Object} backButton The configuration for the back button
+       * @private
+       * @accessor
+       */
+      backButton: {
+        align: 'left',
+        ui: 'back',
+        hidden: true
+      },
+      /**
        * @cfg
        * @inheritdoc
        */
@@ -52,6 +62,91 @@
       this.activeAnimations = []
 
       TitleBar.call(this, config)
+    },
+
+    /**
+     * @private
+     */
+    doChangeView: function (view, hasPrevious, reverse) {
+      var me = this,
+        leftBox = me.leftBox,
+        leftBoxElement = leftBox.element,
+        titleComponent = me.titleComponent,
+        titleElement = titleComponent.element,
+        backButton = me.getBackButton(),
+        titleText = me.getTitleText(),
+        backButtonText = me.getBackButtonText(),
+        animation = me.getAnimation() && view.getLayout().getAnimation(),
+        animated = animation && animation.isAnimation && view.isPainted(),
+        properties, leftGhost, titleGhost, leftProps, titleProps
+
+      if (animated) {
+        leftGhost = me.createProxy(leftBox.element)
+        leftBoxElement.setStyle('opacity', '0')
+        backButton.setText(backButtonText)
+        backButton[hasPrevious ? 'show' : 'hide']()
+
+        titleGhost = me.createProxy(titleComponent.element.getParent())
+        titleElement.setStyle('opacity', '0')
+        me.setTitle(titleText)
+
+        properties = me.measureView(leftGhost, titleGhost, reverse)
+        leftProps = properties.left
+        titleProps = properties.title
+
+        me.isAnimating = true
+        me.animate(leftBoxElement, leftProps.element)
+        me.animate(titleElement, titleProps.element, function () {
+          titleElement.setLeft(properties.titleLeft)
+          me.isAnimating = false
+          me.refreshTitlePosition()
+        })
+
+        if (Ext.browser.is.AndroidStock2 && !this.getAndroid2Transforms()) {
+          leftGhost.ghost.destroy()
+          titleGhost.ghost.destroy()
+        }else {
+          me.animate(leftGhost.ghost, leftProps.ghost)
+          me.animate(titleGhost.ghost, titleProps.ghost, function () {
+            leftGhost.ghost.destroy()
+            titleGhost.ghost.destroy()
+          })
+        }
+      }else {
+        if (hasPrevious) {
+          backButton.setText(backButtonText)
+          backButton.show()
+        }else {
+          backButton.hide()
+        }
+        me.setTitle(titleText)
+      }
+    },
+
+    /**
+     * Returns the text needed for the current title at anytime.
+     * @private
+     */
+    getTitleText: function () {
+      return this.backButtonStack[this.backButtonStack.length - 1]
+    },
+
+    /**
+     * @private
+     */
+    onViewAdd: function (view, item) {
+      var me = this
+      var backButtonStack = me.backButtonStack
+      var hasPrevious, title
+
+      // me.endAnimation()
+
+      title = (item.getTitle) ? item.getTitle() : item.config.title
+
+      backButtonStack.push(title || '&nbsp;')
+      hasPrevious = backButtonStack.length > 1
+
+      me.doChangeView(view, hasPrevious, false)
     }
   })
 }))
