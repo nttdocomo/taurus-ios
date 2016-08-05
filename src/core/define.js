@@ -31,7 +31,7 @@
     }
     Class.onClassExtended && Class.onClassExtended(Class, data)
     var prototype = Class.prototype
-    child.prototype.config = child.prototype.defaultConfig = prototype.config ? _.deepClone(prototype.config) : {}
+    child.prototype.config = child.prototype.defaultConfig = prototype.configClass && new prototype.configClass()
     child.prototype.initConfigList = prototype.initConfigList ? prototype.initConfigList.slice() : []
     child.prototype.initConfigMap = Object.create(prototype.initConfigMap)
     define.process(child, data)

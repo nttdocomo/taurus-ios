@@ -2,19 +2,27 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../titleBar', 'tau'], factory)
+      define(['../core/define', '../core/factory', '../titleBar', '../button', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../titleBar'), require('tau'))
+        return factory(require('../core/define'), require('../core/factory'), require('../titleBar'), require('../button'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../titleBar'), require('tau'))
+    module.exports = factory(require('../core/define'), require('../core/factory'), require('../titleBar'), require('../button'), require('tau'))
   }
-}(this, function (define, TitleBar, Tau) {
+}(this, function (define, factory, TitleBar, Button, Tau) {
   return define(TitleBar, {
     config: {
+      /**
+       * @cfg {Object} animation
+       * @private
+       * @accessor
+       */
+      animation: {
+        duration: 300
+      },
       /**
        * @cfg {Ext.Button/Object} backButton The configuration for the back button
        * @private
@@ -43,7 +51,16 @@
          * @private
          * @accessor
          */
-      title: null
+      title: null,
+
+      /**
+       * @cfg {Boolean} useTitleForBackButtonText
+       * Set to false if you always want to display the {@link #defaultBackButtonText} as the text
+       * on the back button. True if you want to use the previous views title.
+       * @private
+       * @accessor
+       */
+      useTitleForBackButtonText: null
     },
     /**
      * @event back
@@ -67,18 +84,43 @@
     /**
      * @private
      */
+    applyBackButton: function (config) {
+      return factory(config, Button, this.getBackButton())
+    },
+
+    /**
+     * @private
+     */
+    updateBackButton: function (newBackButton, oldBackButton) {
+      if (oldBackButton) {
+        this.remove(oldBackButton)
+      }
+
+      if (newBackButton) {
+        this.add(newBackButton)
+
+        newBackButton.on({
+          scope: this,
+          tap: this.onBackButtonTap
+        })
+      }
+    },
+
+    /**
+     * @private
+     */
     doChangeView: function (view, hasPrevious, reverse) {
-      var me = this,
-        leftBox = me.leftBox,
-        leftBoxElement = leftBox.element,
-        titleComponent = me.titleComponent,
-        titleElement = titleComponent.element,
-        backButton = me.getBackButton(),
-        titleText = me.getTitleText(),
-        backButtonText = me.getBackButtonText(),
-        animation = me.getAnimation() && view.getLayout().getAnimation(),
-        animated = animation && animation.isAnimation && view.isPainted(),
-        properties, leftGhost, titleGhost, leftProps, titleProps
+      var me = this
+      var leftBox = me.leftBox
+      var leftBoxElement = leftBox.element
+      var titleComponent = me.titleComponent
+      var titleElement = titleComponent.element
+      var backButton = me.getBackButton()
+      var titleText = me.getTitleText()
+      var backButtonText = me.getBackButtonText()
+      var animation = me.getAnimation() && view.getLayout().getAnimation()
+      var animated = animation && animation.isAnimation && view.isPainted()
+      var properties, leftGhost, titleGhost, leftProps, titleProps
 
       if (animated) {
         leftGhost = me.createProxy(leftBox.element)
@@ -105,22 +147,39 @@
         if (Ext.browser.is.AndroidStock2 && !this.getAndroid2Transforms()) {
           leftGhost.ghost.destroy()
           titleGhost.ghost.destroy()
-        }else {
+        } else {
           me.animate(leftGhost.ghost, leftProps.ghost)
           me.animate(titleGhost.ghost, titleProps.ghost, function () {
             leftGhost.ghost.destroy()
             titleGhost.ghost.destroy()
           })
         }
-      }else {
+      } else {
         if (hasPrevious) {
           backButton.setText(backButtonText)
           backButton.show()
-        }else {
+        } else {
           backButton.hide()
         }
         me.setTitle(titleText)
       }
+    },
+
+    /**
+     * Returns the text needed for the current back button at anytime.
+     * @private
+     */
+    getBackButtonText: function () {
+      var text = this.backButtonStack[this.backButtonStack.length - 2]
+      var useTitleForBackButtonText = this.getUseTitleForBackButtonText()
+
+      if (!useTitleForBackButtonText) {
+        if (text) {
+          text = this.getDefaultBackButtonText()
+        }
+      }
+
+      return text
     },
 
     /**

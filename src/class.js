@@ -5,13 +5,13 @@
     // value to the root (window) and returning it as well to
     // the AMD loader.
     if (define.amd) {
-      define(['backbone', 'underscore', 'backbone-super'], function () {
+      define(['backbone', 'underscore', './polyfill/object/classify', 'backbone-super'], function () {
         return (root.Class = factory())
       })
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return (root.Class = factory(require('backbone'), require('underscore'), require('backbone-super')))
+        return (root.Class = factory(require('backbone'), require('underscore'), require('./polyfill/object/classify'), require('backbone-super')))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -19,7 +19,7 @@
     // run into a scenario where plain modules depend on CommonJS
     // *and* I happen to be loading in a CJS browser environment
     // but I'm including it for the sake of being thorough
-    module.exports = (root.Class = factory(require('backbone'), require('underscore'), require('backbone-super')))
+    module.exports = (root.Class = factory(require('backbone'), require('underscore'), require('./polyfill/object/classify'), require('backbone-super')))
   } else {
     root.Class = factory()
   }
@@ -123,9 +123,9 @@
         _.defaults(defaultConfig, config)
       }
 
-      prototype.configClass = _.omit(_.deepClone(defaultConfig), function (value, key, object) {
+      prototype.configClass = Object.classify(defaultConfig)/* _.omit(_.deepClone(defaultConfig), function (value, key, object) {
         return _.isUndefined(value)
-      })
+      })*/
     },
 
     /**

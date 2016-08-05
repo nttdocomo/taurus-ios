@@ -295,6 +295,13 @@
     has: function (item) {
       return this.getItems().indexOf(item) !== -1
     },
+
+    /**
+     * @private
+     */
+    indexOf: function (item) {
+      return this.getItems().indexOf(item)
+    },
     innerIndexOf: function (item) {
       return this.innerItems.indexOf(item)
     },
