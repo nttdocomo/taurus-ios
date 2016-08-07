@@ -17,6 +17,24 @@
   }
 }(this, function (define, Element, Base, h, diff, patch, createElement, renderQueue, dom2hscript, _, Backbone) {
   return define('Tau.AbstractComponent', Base, {
+    /**
+     * @private
+     * Significantly improve instantiation time for Component with multiple references
+     * Ext.Element instance of the reference domNode is only created the very first time
+     * it's ever used.
+     */
+    addReferenceNode: function (name, domNode) {
+      Object.defineProperty(this, name, {
+        get: function () {
+          var reference
+
+          delete this[name]
+          this[name] = reference = new Element(domNode)
+          return reference
+        },
+        configurable: true
+      })
+    },
     onClassExtended: function (Class, members) {
       if (!members.hasOwnProperty('cachedConfig')) {
         return
@@ -56,20 +74,31 @@
       var me = this
       var prototype = this.constructor.prototype
       var elementConfig = this.getElementConfig()
-      var renderElement = Element.create(elementConfig, true)
+      var element = Element.create(elementConfig)
+      var renderElement = element.dom
       var i, ln
       this.setElement(renderElement)
-      if (!this.innerElement) {
-        this.innerElement = renderElement
-      }
       if (elementConfig.reference) {
-        this[elementConfig.reference] = this.$el
+        if (elementConfig.reference === 'element') {
+          this.element = element
+        } else {
+          this[elementConfig.reference] = this.$el
+        }
       }
+      var children = me.$el.children()
       _.each(elementConfig.children, function (item, i) {
         if (item.reference) {
-          me[item.reference] = me.$el.children().eq(i)
+          me[item.reference] = new Element(children.get(i), item)
         }
       })
+      if (!this.innerElement) {
+        this.innerElement = element
+      }
+
+      if (!this.bodyElement) {
+        this.bodyElement = this.innerElement
+      }
+
       var configNameCache = define.configNameCache
       var defaultConfig = this.config
       var cachedConfigList = this.cachedConfigList
@@ -84,7 +113,7 @@
 
         if (initConfigMap[name]) {
           initConfigMap[name] = false
-          initConfigList = _.without(initConfigList, name)// initConfigList.remove(name)
+          initConfigList = _.without(initConfigList, name) // initConfigList.remove(name)
         }
 
         if (defaultConfig[name] !== null) {

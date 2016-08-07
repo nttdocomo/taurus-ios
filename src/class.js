@@ -5,13 +5,13 @@
     // value to the root (window) and returning it as well to
     // the AMD loader.
     if (define.amd) {
-      define(['backbone', 'underscore', './polyfill/object/classify', 'backbone-super'], function () {
+      define(['./core/define', 'backbone', 'underscore', 'tau', './polyfill/object/classify', 'backbone-super', './polyfill/object/merge'], function () {
         return (root.Class = factory())
       })
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return (root.Class = factory(require('backbone'), require('underscore'), require('./polyfill/object/classify'), require('backbone-super')))
+        return (root.Class = factory(require('./core/define'), require('backbone'), require('underscore'), require('tau'), require('./polyfill/object/classify'), require('backbone-super'), require('./polyfill/object/merge')))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -19,14 +19,58 @@
     // run into a scenario where plain modules depend on CommonJS
     // *and* I happen to be loading in a CJS browser environment
     // but I'm including it for the sake of being thorough
-    module.exports = (root.Class = factory(require('backbone'), require('underscore'), require('./polyfill/object/classify'), require('backbone-super')))
+    module.exports = (root.Class = factory(require('./core/define'), require('backbone'), require('underscore'), require('tau'), require('./polyfill/object/classify'), require('backbone-super'), require('./polyfill/object/merge')))
   } else {
     root.Class = factory()
   }
-}(this, function (Backbone, _) {
+}(this, function (define, Backbone, _, Tau) {
   var Class = function () {}
   _.extend(Class.prototype, Backbone.Events, {
+    configClass: Tau.emptyFn,
     initConfigMap: {},
+    initConfig: function (instanceConfig) {
+      var me = this
+      var configNameCache = define.configNameCache
+      // var prototype = me.constructor.prototype
+      var initConfigList = me.initConfigList
+      var initConfigMap = this.initConfigMap
+      var config = new me.configClass
+      var defaultConfig = me.defaultConfig
+      var nameMap
+      var getName
+      me.initConfig = function () {}
+      if (instanceConfig) {
+        _.extend(config, instanceConfig)
+      }
+      me.config = config
+      if (instanceConfig) {
+        initConfigList = initConfigList.slice()
+        for (var name in instanceConfig) {
+          if (name in defaultConfig && !initConfigMap[name]) {
+            initConfigList.push(name)
+          }
+        }
+      }
+      // Point all getters to the initGetters
+      for (var i = 0, ln = initConfigList.length; i < ln; i++) {
+        name = initConfigList[i]
+        nameMap = configNameCache[name]
+        me[nameMap.get] = me[nameMap.initGet]
+      }
+      me.beforeInitConfig(config)
+      for (i = 0, ln = initConfigList.length; i < ln; i++) {
+        name = initConfigList[i]
+        nameMap = configNameCache[name]
+        getName = nameMap.get
+
+        if (me.hasOwnProperty(getName)) {
+          me[nameMap.set](config[name])
+          delete me[getName]
+        }
+      }
+    // console.log(me)
+    },
+    beforeInitConfig: function () {},
     isInstance: true,
     // </feature>
 
@@ -118,7 +162,7 @@
       }
 
       if (fullMerge) {
-        _.extend(defaultConfig, config)
+        Object.merge(defaultConfig, config)
       } else {
         _.defaults(defaultConfig, config)
       }

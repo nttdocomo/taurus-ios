@@ -98,6 +98,8 @@
        *
        * @accessor
        */
+      // @private
+      useBodyElement: null,
       layout: null
     },
     constructor: function (config) {
@@ -380,26 +382,32 @@
       var ui = me.getUi()
 
       if (oldBaseCls) {
-        this.element.removeClass(oldBaseCls)
-        this.innerElement.removeClass(function (index, currentClassName) {
+        this.element.removeCls(oldBaseCls)
+        this.innerElement.removeCls(function (index, currentClassName) {
           return [newBaseCls, 'inner'].join('-')
         })
 
         if (ui) {
-          this.element.removeClass(this.currentUi)
+          this.element.removeCls(this.currentUi)
         }
       }
 
       if (newBaseCls) {
-        this.element.addClass(newBaseCls)
-        this.innerElement.addClass(function (index, currentClassName) {
-          return [newBaseCls, 'inner'].join('-')
-        })
+        this.element.addCls(newBaseCls)
+        this.innerElement.addCls(newBaseCls, null, 'inner')
 
         if (ui) {
-          this.element.addClass(newBaseCls, null, ui)
+          this.element.addCls(newBaseCls, null, ui)
           this.currentUi = newBaseCls + '-' + ui
         }
+      }
+    },
+
+    updateUseBodyElement: function (useBodyElement) {
+      if (useBodyElement) {
+        this.link('bodyElement', this.innerElement.wrap({
+          cls: 'x-body'
+        }))
       }
     }
   })

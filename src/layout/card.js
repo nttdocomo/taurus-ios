@@ -50,7 +50,7 @@
     setContainer: function (container) {
       this._super.apply(this, arguments)
 
-      container.innerElement.addClass(this.layoutClass)
+      container.innerElement.addCls(this.layoutClass)
       //container.onInitialized('onContainerInitialized', this)
     }
   })

@@ -13,5 +13,17 @@
     module.exports = factory(require('../../core/define'), require('class'))
   }
 }(this, function (define, Class) {
-  define('Tau.layout.wrapper.Inner', Class, {})
+  return define('Tau.layout.wrapper.Inner', Class, {
+    config: {
+      sizeState: null,
+      container: null
+    },
+
+    constructor: function (config) {
+      this.initConfig(config)
+    },
+    getElement: function () {
+      return this.getContainer().bodyElement
+    }
+  })
 }))

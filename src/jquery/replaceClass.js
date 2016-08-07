@@ -38,11 +38,14 @@
       if (el.nodeType === 1) {
         var classNames = el.className.split(/\s+/)
         if (oldClass) {
-          for (var n = classNames.length; n--;) {
-            if (removeTest(oldClass, classNames[n])) classNames.splice(n, 1)
+          for (var k = 0; k < oldClass.length; k++) {
+            var name = oldClass[k]
+            for (var n = classNames.length; n--;) {
+              if (removeTest(name, classNames[n])) classNames.splice(n, 1)
+            }
           }
         }
-        if (newClass) classNames.push(newClass)
+        if (newClass) classNames = classNames.concat(newClass)
         el.className = classNames.join(' ')
       }
     }

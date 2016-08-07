@@ -5,13 +5,13 @@
     // value to the root (window) and returning it as well to
     // the AMD loader.
     if (define.amd) {
-      define(['../core/define', './abstract', './wrapper/boxDock', './wrapper/inner'], function () {
+      define(['../core/define', './abstract', './wrapper/boxDock', './wrapper/inner', 'tau'], function () {
         return (root.Class = factory())
       })
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return (root.Class = factory(require('../core/define'), require('./abstract'), require('./wrapper/boxDock'), require('./wrapper/inner')))
+        return (root.Class = factory(require('../core/define'), require('./abstract'), require('./wrapper/boxDock'), require('./wrapper/inner'), require('tau')))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -19,11 +19,11 @@
     // run into a scenario where plain modules depend on CommonJS
     // *and* I happen to be loading in a CJS browser environment
     // but I'm including it for the sake of being thorough
-    module.exports = (root.Class = factory(require('../core/define'), require('./abstract'), require('./wrapper/boxDock'), require('./wrapper/inner')))
+    module.exports = (root.Class = factory(require('../core/define'), require('./abstract'), require('./wrapper/boxDock'), require('./wrapper/inner'), require('tau')))
   } else {
     root.Class = factory()
   }
-}(this, function (define, Abstract, BoxDock, Inner) {
+}(this, function (define, Abstract, BoxDock, Inner, Tau) {
   return define(Abstract, {
     config: {
       /**
@@ -44,6 +44,13 @@
        * @accessor
        */
       animation: null
+    },
+
+    positionDirectionMap: {
+      top: 'vertical',
+      bottom: 'vertical',
+      left: 'horizontal',
+      right: 'horizontal'
     },
     constructor: function (config) {
       this.initialConfig = config
@@ -167,6 +174,16 @@
       return this
     },
 
+    monitorSizeFlagsChange: function () {
+      this.monitorSizeFlagsChange = Tau.emptyFn
+      this.container.on('sizeflagschange', 'onContainerSizeFlagsChange', this)
+    },
+
+    monitorSizeStateChange: function () {
+      this.monitorSizeStateChange = Tau.emptyFn
+      this.container.on('sizestatechange', 'onContainerSizeStateChange', this)
+    },
+
     setContainer: function (container) {
       /* var options = {
         delegate: '> component'
@@ -176,10 +193,10 @@
 
       this._super.apply(this, arguments)
 
-      /* container.on('centeredchange', 'onItemCenteredChange', this, options, 'before')
-        .on('floatingchange', 'onItemFloatingChange', this, options, 'before')
-        .on('dockedchange', 'onBeforeItemDockedChange', this, options, 'before')
-        .on('afterdockedchange', 'onAfterItemDockedChange', this, options)*/
+    /* container.on('centeredchange', 'onItemCenteredChange', this, options, 'before')
+      .on('floatingchange', 'onItemFloatingChange', this, options, 'before')
+      .on('dockedchange', 'onBeforeItemDockedChange', this, options, 'before')
+      .on('afterdockedchange', 'onAfterItemDockedChange', this, options)*/
     },
 
     onItemAdd: function (item) {
@@ -200,7 +217,19 @@
 
     onItemMove: function () {},
 
-    onItemCenteredChange: function () {},
+    onItemCenteredChange: function (item, centered) {
+      var wrapperName = '$centerWrapper'
+
+      if (centered) {
+        this.insertBodyItem(item)
+        item.link(wrapperName, new Ext.util.Wrapper({
+          className: this.centerWrapperClass
+        }, item.element))
+      }else {
+        item.unlink(wrapperName)
+        this.removeBodyItem(item)
+      }
+    },
 
     onItemFloatingChange: function () {},
 

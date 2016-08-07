@@ -1,0 +1,15 @@
+.t-toolbar {
+  position: relative;
+  background-color: #f7f7f8;
+  min-height: 2.6em;
+  overflow: hidden;
+}
+.t-toolbar-dark {
+  background-image: none;
+  background-color: #1468a2;
+  background-image: -webkit-linear-gradient(top, #1e93e4,#1676b9 3%,#11598c);
+  background-image: -moz-linear-gradient(top, #1e93e4,#1676b9 3%,#11598c);
+  background-image: -o-linear-gradient(top, #1e93e4,#1676b9 3%,#11598c);
+  background-image: -ms-linear-gradient(top, #1e93e4,#1676b9 3%,#11598c);
+  border-color: #000;
+}

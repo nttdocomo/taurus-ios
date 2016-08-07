@@ -16,49 +16,6 @@
   var Base = define(Class, {
     initConfigList: [],
     defaultConfig: {},
-    initConfig: function (instanceConfig) {
-      var me = this
-      var configNameCache = define.configNameCache
-      // var prototype = me.constructor.prototype
-      var initConfigList = me.initConfigList
-      var initConfigMap = this.initConfigMap
-      var config = me.configClass
-      var defaultConfig = me.defaultConfig
-      var nameMap
-      var getName
-      me.initConfig = function () {}
-      if (instanceConfig) {
-        _.extend(config, instanceConfig)
-      }
-      me.config = config
-      if (instanceConfig) {
-        initConfigList = initConfigList.slice()
-        for (var name in instanceConfig) {
-          if (name in defaultConfig && !initConfigMap[name]) {
-            initConfigList.push(name)
-          }
-        }
-      }
-      // Point all getters to the initGetters
-      for (var i = 0, ln = initConfigList.length; i < ln; i++) {
-        name = initConfigList[i]
-        nameMap = configNameCache[name]
-        me[nameMap.get] = me[nameMap.initGet]
-      }
-      me.beforeInitConfig(config)
-      for (i = 0, ln = initConfigList.length; i < ln; i++) {
-        name = initConfigList[i]
-        nameMap = configNameCache[name]
-        getName = nameMap.get
-
-        if (me.hasOwnProperty(getName)) {
-          me[nameMap.set](config[name])
-          delete me[getName]
-        }
-      }
-    // console.log(me)
-    },
-    beforeInitConfig: function () {},
     getInitialConfig: function (name) {
       var config = this.config
 

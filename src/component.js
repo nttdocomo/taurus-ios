@@ -188,11 +188,68 @@
     },
     constructor: function (config) {
       var me = this
+      me.onInitializedListeners = []
       me.initialConfig = config
       me.initElement()
       me.initConfig(me.initialConfig)
       AbstractComponent.apply(me, arguments)
       me.initialize()
+    },
+
+    /**
+     * @private
+     * Checks if the `cls` is a string. If it is, changed it into an array.
+     * @param {String/Array} cls
+     * @return {Array/null}
+     */
+    applyCls: function (cls) {
+      if (typeof cls === 'string') {
+        cls = [cls]
+      }
+
+      // reset it back to null if there is nothing.
+      if (!cls || !cls.length) {
+        cls = null
+      }
+
+      return cls
+    },
+
+    /**
+     * Adds a CSS class (or classes) to this Component's rendered element.
+     * @param {String} cls The CSS class to add.
+     * @param {String} [prefix=""] Optional prefix to add to each class.
+     * @param {String} [suffix=""] Optional suffix to add to each class.
+     */
+    addCls: function (cls, prefix, suffix) {
+      var oldCls = this.getCls(),
+        newCls = (oldCls) ? oldCls.slice() : [],
+        ln, i, cachedCls
+
+      prefix = prefix || ''
+      suffix = suffix || ''
+
+      if (typeof cls === 'string') {
+        cls = [cls]
+      }
+
+      ln = cls.length
+
+      // check if there is currently nothing in the array and we don't need to add a prefix or a suffix.
+      // if true, we can just set the newCls value to the cls property, because that is what the value will be
+      // if false, we need to loop through each and add them to the newCls array
+      if (!newCls.length && prefix === '' && suffix === '') {
+        newCls = cls
+      } else {
+        for (i = 0; i < ln; i++) {
+          cachedCls = prefix + cls[i] + suffix
+          if (newCls.indexOf(cachedCls) === -1) {
+            newCls.push(cachedCls)
+          }
+        }
+      }
+
+      this.setCls(newCls)
     },
     beforeInitConfig: function (config) {
       this.beforeInitialize.apply(this, arguments)
@@ -250,6 +307,31 @@
      */
     isRendered: function () {
       return this.rendered
+    },
+
+    /**
+     * @private
+     */
+    onInitialized: function (fn, scope, args) {
+      var listeners = this.onInitializedListeners
+
+      if (!scope) {
+        scope = this
+      }
+
+      if (this.initialized) {
+        if (typeof fn === 'string') {
+          scope[fn].apply(scope, args)
+        }else {
+          fn.apply(scope, args)
+        }
+      }else {
+        listeners.push({
+          fn: fn,
+          scope: scope,
+          args: args
+        })
+      }
     },
     refreshSizeState: function () {
       this.refreshSizeStateOnInitialized = true
@@ -332,7 +414,7 @@
      */
     updateCls: function (newCls, oldCls) {
       if (this.element && ((newCls && !oldCls) || (!newCls && oldCls) || newCls.length !== oldCls.length || _.difference(newCls, oldCls).length > 0)) {
-        this.element.replaceClass(oldCls, newCls)
+        this.element.replaceCls(oldCls, newCls)
       }
     },
     /**

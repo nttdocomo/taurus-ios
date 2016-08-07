@@ -54,6 +54,13 @@
       title: null,
 
       /**
+       * @cfg {String} ui
+       * Style options for Toolbar. Either 'light' or 'dark'.
+       * @accessor
+       */
+      ui: 'dark',
+
+      /**
        * @cfg {Boolean} useTitleForBackButtonText
        * Set to false if you always want to display the {@link #defaultBackButtonText} as the text
        * on the back button. True if you want to use the previous views title.

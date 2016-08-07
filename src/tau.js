@@ -18,7 +18,15 @@
 }(this, function (_) {
   var Tau = {}
   _.extend(Tau, {
-    baseCSSPrefix: 't-'
+    baseCSSPrefix: 't-',
+    emptyFn: function () {},
+    getDom: function (el) {
+      if (!el || !document) {
+        return null
+      }
+
+      return el.$dom ? el.$dom : (typeof el === 'string' ? document.getElementById(el) : el)
+    }
   })
   return Tau
 }))
