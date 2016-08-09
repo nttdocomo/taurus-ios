@@ -26,6 +26,15 @@
       }
 
       return el.$dom ? el.$dom : (typeof el === 'string' ? document.getElementById(el) : el)
+    },
+
+    /**
+     * Returns `true` if the passed value is an HTMLElement.
+     * @param {Object} value The value to test.
+     * @return {Boolean}
+     */
+    isElement: function (value) {
+      return value ? value.nodeType === 1 : false
     }
   })
   return Tau

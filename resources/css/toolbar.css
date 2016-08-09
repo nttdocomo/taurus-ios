@@ -13,3 +13,19 @@
   background-image: -ms-linear-gradient(top, #1e93e4,#1676b9 3%,#11598c);
   border-color: #000;
 }
+.x-center, .x-centered {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}

@@ -150,18 +150,18 @@
         case 'left':
           me.titleComponent = me.leftBox.add({
             xtype: 'title',
-            cls: Ext.baseCSSPrefix + 'title-align-left',
+            cls: Tau.baseCSSPrefix + 'title-align-left',
             hidden: defaults.hidden
           })
-          me.refreshTitlePosition = Ext.emptyFn
+          me.refreshTitlePosition = Tau.emptyFn
           break
         case 'right':
           me.titleComponent = me.rightBox.add({
             xtype: 'title',
-            cls: Ext.baseCSSPrefix + 'title-align-right',
+            cls: Tau.baseCSSPrefix + 'title-align-right',
             hidden: defaults.hidden
           })
-          me.refreshTitlePosition = Ext.emptyFn
+          me.refreshTitlePosition = Tau.emptyFn
           break
         default:
           me.titleComponent = me.add({
@@ -181,6 +181,14 @@
         this.rightBox.add(item)
       } else {
         this.leftBox.add(item)
+      }
+    },
+    // @private
+    updateTitle: function (newTitle) {
+      this.titleComponent.setTitle(newTitle)
+
+      if (this.isPainted()) {
+        this.refreshTitlePosition()
       }
     }
   })

@@ -2,9 +2,12 @@
 <html lang="en-US">
 	<head>
 		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
 		<title></title>
 		<link rel="stylesheet" href="../../resources/css/reset.css">
+		<link rel="stylesheet" href="../../resources/css/base.css">
 		<link rel="stylesheet" href="../../resources/css/toolbar.css">
+		<link rel="stylesheet" href="../../resources/css/title.css">
 	</head>
 	<body>
 		<!-- /container -->
@@ -14,9 +17,9 @@
 		<!-- Placed at the end of the document so the pages load faster -->
 		<script type="text/javascript" src="../../src/LAB.min.js"></script>
 		<script type="text/javascript">
-			$LAB.script('../../src/sea-debug.js').wait().script('../config.js').wait(function(){
-				seajs.use("./view.js");
-			});
+			$LAB.script('../../src/sea-debug.js').wait().script('../config.js').wait(function () {
+				seajs.use("./view.js")
+			})
 		</script>
 	</body>
 </html>

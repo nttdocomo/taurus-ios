@@ -14,6 +14,14 @@
   }
 }(this, function (define, Compnent, _) {
   return define(Compnent, {
+    config: {
+      /**
+       * @cfg {String} text
+       * The Button text.
+       * @accessor
+       */
+      text: null
+    },
     initialize: function () {
       this._super.apply(this, arguments)
 

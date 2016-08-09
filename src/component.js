@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './dom/element', './abstractComponent', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'backbone-super', './jquery/replaceClass'], factory)
+      define(['./core/define', './dom/element', './abstractComponent', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'tau', 'backbone-super', './jquery/replaceClass'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'), require('./jquery/replaceClass'))
+        return factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('tau'), require('backbone-super'), require('./jquery/replaceClass'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('backbone-super'), require('./jquery/replaceClass'))
+    module.exports = factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('tau'), require('backbone-super'), require('./jquery/replaceClass'))
   }
-}(this, function (define, Element, AbstractComponent, h, diff, patch, createElement, renderQueue, dom2hscript, _) {
+}(this, function (define, Element, AbstractComponent, h, diff, patch, createElement, renderQueue, dom2hscript, _, Tau) {
   return define('Tau.Component', AbstractComponent, {
     replaceElement: true,
     cachedConfig: {
@@ -38,6 +38,14 @@
        * @accessor
        */
       floatingCls: 'floating',
+
+      /**
+       * @cfg {Boolean} hidden
+       * Whether or not this Component is hidden (its CSS `display` property is set to `none`)
+       * @accessor
+       * @evented
+       */
+      hidden: null,
 
       /**
        * @cfg {String} [hiddenCls="x-item-hidden"] The CSS class to add to the component when it is hidden
@@ -114,6 +122,14 @@
       border: null,
 
       /**
+       * @cfg {String/Mixed} showAnimation
+       * Animation effect to apply when the Component is being shown.  Typically you want to use an
+       * inbound animation type such as 'fadeIn' or 'slideIn'. For more animations, check the {@link Ext.fx.Animation#type} config.
+       * @accessor
+       */
+      showAnimation: null,
+
+      /**
        * @cfg {String} [styleHtmlCls="x-html"]
        * The class that is added to the content target when you set `styleHtmlContent` to `true`.
        * @accessor
@@ -125,7 +141,13 @@
        * `true` to automatically style the HTML inside the content target of this component (body for panels).
        * @accessor
        */
-      styleHtmlContent: null
+      styleHtmlContent: null,
+
+      /**
+       * @cfg {Number} zIndex The z-index to give this Component when it is rendered
+       * @accessor
+       */
+      zIndex: null
     },
     eventedConfig: {
       /**
@@ -222,9 +244,9 @@
      * @param {String} [suffix=""] Optional suffix to add to each class.
      */
     addCls: function (cls, prefix, suffix) {
-      var oldCls = this.getCls(),
-        newCls = (oldCls) ? oldCls.slice() : [],
-        ln, i, cachedCls
+      var oldCls = this.getCls()
+      var newCls = (oldCls) ? oldCls.slice() : []
+      var ln, i, cachedCls
 
       prefix = prefix || ''
       suffix = suffix || ''
@@ -274,6 +296,24 @@
         children: this.getTemplate()
       }
     },
+
+    getInnerHtmlElement: function () {
+      var innerHtmlElement = this.innerHtmlElement
+      var styleHtmlCls
+
+      if (!innerHtmlElement || !innerHtmlElement.dom || !innerHtmlElement.dom.parentNode) {
+        this.innerHtmlElement = innerHtmlElement = Element.create({ cls: Tau.baseCSSPrefix + 'innerhtml' })
+
+        if (this.getStyleHtmlContent()) {
+          styleHtmlCls = this.getStyleHtmlCls()
+          this.innerHtmlElement.addCls(styleHtmlCls)
+          this.innerElement.removeCls(styleHtmlCls)
+        }
+        this.innerElement.appendChild(innerHtmlElement)
+      }
+
+      return innerHtmlElement
+    },
     getTemplate: function () {
       return this.template
     },
@@ -305,6 +345,13 @@
     /**
      * @private
      */
+    isPainted: function () {
+      return this.renderElement.isPainted()
+    },
+
+    /**
+     * @private
+     */
     isRendered: function () {
       return this.rendered
     },
@@ -322,10 +369,10 @@
       if (this.initialized) {
         if (typeof fn === 'string') {
           scope[fn].apply(scope, args)
-        }else {
+        } else {
           fn.apply(scope, args)
         }
-      }else {
+      } else {
         listeners.push({
           fn: fn,
           scope: scope,
@@ -380,6 +427,48 @@
 
       return this
     },
+
+    /**
+     * Shows this component optionally using an animation.
+     * @param {Object/Boolean} [animation] You can specify an animation here or a bool to use the {@link #showAnimation} config.
+     * @return {Ext.Component}
+     * @chainable
+     */
+    show: function (animation) {
+      if (this.activeAnimation) {
+        this.activeAnimation.on({
+          animationend: function () {
+            this.show(animation)
+          },
+          scope: this,
+          single: true
+        })
+        return this
+      }
+
+      var hidden = this.getHidden()
+      if (hidden || hidden === null) {
+        if (animation === true) {
+          animation = 'fadeIn'
+        } else if (animation === undefined || (animation && animation.isComponent)) {
+          animation = this.getShowAnimation()
+        }
+
+        if (animation) {
+          this.beforeShowAnimation()
+          this.onBefore({
+            hiddenchange: 'animateFn',
+            scope: this,
+            single: true,
+            args: [animation]
+          })
+        }
+
+        this.setHidden(false)
+      }
+
+      return this
+    },
     toggleCls: function (className, /* private */ force) {
       this.$el.toggleClass(className)
 
@@ -415,6 +504,19 @@
     updateCls: function (newCls, oldCls) {
       if (this.element && ((newCls && !oldCls) || (!newCls && oldCls) || newCls.length !== oldCls.length || _.difference(newCls, oldCls).length > 0)) {
         this.element.replaceCls(oldCls, newCls)
+      }
+    },
+
+    updateHtml: function (html) {
+      if (!this.isDestroyed) {
+        var innerHtmlElement = this.getInnerHtmlElement()
+
+        if (Tau.isElement(html)) {
+          innerHtmlElement.setHtml('')
+          innerHtmlElement.append(html)
+        } else {
+          innerHtmlElement.setHtml(html)
+        }
       }
     },
     /**

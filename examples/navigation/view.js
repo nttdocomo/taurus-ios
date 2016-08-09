@@ -1,8 +1,9 @@
 /*global define*/
 define(function (require) {
   var View = require('../../src/navigation/view')
-  var List = require('../../src/dataview/list')
   var Button = require('../../src/button')
+  var Contacts = require('./contacts')
+  var $ = require('../../src/jquery')
   // var factory = require('../../src/core/factory')
   var define = require('../../src/core/define')
   var NavigationView = define(View, {
@@ -40,7 +41,7 @@ define(function (require) {
         }]
       },
       items: [{
-        xclass: List
+        xclass: Contacts
       }]
     }
   })

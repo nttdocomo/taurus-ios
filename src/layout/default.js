@@ -5,13 +5,13 @@
     // value to the root (window) and returning it as well to
     // the AMD loader.
     if (define.amd) {
-      define(['../core/define', './abstract', './wrapper/boxDock', './wrapper/inner', 'tau'], function () {
+      define(['../core/define', './abstract', './wrapper/boxDock', './wrapper/inner', '../util/wrapper', 'tau'], function () {
         return (root.Class = factory())
       })
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return (root.Class = factory(require('../core/define'), require('./abstract'), require('./wrapper/boxDock'), require('./wrapper/inner'), require('tau')))
+        return (root.Class = factory(require('../core/define'), require('./abstract'), require('./wrapper/boxDock'), require('./wrapper/inner'), require('../util/wrapper'), require('tau')))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -19,11 +19,11 @@
     // run into a scenario where plain modules depend on CommonJS
     // *and* I happen to be loading in a CJS browser environment
     // but I'm including it for the sake of being thorough
-    module.exports = (root.Class = factory(require('../core/define'), require('./abstract'), require('./wrapper/boxDock'), require('./wrapper/inner'), require('tau')))
+    module.exports = (root.Class = factory(require('../core/define'), require('./abstract'), require('./wrapper/boxDock'), require('./wrapper/inner'), require('../util/wrapper'), require('tau')))
   } else {
     root.Class = factory()
   }
-}(this, function (define, Abstract, BoxDock, Inner, Tau) {
+}(this, function (define, Abstract, BoxDock, Inner, Wrapper, Tau) {
   return define(Abstract, {
     config: {
       /**
@@ -52,6 +52,7 @@
       left: 'horizontal',
       right: 'horizontal'
     },
+    centerWrapperClass: 't-center',
     constructor: function (config) {
       this.initialConfig = config
     },
@@ -152,6 +153,19 @@
       container.onInitialized('refreshDockedItemLayoutSizeFlags', this, [item])
     },
 
+    insertBodyItem: function (item) {
+      var container = this.container.setUseBodyElement(true)
+      var bodyDom = container.bodyElement.dom
+
+      if (item.getZIndex() === null) {
+        item.setZIndex((container.indexOf(item) + 1) * 2)
+      }
+
+      bodyDom.insertBefore(item.element.dom, bodyDom.firstChild)
+
+      return this
+    },
+
     insertInnerItem: function (item, index) {
       var container = this.container
       var containerDom = container.el
@@ -222,10 +236,10 @@
 
       if (centered) {
         this.insertBodyItem(item)
-        item.link(wrapperName, new Ext.util.Wrapper({
-          className: this.centerWrapperClass
+        item.link(wrapperName, new Wrapper({
+          classList: [this.centerWrapperClass]
         }, item.element))
-      }else {
+      } else {
         item.unlink(wrapperName)
         this.removeBodyItem(item)
       }

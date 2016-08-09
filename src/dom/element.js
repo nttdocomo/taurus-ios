@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', 'class', 'backbone', 'backbone-super', 'underscore', '../virtual-dom/h', '../virtual-dom/create-element', '../mixin/identifiable', 'jquery', 'tau', '../polyfill/array/remove'], factory)
+      define(['../core/define', 'class', 'backbone', 'backbone-super', 'underscore', '../virtual-dom/h', '../virtual-dom/create-element', '../mixin/identifiable', 'jquery', 'tau', '../env/browser', '../polyfill/array/remove'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('tau'), require('../polyfill/array/remove'))
+        return factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('tau'), require('../env/browser'), require('../polyfill/array/remove'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('tau'), require('../polyfill/array/remove'))
+    module.exports = factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('tau'), require('../env/browser'), require('../polyfill/array/remove'))
   }
-}(this, function (define, Class, Backbone, inherits, _, h, createElement, Identifiable, $, Tau) {
+}(this, function (define, Class, Backbone, inherits, _, h, createElement, Identifiable, $, Tau, Browser) {
   var Element = define('Tau.dom.Element', Class, {
     classNameSplitRegex: /[\s]+/,
     SEPARATOR: '-',
@@ -53,11 +53,11 @@
         this.synchronize()
       }
 
-      var dom = this.dom,
-        map = this.hasClassMap,
-        classList = this.classList,
-        SEPARATOR = this.SEPARATOR,
-        i, ln, name
+      var dom = this.dom
+      var map = this.hasClassMap
+      var classList = this.classList
+      var SEPARATOR = this.SEPARATOR
+      var i, ln, name
 
       prefix = prefix ? prefix + SEPARATOR : ''
       suffix = suffix ? SEPARATOR + suffix : ''
@@ -78,6 +78,9 @@
       dom.className = classList.join(' ')
 
       return this
+    },
+    appendChild: function (element) {
+      this.append(element)
     },
 
     append: function (element) {
@@ -114,6 +117,16 @@
       this.$dom.insertBefore(el)
       return this
     },
+
+    isPainted: (function () {
+      return !Browser.is.IE ? function () {
+        var dom = this.dom
+        return Boolean(dom && dom.offsetParent)
+      } : function () {
+        var dom = this.dom
+        return Boolean(dom && (dom.offsetHeight !== 0 && dom.offsetWidth !== 0))
+      }
+    })(),
 
     isSynchronized: false,
 
@@ -156,11 +169,11 @@
         suffix = ''
       }
 
-      var $dom = this.$dom,
-        map = this.hasClassMap,
-        classList = this.classList,
-        SEPARATOR = this.SEPARATOR,
-        i, ln, name
+      var $dom = this.$dom
+      /* var map = this.hasClassMap
+      var classList = this.classList*/
+      var SEPARATOR = this.SEPARATOR
+      // var i, ln, name
 
       prefix = prefix ? prefix + SEPARATOR : ''
       suffix = suffix ? SEPARATOR + suffix : ''
@@ -202,13 +215,21 @@
     },
 
     /**
+     * Sets the `innerHTML` of this element.
+     * @param {String} html The new HTML.
+     */
+    setHtml: function (html) {
+      this.$dom.html(html)
+    },
+
+    /**
      * @private
      */
     synchronize: function () {
-      var dom = this.dom,
-        hasClassMap = {},
-        className = dom.className,
-        classList, i, ln, name
+      var dom = this.dom
+      var hasClassMap = {}
+      var className = dom.className
+      var classList, i, ln, name
 
       if (className.length > 0) {
         classList = dom.className.split(this.classNameSplitRegex)
@@ -217,7 +238,7 @@
           name = classList[i]
           hasClassMap[name] = true
         }
-      }else {
+      } else {
         classList = []
       }
 
@@ -228,15 +249,39 @@
       this.isSynchronized = true
 
       return this
+    },
+
+    /**
+     * Creates and wraps this element with another element.
+     * @param {Object} [config] (optional) DomHelper element config object for the wrapper element or `null` for an empty div
+     * @param {Boolean} [domNode] (optional) `true` to return the raw DOM element instead of Ext.dom.Element.
+     * @return {HTMLElement/Ext.dom.Element} The newly created wrapper element.
+     */
+    wrap: function (config, domNode) {
+      var dom = this.dom
+      var wrapper = this.constructor.create(config, domNode)
+      var wrapperDom = (domNode) ? wrapper : wrapper.dom
+      var parentNode = dom.parentNode
+
+      if (parentNode) {
+        parentNode.insertBefore(wrapperDom, dom)
+      }
+
+      wrapperDom.appendChild(dom)
+
+      return wrapper
     }
   }, {
     cache: {},
     hyperScript: function (attributes) {
       var me = this
       var tag = attributes.tag
-      var classList = attributes.classList
+      var classList = attributes.classList || []
       if (!tag) {
         tag = 'div'
+      }
+      if (attributes.cls) {
+        classList.push(attributes.cls)
       }
       if (classList) {
         tag += '.' + classList.join('.')
@@ -253,7 +298,7 @@
       console.log(arguments)
       var vdom = this.hyperScript(attributes)
       var element = createElement(this.hyperScript(attributes))
-      var instance = new this(element, vdom)
+      // var instance = new this(element, vdom)
       /* var ATTRIBUTES = this.CREATE_ATTRIBUTES
       var element, elementStyle, tag, value, name, i, ln
 
@@ -374,7 +419,7 @@
           // Update our Ext Element dom reference with the true DOM (it may have changed)
           if (instance) {
             instance.dom = dom
-          }else {
+          } else {
             // Create a new instance of Ext Element
             instance = cache[element] = new this(dom)
           }
@@ -393,7 +438,7 @@
           instance = cache[id]
           instance.dom = element
           return instance
-        }else {
+        } else {
           instance = new this(element, vdom)
           cache[instance.getId()] = instance
         }

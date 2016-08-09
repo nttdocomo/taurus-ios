@@ -99,6 +99,10 @@
         this.bodyElement = this.innerElement
       }
 
+      if (renderElement === element.dom) {
+        this.renderElement = element
+      }
+
       var configNameCache = define.configNameCache
       var defaultConfig = this.config
       var cachedConfigList = this.cachedConfigList

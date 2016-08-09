@@ -45,6 +45,15 @@
        */
       cls: Tau.baseCSSPrefix + 'navigation-bar',
       /**
+       * @cfg {String} defaultBackButtonText
+       * The text to be displayed on the back button if:
+       * a) The previous view does not have a title
+       * b) The {@link #useTitleForBackButtonText} configuration is true.
+       * @private
+       * @accessor
+       */
+      defaultBackButtonText: 'Back',
+      /**
          * @cfg {String} title
          * The title of the toolbar. You should NEVER set this, it is used internally. You set the title of the
          * navigation bar by giving a navigation views children a title configuration.
@@ -67,7 +76,14 @@
        * @private
        * @accessor
        */
-      useTitleForBackButtonText: null
+      useTitleForBackButtonText: null,
+
+      /**
+       * @cfg {Ext.navigation.View} view A reference to the navigation view this bar is linked to.
+       * @private
+       * @accessor
+       */
+      view: null
     },
     /**
      * @event back
@@ -213,6 +229,42 @@
       hasPrevious = backButtonStack.length > 1
 
       me.doChangeView(view, hasPrevious, false)
+    },
+
+    /**
+     * @private
+     */
+    updateView: function (newView) {
+      var me = this
+      var backButton = me.getBackButton()
+      var innerItems, i, backButtonText, item, title, titleText
+
+      me.getItems()
+
+      if (newView) {
+        // update the back button stack with the current inner items of the view
+        innerItems = newView.getInnerItems()
+        for (i = 0; i < innerItems.length; i++) {
+          item = innerItems[i]
+          title = (item.getTitle) ? item.getTitle() : item.config.title
+
+          me.backButtonStack.push(title || '&nbsp;')
+        }
+
+        titleText = me.getTitleText()
+
+        if (titleText === undefined) {
+          titleText = ''
+        }
+
+        me.setTitle(titleText)
+
+        backButtonText = me.getBackButtonText()
+        if (backButtonText) {
+          backButton.setText(backButtonText)
+          backButton.show()
+        }
+      }
     }
   })
 }))
