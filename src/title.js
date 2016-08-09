@@ -19,7 +19,7 @@
        * @cfg
        * @inheritdoc
        */
-      baseCls: 'x-title',
+      baseCls: Tau.baseCSSPrefix + 'title',
 
       /**
        * @cfg {String} title The title text

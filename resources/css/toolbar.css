@@ -4,6 +4,10 @@
   min-height: 2.6em;
   overflow: hidden;
 }
+.t-toolbar-dark .t-title {
+  color: #fff;
+  text-shadow: rgba(0,0,0,0.5) 0 -0.08em 0;
+}
 .t-toolbar-dark {
   background-image: none;
   background-color: #1468a2;
