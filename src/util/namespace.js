@@ -29,10 +29,15 @@
     var parts = namespace.split('.')
     for (var e = 0, len = parts.length; e < len; e++) {
       var g = parts[e]
-      typeof root[g] === 'undefined' && (root[g] = {})
+      if (typeof root[g] === 'undefined'){
+        if (e === len - 1){
+          root[g] = value
+        } else {
+          root[g] = {}
+        }
+      }
       root = root[g]
     }
-    root = value
     /*if (value) {
       for (var i in value) {
         root[i] = value[i]
