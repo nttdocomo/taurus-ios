@@ -14,9 +14,9 @@ seajs.config({
 // QUnit.config.autoload = false
 // QUnit.config.autostart = false
 seajs.use([
-  './underscore/deepClone'
-], function (deepClone) {
-  deepClone.run()
+  './env/os'
+], function (os) {
+  os.run()
 // start QUnit.
 // QUnit.load()
 // QUnit.start()
