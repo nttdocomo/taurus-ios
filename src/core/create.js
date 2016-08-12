@@ -18,4 +18,5 @@
     return new cls(config)
   }
   Tau.create = create
+  return create
 }))

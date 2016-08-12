@@ -15,7 +15,7 @@
   } else if (typeof module === 'object' && module.exports) {
     module.exports = factory(require('underscore'))
   }
-}(this, function (_) {
+}(this, function (_, get) {
   var Tau = {}
   _.extend(Tau, {
     baseCSSPrefix: 't-',

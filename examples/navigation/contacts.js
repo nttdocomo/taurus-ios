@@ -5,7 +5,7 @@ define(function (require) {
   return define(List, {
     config: {
       title: 'Address Book',
-      cls: 'x-contacts',
+      cls: 't-contacts',
       variableHeights: true,
 
       store: 'Contacts',

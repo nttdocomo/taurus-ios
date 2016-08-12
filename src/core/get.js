@@ -32,6 +32,6 @@
     }
     return root
   }
-  Tau.get = get
+  Tau.getNameSpace = get
   return get
 }))

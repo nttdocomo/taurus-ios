@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../container', '../tau', 'jquery', 'underscore'], factory)
+      define(['../core/define', '../container', '../tau', '../env/os', 'jquery', 'underscore', '../core/tau/getBody'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../container'), require('../tau'), require('jquery'), require('underscore'))
+        return factory(require('../core/define'), require('../container'), require('../tau'), require('../env/os'), require('jquery'), require('underscore'), require('../core/tau/getBody'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../container'), require('../tau'), require('jquery'), require('underscore'))
+    module.exports = factory(require('../core/define'), require('../container'), require('../tau'), require('../env/os'), require('jquery'), require('underscore'), require('../core/tau/getBody'))
   }
-}(this, function (define, Container, Tau, $, _) {
+}(this, function (define, Container, Tau, OS, $, _, getBody) {
   return define('Tau.viewport.Default', Container, {
     config: {
       /**
@@ -24,6 +24,7 @@
     constructor: function (config) {
       this.on('ready', _.bind(this.onReady, this))
       $(document).ready(_.bind(this.onDomReady, this))
+      Container.apply(this, arguments)
     },
 
     onDomReady: function () {
@@ -41,7 +42,14 @@
     },
     render: function () {
       if (!this.rendered) {
+        var body = getBody()
+        var clsPrefix = Tau.baseCSSPrefix
+        var classList = []
+        var osEnv = Tau.os
         console.log('rendered')
+        this.renderTo(body)
+        classList.push(clsPrefix + osEnv.deviceType.toLowerCase())
+        body.addCls(classList);
       }
     }
   })

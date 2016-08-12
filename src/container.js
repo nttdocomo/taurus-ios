@@ -377,6 +377,24 @@
       }
     },
 
+    /**
+     * @private
+     */
+    setRendered: function (rendered) {
+      if (this._super.apply(this, arguments)) {
+        var items = this.items.items
+        var i, ln
+
+        for (i = 0, ln = items.length; i < ln; i++) {
+          items[i].setRendered(rendered)
+        }
+
+        return true
+      }
+
+      return false
+    },
+
     updateBaseCls: function (newBaseCls, oldBaseCls) {
       var me = this
       var ui = me.getUi()

@@ -404,6 +404,22 @@
 
       return me
     },
+
+    renderTo: function (container, insertBeforeElement) {
+      var dom = this.renderElement.$dom
+      var containerDom = Tau.getDom(container)
+      var insertBeforeChildDom = Tau.getDom(insertBeforeElement)
+
+      if (containerDom) {
+        if (insertBeforeChildDom) {
+          containerDom.insertBefore(dom, insertBeforeChildDom)
+        } else {
+          containerDom.append(dom)
+        }
+
+        this.setRendered(Boolean(dom.offsetParent))
+      }
+    },
     setLayoutSizeFlags: function (flags) {
       this.layoutStretched = !!(flags & this.LAYOUT_STRETCHED)
       this.widthLayoutSized = !!(flags & this.LAYOUT_WIDTH)
@@ -426,6 +442,22 @@
       this.parent = parent
 
       return this
+    },
+
+    /**
+     * @private
+     * @param {Boolean} rendered
+     */
+    setRendered: function (rendered) {
+      var wasRendered = this.rendered
+
+      if (rendered !== wasRendered) {
+        this.rendered = rendered
+
+        return true
+      }
+
+      return false
     },
 
     /**

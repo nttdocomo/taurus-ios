@@ -2,23 +2,23 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../class', 'tau', ''], factory)
+      define(['../core/define', '../class', 'tau', './browser'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../class'), require('tau'))
+        return factory(require('../core/define'), require('../class'), require('tau'), require('./browser'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../class'), require('tau'))
+    module.exports = factory(require('../core/define'), require('../class'), require('tau'), require('./browser'))
   }
-}(this, function (define, Class, Tau) {
+}(this, function (define, Class, Tau, browser) {
   var OS = define('Tau.env.OS', Class, {
     constructor: function (userAgent, platform, browserScope) {
       var constructor = this.constructor
       var prefixes = constructor.prefixes
       var names = constructor.names
-      var is, i, prefix, match, name, match1, version
+      var is, i, prefix, match, name, match1
       for (i in prefixes) {
         if (prefixes.hasOwnProperty(i)) {
           prefix = prefixes[i]
@@ -53,6 +53,21 @@
       is = this.is = function (name) {
         return is[name] === true
       }
+
+      if (platform) {
+        this.setFlag(platform.replace(/ simulator$/i, ''))
+      }
+    },
+
+    setFlag: function (name, value) {
+      if (typeof value === 'undefined') {
+        value = true
+      }
+
+      this.is[name] = value
+      this.is[name.toLowerCase()] = value
+
+      return this
     }
   }, {
     names: {
@@ -85,8 +100,33 @@
   })
   var navigation = window.navigator
   var userAgent = navigation.userAgent
-  var osEnv, osName
+  var osEnv, osName, deviceType
   Tau.os = osEnv = new OS(userAgent, navigation.platform)
   osName = osEnv.name
+  var search = window.location.search.match(/deviceType=(Tablet|Phone)/)
+  var nativeDeviceType = window.deviceType
+
+  // Override deviceType by adding a get variable of deviceType. NEEDED FOR DOCS APP.
+  // E.g: example/kitchen-sink.html?deviceType=Phone
+  if (search && search[1]) {
+    deviceType = search[1]
+  } else if (nativeDeviceType === 'iPhone') {
+    deviceType = 'Phone'
+  } else if (nativeDeviceType === 'iPad') {
+    deviceType = 'Tablet'
+  } else {
+    if (!osEnv.is.Android && !osEnv.is.iOS && !osEnv.is.WindowsPhone && /Windows|Linux|MacOS/.test(osName)) {
+      deviceType = 'Desktop'
+
+        // always set it to false when you are on a desktop not using Ripple Emulation
+      Tau.browser.is.WebView = Tau.browser.is.Ripple
+    } else if (osEnv.is.iPad || osEnv.is.RIMTablet || osEnv.is.Android3 || browser.is.Silk || (osEnv.is.Android && userAgent.search(/mobile/i) === -1)) {
+      deviceType = 'Tablet'
+    } else {
+      deviceType = 'Phone'
+    }
+  }
+  osEnv.setFlag(deviceType, true)
+  osEnv.deviceType = deviceType
   return OS
 }))

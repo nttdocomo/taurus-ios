@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', 'class', 'backbone', 'backbone-super', 'underscore', '../virtual-dom/h', '../virtual-dom/create-element', '../mixin/identifiable', 'jquery', 'tau', '../env/browser', '../polyfill/array/remove'], factory)
+      define(['../core/define', 'class', 'backbone', 'backbone-super', 'underscore', '../virtual-dom/h', '../virtual-dom/create-element', '../mixin/identifiable', 'jquery', '../core/tau/getDom', '../env/browser', '../polyfill/array/remove'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('tau'), require('../env/browser'), require('../polyfill/array/remove'))
+        return factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('../polyfill/array/remove'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('tau'), require('../env/browser'), require('../polyfill/array/remove'))
+    module.exports = factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('../polyfill/array/remove'))
   }
-}(this, function (define, Class, Backbone, inherits, _, h, createElement, Identifiable, $, Tau, Browser) {
+}(this, function (define, Class, Backbone, inherits, _, h, createElement, Identifiable, $, getDom, Browser) {
   var Element = define('Tau.dom.Element', Class, {
     classNameSplitRegex: /[\s]+/,
     SEPARATOR: '-',
@@ -84,7 +84,7 @@
     },
 
     append: function (element) {
-      this.$dom.append(Tau.getDom(element))
+      this.$dom.append(getDom(element))
     },
 
     getUniqueId: function () {
@@ -113,7 +113,7 @@
      * @return {Ext.dom.Element} This element.
      */
     insertBefore: function (el) {
-      el = Tau.getDom(el)
+      el = getDom(el)
       this.$dom.insertBefore(el)
       return this
     },
@@ -137,7 +137,7 @@
      * @return {Ext.dom.Element} This element.
      */
     replace: function (element) {
-      element = Tau.getDom(element)
+      element = getDom(element)
 
       element.replaceWith(this.$dom)
 

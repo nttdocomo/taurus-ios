@@ -47,7 +47,10 @@ define(function (require) {
     }
   })
   // var Contacts = define()
-  //var viewport = new Viewport
-  var navigationView = new NavigationView()
-  $(document.body).append(navigationView.$el)
+  var viewport = new Viewport
+  viewport.add({
+    xclass: NavigationView
+  })
+  ///var navigationView = new NavigationView()
+  //$(document.body).append(navigationView.$el)
 })

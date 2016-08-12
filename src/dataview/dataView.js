@@ -23,6 +23,26 @@
        * @accessor
        */
       defaultType: DataItem
+    },
+
+    constructor: function (config) {
+      var me = this
+      var layout
+
+      me.hasLoadedStore = false
+
+      me.mixins.selectable.constructor.apply(me, arguments)
+
+      me.indexOffset = 0
+
+      Container.apply(me, arguments)
+
+      // <debug>
+      layout = this.getLayout()
+      if (layout && !layout.isAuto) {
+        Tau.Logger.error('The base layout for a DataView must always be an Auto Layout')
+      }
+      // </debug>
     }
   })
 }))

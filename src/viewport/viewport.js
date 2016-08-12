@@ -14,7 +14,7 @@
   }
 }(this, function (define, Class, Tau, create, OS, Ios) {
   console.log('asdasd')
-  var Browser = define('Tau.viewport.Viewport', Class, {
+  var Viewport = define('Tau.viewport.Viewport', Class, {
     constructor: function (config) {
       var osName = Tau.os.name
       var viewportName, viewport
@@ -46,5 +46,5 @@
       return viewport
     }
   }, {})
-  return new Browser(navigator.userAgent)
+  return Viewport
 }))
