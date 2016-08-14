@@ -25,6 +25,7 @@
   }
 }(this, function (define, Abstract, BoxDock, Inner, Wrapper, Tau) {
   return define(Abstract, {
+    isAuto: true,
     config: {
       /**
        * @cfg {Ext.fx.layout.Card} animation Layout animation configuration
@@ -196,6 +197,16 @@
     monitorSizeStateChange: function () {
       this.monitorSizeStateChange = Tau.emptyFn
       this.container.on('sizestatechange', 'onContainerSizeStateChange', this)
+    },
+
+    onContainerSizeFlagsChange: function () {
+      var items = this.dockedItems
+      var i, ln, item
+
+      for (i = 0, ln = items.length; i < ln; i++) {
+        item = items[i]
+        this.refreshDockedItemLayoutSizeFlags(item)
+      }
     },
 
     setContainer: function (container) {

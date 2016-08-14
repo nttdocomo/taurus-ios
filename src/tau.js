@@ -16,7 +16,7 @@
     module.exports = factory(require('underscore'))
   }
 }(this, function (_, get) {
-  var Tau = {}
+  var Tau = Tau || {}
   _.extend(Tau, {
     baseCSSPrefix: 't-',
     emptyFn: function () {},
@@ -37,5 +37,6 @@
       return value ? value.nodeType === 1 : false
     }
   })
+  window.Tau = Tau
   return Tau
 }))

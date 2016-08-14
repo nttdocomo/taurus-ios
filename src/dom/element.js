@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', 'class', 'backbone', 'backbone-super', 'underscore', '../virtual-dom/h', '../virtual-dom/create-element', '../mixin/identifiable', 'jquery', '../core/tau/getDom', '../env/browser', '../polyfill/array/remove'], factory)
+      define(['../core/define', 'class', 'underscore', '../virtual-dom/h', '../virtual-dom/create-element', '../mixin/identifiable', 'jquery', '../core/tau/getDom', '../env/browser', 'tau', '../polyfill/array/remove'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('../polyfill/array/remove'))
+        return factory(require('../core/define'), require('class'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('tau'), require('../polyfill/array/remove'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('class'), require('backbone'), require('backbone-super'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('../polyfill/array/remove'))
+    module.exports = factory(require('../core/define'), require('class'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('tau'), require('../polyfill/array/remove'))
   }
-}(this, function (define, Class, Backbone, inherits, _, h, createElement, Identifiable, $, getDom, Browser) {
+}(this, function (define, Class, _, h, createElement, Identifiable, $, getDom, Browser, Tau) {
   var Element = define('Tau.dom.Element', Class, {
     classNameSplitRegex: /[\s]+/,
     SEPARATOR: '-',
@@ -131,6 +131,52 @@
     isSynchronized: false,
 
     /**
+     * Removes the given CSS class(es) from this Element.
+     * @param {String} names The CSS class(es) to remove from this element.
+     * @param {String} [prefix=''] Prefix to prepend to each class to be removed.
+     * @param {String} [suffix=''] Suffix to append to each class to be removed.
+     */
+    removeCls: function (names, prefix, suffix) {
+      if (!names) {
+        return this
+      }
+
+      if (!this.isSynchronized) {
+        this.synchronize()
+      }
+
+      if (!suffix) {
+        suffix = ''
+      }
+
+      var dom = this.$dom
+      var map = this.hasClassMap
+      var removeClsList = []
+      var SEPARATOR = this.SEPARATOR
+      var i, ln, name
+
+      prefix = prefix ? prefix + SEPARATOR : ''
+      suffix = suffix ? SEPARATOR + suffix : ''
+
+      if (typeof names === 'string') {
+        names = names.split(this.spacesRe)
+      }
+
+      for (i = 0, ln = names.length; i < ln; i++) {
+        name = prefix + names[i] + suffix
+
+        if (map[name]) {
+          delete map[name]
+          removeClsList.push(name)
+        }
+      }
+
+      dom.removeClass(removeClsList.join(' '))
+
+      return this
+    },
+
+    /**
      * Replaces the passed element with this element.
      * @param {String/HTMLElement/Ext.dom.Element} element The element to replace.
      * The id of the node, a DOM Node or an existing Element.
@@ -222,6 +268,25 @@
       this.$dom.html(html)
     },
 
+    setSizeState: function (state) {
+      var classes = _.map(['sized', 'x-unsized', 'x-stretched'], function (item) {
+        return Tau.baseCSSPrefix + item
+      })
+      var states = [true, false, null]
+      var index = states.indexOf(state)
+      var addedClass
+
+      if (index !== -1) {
+        addedClass = classes[index]
+        classes.splice(index, 1)
+        this.addCls(addedClass)
+      }
+
+      this.removeCls(classes)
+
+      return this
+    },
+
     /**
      * @private
      */
@@ -247,6 +312,17 @@
       this.hasClassMap = hasClassMap
 
       this.isSynchronized = true
+
+      return this
+    },
+
+    /**
+     * Toggles the specified CSS class on this element (removes it if it already exists, otherwise adds it).
+     * @param {String} className The CSS class to toggle.
+     * @return {Ext.dom.Element} this
+     */
+    toggleCls: function (className, force) {
+      this.$dom.toggleClass(className)
 
       return this
     },

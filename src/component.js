@@ -52,12 +52,90 @@
        * @accessor
        */
       hiddenCls: 'item-hidden',
+
+      /**
+       * @cfg {Number/String} width
+       * The width of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
+       * By default, if this is not explicitly set, this Component's element will simply have its own natural size.
+       * If set to `auto`, it will set the width to `null` meaning it will have its own natural size.
+       * @accessor
+       * @evented
+       */
+      width: null,
+
+      /**
+       * @cfg {Number/String} height
+       * The height of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
+       * By default, if this is not explicitly set, this Component's element will simply have its own natural size.
+       * If set to `auto`, it will set the width to `null` meaning it will have its own natural size.
+       * @accessor
+       * @evented
+       */
+      height: null,
+
+      /**
+       * @cfg {Number/String} minWidth
+       * The minimum width of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
+       * If set to `auto`, it will set the width to `null` meaning it will have its own natural size.
+       * @accessor
+       * @evented
+       */
+      minWidth: null,
+
+      /**
+       * @cfg {Number/String} minHeight
+       * The minimum height of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
+       * If set to `auto`, it will set the width to `null` meaning it will have its own natural size.
+       * @accessor
+       * @evented
+       */
+      minHeight: null,
       /**
        * @cfg {String/Ext.Element/HTMLElement} html Optional HTML content to render inside this Component, or a reference
        * to an existing element on the page.
        * @accessor
        */
       html: null,
+
+      /**
+       * @cfg {Number/String} left
+       * The absolute left position of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
+       * Explicitly setting this value will make this Component become 'floating', which means its layout will no
+       * longer be affected by the Container that it resides in.
+       * @accessor
+       * @evented
+       */
+      left: null,
+
+      /**
+       * @cfg {Number/String} top
+       * The absolute top position of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
+       * Explicitly setting this value will make this Component become 'floating', which means its layout will no
+       * longer be affected by the Container that it resides in.
+       * @accessor
+       * @evented
+       */
+      top: null,
+
+      /**
+       * @cfg {Number/String} right
+       * The absolute right position of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
+       * Explicitly setting this value will make this Component become 'floating', which means its layout will no
+       * longer be affected by the Container that it resides in.
+       * @accessor
+       * @evented
+       */
+      right: null,
+
+      /**
+       * @cfg {Number/String} bottom
+       * The absolute bottom position of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
+       * Explicitly setting this value will make this Component become 'floating', which means its layout will no
+       * longer be affected by the Container that it resides in.
+       * @accessor
+       * @evented
+       */
+      bottom: null,
 
       /**
        * @cfg {String} ui The ui to be used on this Component
@@ -203,6 +281,11 @@
     template: [],
     floating: false,
     LAYOUT_BOTH: 0x3,
+    LAYOUT_WIDTH: 0x1,
+
+    LAYOUT_HEIGHT: 0x2,
+
+    LAYOUT_STRETCHED: 0x4,
     events: {
       'click': function () {
         console.log('click')
@@ -282,6 +365,21 @@
      */
     beforeInitialize: function () {},
 
+    doRefreshSizeState: function () {
+      var hasWidth = this.getWidth() !== null || this.widthLayoutSized || (this.getLeft() !== null && this.getRight() !== null),
+        hasHeight = this.getHeight() !== null || this.heightLayoutSized || (this.getTop() !== null && this.getBottom() !== null),
+        stretched = this.layoutStretched || this.hasCSSMinHeight || (!hasHeight && this.getMinHeight() !== null),
+        state = hasWidth && hasHeight,
+        flags = (hasWidth && this.LAYOUT_WIDTH) | (hasHeight && this.LAYOUT_HEIGHT) | (stretched && this.LAYOUT_STRETCHED)
+
+      if (!state && stretched) {
+        state = null
+      }
+
+      this.setSizeState(state)
+      this.setSizeFlags(flags)
+    },
+
     /**
      * @private
      * @return {Object}
@@ -313,6 +411,14 @@
       }
 
       return innerHtmlElement
+    },
+
+    getSizeFlags: function () {
+      if (!this.initialized) {
+        this.doRefreshSizeState()
+      }
+
+      return this.sizeFlags
     },
     getTemplate: function () {
       return this.template
@@ -460,6 +566,44 @@
       return false
     },
 
+    setSizeFlags: function (flags) {
+      if (flags !== this.sizeFlags) {
+        this.sizeFlags = flags
+
+        var hasWidth = !!(flags & this.LAYOUT_WIDTH)
+        var hasHeight = !!(flags & this.LAYOUT_HEIGHT)
+        var stretched = !!(flags & this.LAYOUT_STRETCHED)
+
+        if (hasWidth && !stretched && !hasHeight) {
+          this.element.addCls('x-has-width')
+        }else {
+          this.element.removeCls('x-has-width')
+        }
+
+        if (hasHeight && !stretched && !hasWidth) {
+          this.element.addCls('x-has-height')
+        }else {
+          this.element.removeCls('x-has-height')
+        }
+
+        if (this.initialized) {
+          this.fireEvent('sizeflagschange', this, flags)
+        }
+      }
+    },
+
+    setSizeState: function (state) {
+      if (state !== this.sizeState) {
+        this.sizeState = state
+
+        this.element.setSizeState(state)
+
+        if (this.initialized) {
+          this.fireEvent('sizestatechange', this, state)
+        }
+      }
+    },
+
     /**
      * Shows this component optionally using an animation.
      * @param {Object/Boolean} [animation] You can specify an animation here or a bool to use the {@link #showAnimation} config.
@@ -511,20 +655,18 @@
       var ui = me.getUi()
 
       if (oldBaseCls) {
-        me.element.removeClass(oldBaseCls)
+        me.element.removeCls(oldBaseCls)
 
         if (ui) {
-          me.element.removeClass(me.currentUi)
+          me.element.removeCls(me.currentUi)
         }
       }
 
       if (newBaseCls) {
-        me.element.addClass(newBaseCls)
+        me.element.addCls(newBaseCls)
 
         if (ui) {
-          me.element.addClass(function () {
-            return [newBaseCls, ui].join('-')
-          })
+          me.element.addCls(newBaseCls, null, ui)
           me.currentUi = newBaseCls + '-' + ui
         }
       }
