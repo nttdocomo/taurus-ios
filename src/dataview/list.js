@@ -2,26 +2,19 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', '../container', 'tau'], factory)
+      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', '../container', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('../container'), require('tau'))
+        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('../container'), require('underscore'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('../container'), require('tau'))
+    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('../container'), require('underscore'), require('tau'))
   }
-}(this, function (define, DataView, Fit, factory, Container, Tau) {
+}(this, function (define, DataView, Fit, factory, Container, _, Tau) {
   return define('Tau.dataview.List', DataView, {
     config: {
-      /**
-       * @cfg layout
-       * Hide layout config in DataView. It only causes confusion.
-       * @accessor
-       * @private
-       */
-      layout: Fit,
 
       /**
        * @cfg {Boolean/Object} indexBar
@@ -29,7 +22,27 @@
        * This can also be a config object that will be passed to {@link Ext.IndexBar}.
        * @accessor
        */
-      indexBar: false
+      indexBar: false,
+
+      /**
+       * @cfg {Boolean} infinite
+       * Set this to false to render all items in this list, and render them relatively.
+       * Note that this configuration can not be dynamically changed after the list has instantiated.
+       */
+      infinite: false,
+
+      /**
+       * @cfg {Object} scrollable
+       * @private
+       */
+      scrollable: null,
+      /**
+       * @cfg layout
+       * Hide layout config in DataView. It only causes confusion.
+       * @accessor
+       * @private
+       */
+      layout: Fit
     },
     constructor: function () {
       var me = this
@@ -47,10 +60,10 @@
 
     // We create complex instance arrays and objects in beforeInitialize so that we can use these inside of the initConfig process.
     beforeInitialize: function () {
-      var me = this,
-        container = me.container,
-        baseCls = me.getBaseCls(),
-        scrollable, scrollViewElement, pinnedHeader
+      var me = this
+      var container = me.container
+      var baseCls = me.getBaseCls()
+      var scrollable, scrollViewElement, pinnedHeader
 
       _.extend(me, {
         listItems: [],
@@ -113,12 +126,12 @@
 
     // We override DataView's initialize method with an empty function
     initialize: function () {
-      var me = this,
-        container = me.container,
-        scrollViewElement = me.scrollViewElement,
-        indexBar = me.getIndexBar(),
-        triggerEvent = me.getTriggerEvent(),
-        triggerCtEvent = me.getTriggerCtEvent()
+      var me = this
+      var container = me.container
+      var scrollViewElement = me.scrollViewElement
+      var indexBar = me.getIndexBar()
+      var triggerEvent = me.getTriggerEvent()
+      var triggerCtEvent = me.getTriggerCtEvent()
 
       if (indexBar) {
         scrollViewElement.appendChild(indexBar.renderElement)
@@ -131,13 +144,13 @@
         me.on(triggerCtEvent, me.onContainerTrigger, me)
       }
       container.element.$dom.on('tap', '.' + me.getBaseCls() + '-disclosure', _.bind(me.handleItemDisclosure, me))
-      /*container.element.on('tap', '.' + me.getBaseCls() + '-disclosure', {
+      /* container.element.on('tap', '.' + me.getBaseCls() + '-disclosure', {
         delegate: '.' + me.getBaseCls() + '-disclosure',
         tap: 'handleItemDisclosure',
         scope: me
       })*/
 
-      /*container.element.on({
+      /* container.element.on({
         resize: 'onContainerResize',
         scope: me
       })*/

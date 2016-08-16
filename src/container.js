@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './component', './itemCollection', 'underscore', './core/factory', './layout/default', 'tau'], factory)
+      define(['./core/define', './component', './itemCollection', 'underscore', './core/factory', './layout/default', './behavior/scrollable', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'), require('tau'))
+        return factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'), require('./behavior/scrollable'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'), require('tau'))
+    module.exports = factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'), require('./behavior/scrollable'), require('tau'))
   }
-}(this, function (define, Component, ItemCollection, _, factory, Default, Tau) {
+}(this, function (define, Component, ItemCollection, _, factory, Default, Scrollable, Tau) {
   return define(Component, {
     eventedConfig: {
       /**
@@ -25,7 +25,27 @@
        * @accessor
        * @evented
        */
-      activeItem: 0
+      activeItem: 0,
+      /**
+       * @cfg {Boolean/String/Object} scrollable
+       * Configuration options to make this Container scrollable. Acceptable values are:
+       *
+       * - `'horizontal'`, `'vertical'`, `'both'` to enabling scrolling for that direction.
+       * - `true`/`false` to explicitly enable/disable scrolling.
+       *
+       * Alternatively, you can give it an object which is then passed to the scroller instance:
+       *
+       *     scrollable: {
+       *         direction: 'vertical',
+       *         directionLock: true
+       *     }
+       *
+       * Please look at the {@link Ext.scroll.Scroller} documentation for more example on how to use this.
+       * @return {Ext.scroll.View} The scroll view.
+       * @accessor
+       * @evented
+       */
+      scrollable: null
     },
     config: {
       /**
@@ -215,6 +235,24 @@
 
     /**
      * @private
+     */
+    applyScrollable: function (config) {
+      if (typeof config === 'boolean') {
+        // <debug warn>
+        if (config === false && !(this.getHeight() !== null || this.heightLayoutSized || (this.getTop() !== null && this.getBottom() !== null))) {
+          console.warn('This container is set to scrollable: false but has no specified height. ' +
+                'You may need to set the container to scrollable: null or provide a height.', this)
+        }
+        // </debug>
+        this.getScrollableBehavior().setConfig({disabled: !config})
+      } else if (config && !config.isObservable) {
+        this.getScrollableBehavior().setConfig(config)
+      }
+      return config
+    },
+
+    /**
+     * @private
      * @param {Ext.Component} item
      */
     doAdd: function (item) {
@@ -289,6 +327,30 @@
       }
 
       return layout
+    },
+
+    /**
+     * Returns an the scrollable instance for this container, which is a {@link Ext.scroll.View} class.
+     *
+     * Please checkout the documentation for {@link Ext.scroll.View}, {@link Ext.scroll.View#getScroller}
+     * and {@link Ext.scroll.Scroller} for more information.
+     * @return {Ext.scroll.View} The scroll view.
+     */
+    getScrollable: function () {
+      return this.getScrollableBehavior().getScrollView()
+    },
+
+    /**
+     * @private
+     */
+    getScrollableBehavior: function () {
+      var behavior = this.scrollableBehavior
+
+      if (!behavior) {
+        behavior = this.scrollableBehavior = new Scrollable(this)
+      }
+
+      return behavior
     },
 
     /**

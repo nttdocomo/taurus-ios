@@ -372,8 +372,16 @@
     },
     create: function (attributes, domNode) {
       console.log(arguments)
+      var tag
+      if (!attributes) {
+        attributes = {}
+      }
+      tag = attributes.tag
+      if (!tag) {
+        attributes.tag = 'div'
+      }
       var vdom = this.hyperScript(attributes)
-      var element = createElement(this.hyperScript(attributes))
+      var element = createElement(vdom)
       // var instance = new this(element, vdom)
       /* var ATTRIBUTES = this.CREATE_ATTRIBUTES
       var element, elementStyle, tag, value, name, i, ln

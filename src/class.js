@@ -28,6 +28,13 @@
   _.extend(Class.prototype, Backbone.Events, {
     configClass: Tau.emptyFn,
     initConfigMap: {},
+
+    /**
+     * @private
+     */
+    hasConfig: function (name) {
+      return (name in this.defaultConfig)
+    },
     initConfig: function (instanceConfig) {
       var me = this
       var configNameCache = define.configNameCache

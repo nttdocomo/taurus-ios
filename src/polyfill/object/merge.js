@@ -13,12 +13,12 @@
     module.exports = factory(require('underscore'))
   }
 }(this, function (_) {
-  Object.merge = function (source) {
-    var i = 1,
-      ln = arguments.length,
-      mergeFn = Object.merge,
-      cloneFn = _.clone,
-      object, key, value, sourceKey
+  var merge = function (source) {
+    var i = 1
+    var ln = arguments.length
+    var mergeFn = merge
+    var cloneFn = _.clone
+    var object, key, value, sourceKey
 
     for (; i < ln; i++) {
       object = arguments[i]
@@ -29,10 +29,10 @@
           sourceKey = source[key]
           if (sourceKey && sourceKey.constructor === Object) {
             mergeFn(sourceKey, value)
-          }else {
+          } else {
             source[key] = cloneFn(value)
           }
-        }else {
+        } else {
           source[key] = value
         }
       }
@@ -40,4 +40,6 @@
 
     return source
   }
+  Object.merge = merge
+  return merge
 }))

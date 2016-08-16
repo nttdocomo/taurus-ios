@@ -5,20 +5,22 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['underscore'], factory)
+      define(['underscore', 'jquery'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('underscore'))
+        return factory(require('underscore'), require('jquery'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('underscore'))
+    module.exports = factory(require('underscore'), require('jquery'))
   }
-}(this, function (_, get) {
+}(this, function (_, $) {
   var Tau = Tau || {}
   _.extend(Tau, {
+    enumerables: ['hasOwnProperty', 'valueOf', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toString', 'constructor'],
     baseCSSPrefix: 't-',
+    doc: $(document),
     emptyFn: function () {},
     getDom: function (el) {
       if (!el || !document) {

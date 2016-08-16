@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../class'], factory)
+      define(['../core/define', '../class', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../class'))
+        return factory(require('../core/define'), require('../class'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../class'))
+    module.exports = factory(require('../core/define'), require('../class'), require('tau'))
   }
-}(this, function (define, Class) {
+}(this, function (define, Class, Tau) {
   var Browser = define('Tau.env.Browser', Class, {
     constructor: function (userAgent) {
       var constructor = this.constructor
@@ -77,5 +77,6 @@
       silk: 'Silk/'
     }
   })
-  return new Browser(navigator.userAgent)
+  var browser = Tau.browser = new Browser(navigator.userAgent)
+  return browser
 }))
