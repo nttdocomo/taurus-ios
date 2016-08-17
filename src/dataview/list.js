@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', '../container', 'underscore', 'tau'], factory)
+      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './listItemHeader', '../container', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('../container'), require('underscore'), require('tau'))
+        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./listItemHeader'), require('../container'), require('underscore'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('../container'), require('underscore'), require('tau'))
+    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./listItemHeader'), require('../container'), require('underscore'), require('tau'))
   }
-}(this, function (define, DataView, Fit, factory, Container, _, Tau) {
+}(this, function (define, DataView, Fit, factory, ListItemHeader, Container, _, Tau) {
   return define('Tau.dataview.List', DataView, {
     config: {
 
@@ -108,8 +108,8 @@
 
       // Create the pinnedHeader instance thats being used when grouping is enabled
       // and insert it into the scrollElement
-      pinnedHeader = me.pinnedHeader = Tau.factory({
-        xtype: 'listitemheader',
+      pinnedHeader = me.pinnedHeader = factory({
+        xclass: ListItemHeader,
         html: '&nbsp;',
         translatable: {
           translationMethod: this.translationMethod

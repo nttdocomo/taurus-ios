@@ -13,5 +13,9 @@
     module.exports = factory(require('../core/define'), require('../class'), require('../polyfill/object/merge'), require('../core/factory'), require('underscore'), require('tau'))
   }
 }(this, function (define, Class, merge, factory, _, Tau) {
-  return define('Tau.scroll.Scroller', Class, {})
+  return define('Tau.scroll.Scroller', Class, {
+    config: {
+      element: null
+    }
+  })
 }))

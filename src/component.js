@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './dom/element', './abstractComponent', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'tau', 'backbone-super', './jquery/replaceClass'], factory)
+      define(['./core/define', './dom/element', './abstractComponent', './behavior/translatable', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'tau', 'backbone-super', './jquery/replaceClass'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('tau'), require('backbone-super'), require('./jquery/replaceClass'))
+        return factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./behavior/translatable'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('tau'), require('backbone-super'), require('./jquery/replaceClass'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('tau'), require('backbone-super'), require('./jquery/replaceClass'))
+    module.exports = factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./behavior/translatable'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('tau'), require('backbone-super'), require('./jquery/replaceClass'))
   }
-}(this, function (define, Element, AbstractComponent, h, diff, patch, createElement, renderQueue, dom2hscript, _, Tau) {
+}(this, function (define, Element, AbstractComponent, Translatable, h, diff, patch, createElement, renderQueue, dom2hscript, _, Tau) {
   return define('Tau.Component', AbstractComponent, {
     replaceElement: true,
     cachedConfig: {
@@ -271,7 +271,14 @@
        *
        * @accessor
        */
-      itemId: undefined
+      itemId: undefined,
+
+      /**
+       * @cfg {Object} translatable
+       * @private
+       * @accessor
+       */
+      translatable: null
     },
 
     /**
@@ -320,6 +327,10 @@
       return cls
     },
 
+    applyTranslatable: function (config) {
+      this.getTranslatableBehavior().setConfig(config)
+    },
+
     /**
      * Adds a CSS class (or classes) to this Component's rendered element.
      * @param {String} cls The CSS class to add.
@@ -366,11 +377,11 @@
     beforeInitialize: function () {},
 
     doRefreshSizeState: function () {
-      var hasWidth = this.getWidth() !== null || this.widthLayoutSized || (this.getLeft() !== null && this.getRight() !== null),
-        hasHeight = this.getHeight() !== null || this.heightLayoutSized || (this.getTop() !== null && this.getBottom() !== null),
-        stretched = this.layoutStretched || this.hasCSSMinHeight || (!hasHeight && this.getMinHeight() !== null),
-        state = hasWidth && hasHeight,
-        flags = (hasWidth && this.LAYOUT_WIDTH) | (hasHeight && this.LAYOUT_HEIGHT) | (stretched && this.LAYOUT_STRETCHED)
+      var hasWidth = this.getWidth() !== null || this.widthLayoutSized || (this.getLeft() !== null && this.getRight() !== null)
+      var hasHeight = this.getHeight() !== null || this.heightLayoutSized || (this.getTop() !== null && this.getBottom() !== null)
+      var stretched = this.layoutStretched || this.hasCSSMinHeight || (!hasHeight && this.getMinHeight() !== null)
+      var state = hasWidth && hasHeight
+      var flags = (hasWidth && this.LAYOUT_WIDTH) | (hasHeight && this.LAYOUT_HEIGHT) | (stretched && this.LAYOUT_STRETCHED)
 
       if (!state && stretched) {
         state = null
@@ -427,6 +438,20 @@
       return {
         title: model.get('title')
       }
+    },
+
+    getTranslatable: function () {
+      return this.getTranslatableBehavior().getTranslatable()
+    },
+
+    getTranslatableBehavior: function () {
+      var behavior = this.translatableBehavior
+
+      if (!behavior) {
+        behavior = this.translatableBehavior = new Translatable(this)
+      }
+
+      return behavior
     },
     hide: function () {
       this.$el.hide()
@@ -576,13 +601,13 @@
 
         if (hasWidth && !stretched && !hasHeight) {
           this.element.addCls('x-has-width')
-        }else {
+        } else {
           this.element.removeCls('x-has-width')
         }
 
         if (hasHeight && !stretched && !hasWidth) {
           this.element.addCls('x-has-height')
-        }else {
+        } else {
           this.element.removeCls('x-has-height')
         }
 
@@ -649,6 +674,17 @@
       this.$el.toggleClass(className)
 
       return this
+    },
+
+    translate: function () {
+      var translatable = this.getTranslatable()
+
+      if (!translatable) {
+        this.setTranslatable(true)
+        translatable = this.getTranslatable()
+      }
+
+      translatable.translate.apply(translatable, arguments)
     },
     updateBaseCls: function (newBaseCls, oldBaseCls) {
       var me = this
