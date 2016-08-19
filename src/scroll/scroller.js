@@ -15,7 +15,12 @@
 }(this, function (define, Class, merge, factory, _, Tau) {
   return define('Tau.scroll.Scroller', Class, {
     config: {
-      element: null
+      element: null,
+
+      translatable: {
+        translationMethod: 'auto',
+        useWrapper: false
+      }
     }
   })
 }))

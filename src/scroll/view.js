@@ -81,6 +81,23 @@
       }
 
       return config
+    },
+
+    updateElement: function (element) {
+      var scroller = this.getScroller()
+      var scrollerElement = element.getFirstChild().getFirstChild()
+      if (this.FixedHBoxStretching) {
+        scrollerElement = scrollerElement.getFirstChild()
+      }
+
+      element.addCls(this.getCls())
+      element.insertFirst(this.indicatorsGrid)
+
+      scroller.setElement(scrollerElement)
+
+      this.refreshIndicators()
+
+      return this
     }
   })
 }))

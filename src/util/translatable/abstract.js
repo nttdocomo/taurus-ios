@@ -35,6 +35,10 @@
         this.y = y
       }
       this.doTranslate(x, y)
+    },
+
+    refresh: function () {
+      this.translate(this.x, this.y)
     }
   })
 }))

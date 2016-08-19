@@ -372,6 +372,13 @@
 
     /**
      * @private
+     */
+    insertFirst: function (item) {
+      return this.insert(0, item)
+    },
+
+    /**
+     * @private
      * @param {Ext.Component} item
      * @param {Number} index
      */
@@ -486,7 +493,7 @@
     updateUseBodyElement: function (useBodyElement) {
       if (useBodyElement) {
         this.link('bodyElement', this.innerElement.wrap({
-          cls: 'x-body'
+          cls: Tau.baseCSSPrefix + 'body'
         }))
       }
     }

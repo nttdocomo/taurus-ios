@@ -15,6 +15,11 @@
 }(this, function (define, DataView, Fit, factory, ListItemHeader, Container, _, Tau) {
   return define('Tau.dataview.List', DataView, {
     config: {
+      /**
+       * @cfg baseCls
+       * @inheritdoc
+       */
+      baseCls: Tau.baseCSSPrefix + 'list',
 
       /**
        * @cfg {Boolean/Object} indexBar
@@ -42,7 +47,15 @@
        * @accessor
        * @private
        */
-      layout: Fit
+      layout: Fit,
+
+      /**
+       * @cfg {String} ui
+       * The style of this list. Available options are `normal` and `round`.
+       * Please note: if you use the `round` UI, {@link #pinHeaders} will be automatically turned off as
+       * it is not supported.
+       */
+      ui: 'normal'
     },
     constructor: function () {
       var me = this

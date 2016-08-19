@@ -19,6 +19,7 @@
   var Element = define('Tau.dom.Element', Class, {
     classNameSplitRegex: /[\s]+/,
     SEPARATOR: '-',
+    isElement: true,
     constructor: function (dom, vdom) {
       if (typeof dom === 'string') {
         dom = document.getElementById(dom)
@@ -86,6 +87,9 @@
     append: function (element) {
       this.$dom.append(getDom(element))
     },
+    getFirstChild: function () {
+      return Ext.get(this.dom.firstElementChild)
+    },
 
     getUniqueId: function () {
       var id = this.id
@@ -115,6 +119,25 @@
     insertBefore: function (el) {
       el = getDom(el)
       this.$dom.insertBefore(el)
+      return this
+    },
+
+    /**
+     * Inserts an element as the first child of this element.
+     * @param {String/HTMLElement/Ext.dom.Element} element The `id` or element to insert.
+     * @return {Ext.dom.Element} this
+     */
+    insertFirst: function (element) {
+      var elementDom = getDom(element)
+      var dom = this.dom
+      var firstChild = dom.firstChild
+
+      if (!firstChild) {
+        dom.appendChild(elementDom)
+      } else {
+        elementDom.insertBefore(firstChild)
+      }
+
       return this
     },
 
@@ -269,7 +292,7 @@
     },
 
     setSizeState: function (state) {
-      var classes = _.map(['sized', 'x-unsized', 'x-stretched'], function (item) {
+      var classes = _.map(['sized', 'unsized', 'stretched'], function (item) {
         return Tau.baseCSSPrefix + item
       })
       var states = [true, false, null]
@@ -327,6 +350,36 @@
       return this
     },
 
+    translate: function () {
+      var transformStyleName = 'webkitTransform' in document.createElement('div').style ? 'webkitTransform' : 'transform'
+
+      return function (x, y, z) {
+        this.dom.style[transformStyleName] = 'translate3d(' + (x || 0) + 'px, ' + (y || 0) + 'px, ' + (z || 0) + 'px)'
+      }
+    }(),
+
+    /**
+     * Translates the passed page coordinates into left/top CSS values for this element.
+     * @param {Number/Array} x The page `x` or an array containing [x, y].
+     * @param {Number} y (optional) The page `y`, required if `x` is not an array.
+     * @return {Object} An object with `left` and `top` properties. e.g. `{left: (value), top: (value)}`.
+     */
+    translatePoints: function (x, y) {
+      y = isNaN(x[1]) ? y : x[1]
+      x = isNaN(x[0]) ? x : x[0]
+
+      var me = this
+      var relative = me.isStyle('position', 'relative')
+      var o = me.getXY()
+      var l = parseInt(me.getStyle('left'), 10)
+      var t = parseInt(me.getStyle('top'), 10)
+
+      l = !isNaN(l) ? l : (relative ? 0 : me.dom.offsetLeft)
+      t = !isNaN(t) ? t : (relative ? 0 : me.dom.offsetTop)
+
+      return {left: (x - o[0] + l), top: (y - o[1] + t)}
+    },
+
     /**
      * Creates and wraps this element with another element.
      * @param {Object} [config] (optional) DomHelper element config object for the wrapper element or `null` for an empty div
@@ -356,29 +409,28 @@
       if (!tag) {
         tag = 'div'
       }
+      if (!attributes.className) {
+        attributes.className = ''
+      }
       if (attributes.cls) {
         classList.push(attributes.cls)
       }
       if (classList) {
-        tag += '.' + classList.join('.')
+        attributes.className += classList.join(' ')
+        // tag += '.' + classList.join('.')
       }
       if (attributes.children) {
-        return h(tag, _.map(attributes.children, function (children) {
+        return h(tag, attributes, _.map(attributes.children, function (children) {
           return me.hyperScript(children)
         }))
       } else {
-        return h(tag)
+        return h(tag, attributes)
       }
     },
     create: function (attributes, domNode) {
       console.log(arguments)
-      var tag
       if (!attributes) {
         attributes = {}
-      }
-      tag = attributes.tag
-      if (!tag) {
-        attributes.tag = 'div'
       }
       var vdom = this.hyperScript(attributes)
       var element = createElement(vdom)

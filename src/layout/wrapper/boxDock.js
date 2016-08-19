@@ -2,25 +2,25 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../../core/define', 'class', '../../dom/element'], factory)
+      define(['../../core/define', 'class', '../../dom/element', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../../core/define'), require('class'), require('../../dom/element'))
+        return factory(require('../../core/define'), require('class'), require('../../dom/element'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../../core/define'), require('class'), require('../../dom/element'))
+    module.exports = factory(require('../../core/define'), require('class'), require('../../dom/element'), require('tau'))
   }
-}(this, function (define, Class, Element) {
+}(this, function (define, Class, Element, Tau) {
   return define('Tau.layout.wrapper.BoxDock', Class, {
     config: {
       direction: 'horizontal',
       element: {
-        className: 'x-dock'
+        className: Tau.baseCSSPrefix + 'dock'
       },
       bodyElement: {
-        className: 'x-dock-body'
+        className: Tau.baseCSSPrefix + 'dock-body'
       },
       innerWrapper: null,
       sizeState: false,
@@ -44,15 +44,15 @@
       this.initConfig(config)
     },
     addItem: function (item) {
-      var docked = item.getDocked(),
-        position = this.positionMap[docked],
-        wrapper = item.$dockWrapper,
-        container = this.getContainer(),
-        index = container.indexOf(item),
-        element = item.element,
-        items = this.items,
-        sideItems = items[position],
-        i, ln, sibling, referenceElement, siblingIndex
+      var docked = item.getDocked()
+      var position = this.positionMap[docked]
+      var wrapper = item.$dockWrapper
+      var container = this.getContainer()
+      var index = container.indexOf(item)
+      var element = item.element
+      var items = this.items
+      var sideItems = items[position]
+      var i, ln, sibling, referenceElement, siblingIndex
 
       if (wrapper) {
         wrapper.removeItem(item)
@@ -82,7 +82,7 @@
 
       if (position === 'start') {
         element.insertBefore(referenceElement)
-      }else {
+      } else {
         element.insertAfter(referenceElement)
       }
     },
@@ -101,6 +101,21 @@
 
     updateElement: function (element) {
       element.addCls('x-dock-' + this.getDirection())
+    },
+
+    updateInnerWrapper: function (innerWrapper, oldInnerWrapper) {
+      var bodyElement = this.getBodyElement()
+
+      if (oldInnerWrapper && oldInnerWrapper.$outerWrapper === this) {
+        oldInnerWrapper.getElement().detach()
+        delete oldInnerWrapper.$outerWrapper
+      }
+
+      if (innerWrapper) {
+        innerWrapper.setSizeState(this.getSizeState())
+        innerWrapper.$outerWrapper = this
+        bodyElement.append(innerWrapper.getElement())
+      }
     }
   })
 }))

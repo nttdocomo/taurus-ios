@@ -401,7 +401,7 @@
     getElementConfig: function () {
       return {
         reference: 'element',
-        classList: ['x-unsized'],
+        classList: [Tau.baseCSSPrefix + 'unsized'],
         children: this.getTemplate()
       }
     },

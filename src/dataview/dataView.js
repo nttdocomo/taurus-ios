@@ -114,12 +114,31 @@
       if (me.getStore()) {
         if (me.isPainted()) {
           me.refresh()
-        }else {
+        } else {
           me.on({
             painted: 'refresh',
             single: true
           })
         }
+      }
+    },
+
+    /**
+     * Refreshes the view by reloading the data from the store and re-rendering the template.
+     */
+    refresh: function () {
+      var me = this
+      var container = me.container
+
+      if (!me.getStore()) {
+        if (!me.hasLoadedStore && !me.getDeferEmptyText()) {
+          me.showEmptyText()
+        }
+        return
+      }
+      if (container) {
+        me.trigger('refresh', me)
+        me.doRefresh
       }
     }
   })

@@ -169,7 +169,7 @@
 
     insertInnerItem: function (item, index) {
       var container = this.container
-      var containerDom = container.el
+      var containerDom = container.innerElement.dom
       var itemDom = item.el
       var nextSibling = index !== -1 ? container.getInnerAt(index + 1) : null
       var nextSiblingDom = null
