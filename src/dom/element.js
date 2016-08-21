@@ -88,7 +88,7 @@
       this.$dom.append(getDom(element))
     },
     getFirstChild: function () {
-      return Ext.get(this.dom.firstElementChild)
+      return Element.get(this.dom.firstElementChild)
     },
 
     getUniqueId: function () {
@@ -404,6 +404,9 @@
     cache: {},
     hyperScript: function (attributes) {
       var me = this
+      if (!attributes) {
+        attributes = {}
+      }
       var tag = attributes.tag
       var classList = attributes.classList || []
       if (!tag) {

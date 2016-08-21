@@ -14,9 +14,11 @@ seajs.config({
 // QUnit.config.autoload = false
 // QUnit.config.autostart = false
 seajs.use([
-  './env/os'
-], function (os) {
-  os.run()
+  './env/os',
+  './dom/jquery.element'
+], function (os, element) {
+  //os.run()
+  element.run()
 // start QUnit.
 // QUnit.load()
 // QUnit.start()

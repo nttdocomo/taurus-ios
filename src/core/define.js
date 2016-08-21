@@ -24,7 +24,7 @@
       args.splice(0, 1)
     }
     var child = Class.extend()
-    Class.triggerExtended.apply(Class, args)
+    Class.triggerExtended.apply(child, [child, data, classProps])
     if (data.onClassExtended) {
       Class.onExtended(data.onClassExtended, Class)
       delete data.onClassExtended

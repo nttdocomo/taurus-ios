@@ -17,10 +17,71 @@
     config: {
       element: null,
 
+      /**
+       * @cfg {String} direction
+       * Possible values: 'auto', 'vertical', 'horizontal', or 'both'.
+       * @accessor
+       */
+      direction: 'auto',
       translatable: {
         translationMethod: 'auto',
         useWrapper: false
       }
+    },
+
+    /**
+     * @private
+     * @constructor
+     * @chainable
+     */
+    constructor: function (config) {
+      var element = config && config.element
+
+      this.listeners = {
+        scope: this,
+        touchstart: 'onTouchStart',
+        touchend: 'onTouchEnd',
+        dragstart: 'onDragStart',
+        drag: 'onDrag',
+        dragend: 'onDragEnd'
+      }
+
+      this.minPosition = { x: 0, y: 0 }
+
+      this.startPosition = { x: 0, y: 0 }
+
+      this.position = { x: 0, y: 0 }
+
+      this.velocity = { x: 0, y: 0 }
+
+      this.isAxisEnabledFlags = { x: false, y: false }
+
+      this.flickStartPosition = { x: 0, y: 0 }
+
+      this.flickStartTime = { x: 0, y: 0 }
+
+      this.lastDragPosition = { x: 0, y: 0 }
+
+      this.dragDirection = {x: 0, y: 0}
+
+      this.initialConfig = config
+
+      if (element) {
+        this.setElement(element)
+      }
+
+      return this
+    },
+
+    /**
+     * Returns `true` if a specified axis is enabled.
+     * @param {String} axis The axis to check (`x` or `y`).
+     * @return {Boolean} `true` if the axis is enabled.
+     */
+    isAxisEnabled: function (axis) {
+      this.getDirection()
+
+      return this.isAxisEnabledFlags[axis]
     }
   })
 }))
