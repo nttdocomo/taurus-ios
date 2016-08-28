@@ -138,7 +138,7 @@
       }
       if (container) {
         me.trigger('refresh', me)
-        me.doRefresh
+        me.doRefresh()
       }
     }
   })

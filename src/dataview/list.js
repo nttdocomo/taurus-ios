@@ -71,6 +71,42 @@
     // </debug>
     },
 
+    doRefresh: function () {
+      var me = this,
+        infinite = me.getInfinite(),
+        scroller = me.container.getScrollable().getScroller(),
+        storeCount = me.getStore().getCount()
+
+      if (infinite) {
+        me.getItemMap().populate(storeCount, this.topRenderedIndex)
+      }
+
+      if (me.getGrouped()) {
+        me.refreshHeaderIndices()
+      }
+
+      // This will refresh the items on the screen with the new data
+      if (storeCount) {
+        me.hideScrollDockItems()
+        me.hideEmptyText()
+        if (!infinite) {
+          me.setItemsCount(storeCount)
+          if (me.getScrollToTopOnRefresh()) {
+            scroller.scrollTo(0, 0)
+          }
+        } else {
+          if (me.getScrollToTopOnRefresh()) {
+            me.topRenderedIndex = 0
+            me.topVisibleIndex = 0
+            scroller.position.y = 0
+          }
+          me.updateAllListItems()
+        }
+      } else {
+        me.onStoreClear()
+      }
+    },
+
     // We create complex instance arrays and objects in beforeInitialize so that we can use these inside of the initConfig process.
     beforeInitialize: function () {
       var me = this

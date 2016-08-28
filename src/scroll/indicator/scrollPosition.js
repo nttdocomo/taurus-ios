@@ -13,16 +13,9 @@
     module.exports = factory(require('../../core/define'), require('./abstract'), require('modernizr'))
   }
 }(this, function (define, Abstract, Modernizr) {
-  return define('Tau.scroll.indicator.Rounded', Abstract, {
-
-    /**
-     * @private
-     * @constructor
-     * @chainable
-     */
-    constructor: function (config) {
-      Abstract.apply(this, arguments)
-      this.transformPropertyName = Modernizr.prefixed('transform')
+  return define('Tau.scroll.indicator.ScrollPosition', Abstract, {
+    config: {
+      cls: 'scrollposition'
     }
   })
 }))
