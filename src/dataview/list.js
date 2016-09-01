@@ -20,6 +20,12 @@
        * @inheritdoc
        */
       baseCls: Tau.baseCSSPrefix + 'list',
+      /**
+       * @cfg {Boolean} grouped
+       * Whether or not to group items in the provided Store with a header for each item.
+       * @accessor
+       */
+      grouped: null,
 
       /**
        * @cfg {Boolean/Object} indexBar
@@ -35,6 +41,12 @@
        * Note that this configuration can not be dynamically changed after the list has instantiated.
        */
       infinite: false,
+
+      /**
+       * @cfg {Object} itemMap
+       * @private
+       */
+      itemMap: {},
 
       /**
        * @cfg {Object} scrollable
@@ -173,6 +185,30 @@
       me.bind(scrollable.getScroller().getTranslatable(), 'doTranslate', 'onTranslate')
     },
 
+    getListItemConfig: function () {
+      var me = this
+      var minimumHeight = me.getItemMap().getMinimumHeight()
+      var config = {
+        xtype: me.getDefaultType(),
+        itemConfig: me.getItemConfig(),
+        tpl: me.getItemTpl(),
+        minHeight: minimumHeight,
+        cls: me.getItemCls()
+      }
+
+      if (me.getInfinite()) {
+        config.translatable = {
+          translationMethod: this.translationMethod
+        }
+      }
+
+      if (!me.getVariableHeights()) {
+        config.height = minimumHeight
+      }
+
+      return config
+    },
+
     // We override DataView's initialize method with an empty function
     initialize: function () {
       var me = this
@@ -229,6 +265,56 @@
       var record = me.getStore().getAt(index)
 
       me.trigger('disclose', [me, record, item, index, e], 'doDisclose')
+    },
+
+    onStoreClear: function () {
+      var me = this
+      var scroller = me.container.getScrollable().getScroller()
+      var infinite = me.getInfinite()
+
+      if (me.pinnedHeader) {
+        me.pinnedHeader.translate(0, -10000)
+      }
+
+      if (!infinite) {
+        me.setItemsCount(0)
+        scroller.scrollTo(0, 0)
+      } else {
+        me.topRenderedIndex = 0
+        me.topVisibleIndex = 0
+        scroller.position.y = 0
+        me.updateAllListItems()
+      }
+    },
+
+    setItemsCount: function (itemsCount) {
+      var me = this
+      var listItems = me.listItems
+      var config = me.getListItemConfig()
+      var difference = itemsCount - listItems.length
+      var i
+
+      // This loop will create new items if the new itemsCount is higher than the amount of items we currently have
+      for (i = 0; i < difference; i++) {
+        me.createItem(config)
+      }
+
+      // This loop will destroy unneeded items if the new itemsCount is lower than the amount of items we currently have
+      for (i = difference; i < 0; i++) {
+        listItems.pop().destroy()
+      }
+
+      me.itemsCount = itemsCount
+
+      // Finally we update all the list items with the correct content
+      me.updateAllListItems()
+
+      // Android Stock bug where redraw is needed to show empty list
+      if (Ext.browser.is.AndroidStock && me.container.element && itemsCount === 0 && difference !== 0) {
+        me.container.element.redraw()
+      }
+
+      return me.listItems
     }
   })
 }))

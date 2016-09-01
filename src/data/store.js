@@ -14,7 +14,7 @@
   }
 }(this, function (define, Base, Backbone) {
   var Store = define('Tau.data.Store', Base, {
-    constructor: function (config) {
+    /*constructor: function (config) {
       config = config || {}
 
       this.data = this._data = this.createDataCollection()
