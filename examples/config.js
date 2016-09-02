@@ -3,9 +3,9 @@
  */
 seajs.config({
 	alias : {
-	    'button':'taurus/button/button',
-	    //'backbone-pageable':'../../src/backbone-pageable'/*,
-	    //'underscore':'../../src/backbone-pageable'
+	  'button': 'taurus/button/button',
+	  //'backbone-pageable':'../../src/backbone-pageable'/*,
+	  //'underscore':'../../src/backbone-pageable'
 	},
 	paths: {
 		'taurus':'./'
@@ -15,4 +15,4 @@ seajs.config({
 	vars : {
 		'locale' : (navigator.language || navigator.browserLanguage).toLowerCase()
 	}
-});
+})

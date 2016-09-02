@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './listItemHeader', '../container', 'underscore', 'tau'], factory)
+      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './listItemHeader', '../container', '../util/positionMap', '../env/browser', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./listItemHeader'), require('../container'), require('underscore'), require('tau'))
+        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('underscore'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./listItemHeader'), require('../container'), require('underscore'), require('tau'))
+    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('underscore'), require('tau'))
   }
-}(this, function (define, DataView, Fit, factory, ListItemHeader, Container, _, Tau) {
+}(this, function (define, DataView, Fit, factory, ListItemHeader, Container, PositionMap, browser, _, Tau) {
   return define('Tau.dataview.List', DataView, {
     config: {
       /**
@@ -41,6 +41,12 @@
        * Note that this configuration can not be dynamically changed after the list has instantiated.
        */
       infinite: false,
+      /**
+       * @cfg {Number} itemHeight
+       * This allows you to set the default item height and is used to roughly calculate the amount
+       * of items needed to fill the list. By default items are around 50px high.
+       */
+      itemHeight: 42,
 
       /**
        * @cfg {Object} itemMap
@@ -60,6 +66,12 @@
        * @private
        */
       layout: Fit,
+      /**
+       * @cfg {Boolean} striped
+       * Set this to true if you want the items in the list to be zebra striped, alternating their
+       * background color.
+       */
+      striped: false,
 
       /**
        * @cfg {String} ui
@@ -83,11 +95,15 @@
     // </debug>
     },
 
+    applyItemMap: function (itemMap) {
+      return factory(itemMap, PositionMap, this.getItemMap())
+    },
+
     doRefresh: function () {
-      var me = this,
-        infinite = me.getInfinite(),
-        scroller = me.container.getScrollable().getScroller(),
-        storeCount = me.getStore().getCount()
+      var me = this
+      var infinite = me.getInfinite()
+      var scroller = me.container.getScrollable().getScroller()
+      var storeCount = me.getStore().getCount()
 
       if (infinite) {
         me.getItemMap().populate(storeCount, this.topRenderedIndex)
@@ -209,6 +225,26 @@
       return config
     },
 
+    getListItemInfo: function () {
+      var me = this
+      var baseCls = me.getBaseCls()
+
+      return {
+        store: me.getStore(),
+        grouped: me.getGrouped(),
+        baseCls: baseCls,
+        selectedCls: me.getSelectedCls(),
+        headerCls: baseCls + '-header-wrap',
+        footerCls: baseCls + '-footer-wrap',
+        firstCls: baseCls + '-item-first',
+        lastCls: baseCls + '-item-last',
+        stripeCls: baseCls + '-item-odd',
+        striped: me.getStriped(),
+        itemMap: me.getItemMap(),
+        defaultItemHeight: me.getItemHeight()
+      }
+    },
+
     // We override DataView's initialize method with an empty function
     initialize: function () {
       var me = this
@@ -310,11 +346,33 @@
       me.updateAllListItems()
 
       // Android Stock bug where redraw is needed to show empty list
-      if (Ext.browser.is.AndroidStock && me.container.element && itemsCount === 0 && difference !== 0) {
+      if (browser.is.AndroidStock && me.container.element && itemsCount === 0 && difference !== 0) {
         me.container.element.redraw()
       }
 
       return me.listItems
+    },
+
+    updateAllListItems: function () {
+      var me = this
+      var store = me.getStore()
+      var items = me.listItems
+      var info = me.getListItemInfo()
+      var topRenderedIndex = me.topRenderedIndex
+      var i, ln
+
+      if (store) {
+        for (i = 0, ln = items.length; i < ln; i++) {
+          me.updateListItem(items[i], topRenderedIndex + i, info)
+        }
+      }
+
+      if (me.isPainted()) {
+        if (me.getInfinite() && store && store.getCount()) {
+          me.handleItemHeights()
+        }
+        me.refreshScroller()
+      }
     }
   })
 }))

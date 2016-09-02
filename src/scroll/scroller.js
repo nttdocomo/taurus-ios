@@ -1,4 +1,4 @@
-/*global define*/
+/*global define, console*/
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
@@ -82,6 +82,75 @@
       this.getDirection()
 
       return this.isAxisEnabledFlags[axis]
+    },
+
+    /**
+     * Scrolls to the given location.
+     *
+     * @param {Number} x The scroll position on the x axis.
+     * @param {Number} y The scroll position on the y axis.
+     * @param {Boolean/Object} animation (optional) Whether or not to animate the scrolling to the new position.
+     *
+     * @return {Ext.scroll.Scroller} this
+     * @chainable
+     */
+    scrollTo: function (x, y, animation) {
+      if (this.isDestroyed) {
+        return this
+      }
+
+      // <deprecated product=touch since=2.0>
+      if (typeof x !== 'number' && arguments.length === 1) {
+        // <debug warn>
+        console.debug('Calling scrollTo() with an object argument is deprecated, please pass x and y arguments instead", this')
+        // </debug>
+
+        y = x.y
+        x = x.x
+      }
+      // </deprecated>
+
+      var translatable = this.getTranslatable()
+      var position = this.position
+      var positionChanged = false
+      var translationX, translationY
+
+      if (this.isAxisEnabled('x')) {
+        if (isNaN(x) || typeof x !== 'number') {
+          x = position.x
+        } else {
+          if (position.x !== x) {
+            position.x = x
+            positionChanged = true
+          }
+        }
+
+        translationX = -x
+      }
+
+      if (this.isAxisEnabled('y')) {
+        if (isNaN(y) || typeof y !== 'number') {
+          y = position.y
+        } else {
+          if (position.y !== y) {
+            position.y = y
+            positionChanged = true
+          }
+        }
+
+        translationY = -y
+      }
+
+      if (positionChanged) {
+        if (animation !== undefined && animation !== false) {
+          translatable.translateAnimated(translationX, translationY, animation)
+        } else {
+          this.fireEvent('scroll', this, position.x, position.y)
+          translatable.translate(translationX, translationY)
+        }
+      }
+
+      return this
     }
   })
 }))

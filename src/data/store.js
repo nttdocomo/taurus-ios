@@ -2,11 +2,11 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../base', 'backbone', 'backbone-super'], factory)
+      define(['../core/define', '../base', 'underscore', 'backbone', 'backbone-super'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../base'), require('backbone'), require('backbone-super'))
+        return factory(require('../core/define'), require('../base'), require('underscore'), require('backbone'), require('backbone-super'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -14,8 +14,11 @@
   }
 }(this, function (define, Base, Backbone) {
   var Store = define('Tau.data.Store', Base, {
-    /*constructor: function (config) {
-      config = config || {}
+    config: {
+      autoLoad: true
+    },
+    constructor: function (config) {
+      /* config = config || {}
 
       this.data = this._data = this.createDataCollection()
 
@@ -27,11 +30,14 @@
       if (config.id && !config.storeId) {
         config.storeId = config.id
         delete config.id
-      }
+      }*/
 
       this.initConfig(config)
 
       Base.apply(this, arguments)
+    },
+    load:function () {
+      this.fetch()
     },
     updateAutoLoad: function (autoLoad) {
       var proxy = this.getProxy()
@@ -49,6 +55,6 @@
       return this.length || 0
     }
   })
-  Store.mixin(Backbone.Collection)
+  //Store.mixin(Backbone.Collection)
   return Store
 }))

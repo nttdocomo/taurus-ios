@@ -21,6 +21,30 @@
        */
       baseCls: Tau.baseCSSPrefix + 'dataview',
       /**
+       * @cfg {String} itemCls
+       * An additional CSS class to apply to items within the DataView.
+       * @accessor
+       */
+      itemCls: null,
+
+      /**
+       * @cfg {Object} itemConfig
+       * A configuration object that is passed to every item created by a component based DataView. Because each
+       * item that a DataView renders is a Component, we can pass configuration options to each component to
+       * easily customize how each child component behaves.
+       *
+       * __Note:__ this is only used when `{@link #useComponents}` is `true`.
+       * @accessor
+       */
+      itemConfig: {},
+      /**
+       * @cfg {String} selectedCls
+       * The CSS class to apply to an item on the view while it is selected.
+       * @accessor
+       */
+      selectedCls: Tau.baseCSSPrefix + 'x-item-selected',
+
+      /**
        * @cfg {Ext.data.Store/Object} store
        * Can be either a Store instance or a configuration object that will be turned into a Store. The Store is used
        * to populate the set of items that will be rendered in the DataView. See the DataView intro documentation for
