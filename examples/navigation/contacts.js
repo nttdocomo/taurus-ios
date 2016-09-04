@@ -6,7 +6,7 @@ define(function (require) {
   var $ = require('jquery')
   require('../jquery.mockjax')
   var Contacts = define(Store, {
-    // url: '/restful/api',
+    url: '/restful/api',
     config: {
       autoLoad: true
     }
@@ -107,9 +107,9 @@ define(function (require) {
 
       store: new Contacts(),
       itemTpl: [
-        '<div class="headshot" style="background-image:url(resources/images/headshots/{headshot});"></div>',
-        '{firstName} {lastName}',
-        '<span>{title}</span>'
+        '<div class="headshot" style="background-image:url(resources/images/headshots/<%=headshot%>);"></div>',
+        '<%=firstName%> <%=lastName%>',
+        '<span><%=title%></span>'
       ].join('')
     }
   })

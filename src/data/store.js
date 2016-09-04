@@ -10,13 +10,14 @@
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../base'), require('backbone'), require('backbone-super'))
+    module.exports = factory(require('../core/define'), require('../base'), require('underscore'), require('backbone'), require('backbone-super'))
   }
-}(this, function (define, Base, Backbone) {
+}(this, function (define, Base, _, Backbone) {
   var Store = define('Tau.data.Store', Base, {
     config: {
       autoLoad: true
     },
+    isStore: true,
     constructor: function (config) {
       /* config = config || {}
 
@@ -35,15 +36,37 @@
       this.initConfig(config)
 
       Base.apply(this, arguments)
+      Backbone.Collection.apply(this, arguments)
     },
-    load:function () {
-      this.fetch()
+
+    /**
+     * Returns `true` if the Store has been loaded.
+     * @return {Boolean} `true` if the Store has been loaded.
+     */
+    isLoaded: function () {
+      return Boolean(this.loaded)
     },
+
+    /**
+     * Returns `true` if the Store is currently performing a load operation.
+     * @return {Boolean} `true` if the Store is currently loading.
+     */
+    isLoading: function () {
+      return Boolean(this.loading)
+    },
+    load: function () {
+      this.fetch({
+        success: _.bind(this.onProxyLoad, this),
+        reset: true
+      })
+    },
+    onProxyLoad: function () {},
     updateAutoLoad: function (autoLoad) {
-      var proxy = this.getProxy()
-      if (autoLoad && (proxy && !proxy.isMemoryProxy)) {
-        this.load(_.isObject(autoLoad) ? autoLoad : null)
-      }
+      this.load(_.isObject(autoLoad) ? autoLoad : null)
+    /* var proxy = this.getProxy()
+    if (autoLoad && (proxy && !proxy.isMemoryProxy)) {
+      this.load(_.isObject(autoLoad) ? autoLoad : null)
+    }*/
     },
 
     /**
@@ -55,6 +78,6 @@
       return this.length || 0
     }
   })
-  //Store.mixin(Backbone.Collection)
+  Store.mixin(Backbone.Collection)
   return Store
 }))

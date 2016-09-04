@@ -14,7 +14,6 @@
   }
 }(this, function (define, Class, CssTransform, _, Tau) {
   return define('Tau.util.Translatable', Class, {
-
     constructor: function (config) {
       var namespace = Tau.util.translatable
 
@@ -26,6 +25,20 @@
         case 'cssposition':
           return new namespace.CssPosition(config)
       }
+    },
+
+    stopAnimation: function () {
+      if (!this.isAnimating) {
+        return
+      }
+
+      this.activeEasingX = null
+      this.activeEasingY = null
+
+      this.isAnimating = false
+
+      Ext.AnimationQueue.stop(this.doAnimationFrame, this)
+      this.trigger('animationend', this, this.x, this.y)
     }
   })
 }))

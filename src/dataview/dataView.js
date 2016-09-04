@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../container', './component/dataItem', '../mixin/selectable', 'tau', './element/container'], factory)
+      define(['../core/define', '../container', './component/dataItem', '../mixin/selectable', './element/container', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../container'), require('./component/dataItem'), require('../mixin/selectable'), require('tau'), require('./element/container'))
+        return factory(require('../core/define'), require('../container'), require('./component/dataItem'), require('../mixin/selectable'), require('./element/container'), require('underscore'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../container'), require('./component/dataItem'), require('../mixin/selectable'), require('tau'), require('./element/container'))
+    module.exports = factory(require('../core/define'), require('../container'), require('./component/dataItem'), require('../mixin/selectable'), require('./element/container'), require('underscore'), require('tau'))
   }
-}(this, function (define, Container, DataItem, Selectable, Tau) {
+}(this, function (define, Container, DataItem, Selectable, ElementContainer, _, Tau) {
   return define('Tau.dataview.DataView', Container, {
     config: {
       /**
@@ -20,6 +20,16 @@
        * @inheritdoc
        */
       baseCls: Tau.baseCSSPrefix + 'dataview',
+      /**
+       * @cfg {Boolean} deferEmptyText `true` to defer `emptyText` being applied until the store's first load.
+       */
+      deferEmptyText: true,
+
+      /**
+       * @cfg {String} emptyText
+       * The text to display in the view when there is no data to display
+       */
+      emptyText: null,
       /**
        * @cfg {String} itemCls
        * An additional CSS class to apply to items within the DataView.
@@ -37,6 +47,13 @@
        * @accessor
        */
       itemConfig: {},
+
+      /**
+       * @cfg {Boolean} scrollToTopOnRefresh
+       * Scroll the DataView to the top when the DataView is refreshed.
+       * @accessor
+       */
+      scrollToTopOnRefresh: true,
       /**
        * @cfg {String} selectedCls
        * The CSS class to apply to an item on the view while it is selected.
@@ -86,6 +103,18 @@
       defaultType: DataItem
     },
 
+    storeEventHooks: function () {
+      var me = this
+      return {
+        // beforeload: _.bind(me.onBeforeLoad, me),
+        // sync: _.bind(me.onLoad, me),
+        reset: _.bind(me.refresh, me),
+      // add: _.bind(me.onStoreAdd, me),
+      // remove: _.bind(me.onStoreRemove, me),
+      // update: _.bind(me.onStoreUpdate, me)
+      }
+    },
+
     constructor: function (config) {
       var me = this
       var layout
@@ -104,6 +133,23 @@
         console.error('The base layout for a DataView must always be an Auto Layout')
       }
     // </debug>
+    },
+
+    applyStore: function (store) {
+      var me = this
+      var bindEvents = _.extend({}, me.storeEventHooks(), { scope: me })
+      if (store) {
+        if (store && _.isObject(store) && store.isStore) {
+          store.on(bindEvents)
+        }
+      }
+      return store
+    },
+
+    hideEmptyText: function () {
+      if (this.getEmptyText()) {
+        this.emptyTextCmp.hide()
+      }
     },
 
     initialize: function () {
@@ -148,6 +194,19 @@
     },
 
     /**
+     * Function which can be overridden to provide custom formatting for each Record that is used by this
+     * DataView's {@link #tpl template} to render each node.
+     * @param {Object/Object[]} data The raw data object that was used to create the Record.
+     * @param {Number} index the index number of the Record being prepared for rendering.
+     * @param {Ext.data.Model} record The Record being prepared for rendering.
+     * @return {Array/Object} The formatted data in a format expected by the internal {@link #tpl template}'s `overwrite()` method.
+     * (either an array if your params are numeric (i.e. `{0}`) or an object (i.e. `{foo: 'bar'}`))
+     */
+    prepareData: function (data, index, record) {
+      return data
+    },
+
+    /**
      * Refreshes the view by reloading the data from the store and re-rendering the template.
      */
     refresh: function () {
@@ -164,6 +223,45 @@
         me.trigger('refresh', me)
         me.doRefresh()
       }
+    },
+
+    updateStore: function (newStore, oldStore) {
+      var me = this,
+        bindEvents = _.extend({}, me.storeEventHooks(), { scope: me }),
+        proxy, reader
+
+      if (oldStore && _.isObject(oldStore) && oldStore.isStore) {
+        oldStore.un(bindEvents)
+
+        if (!me.isDestroyed) {
+          me.onStoreClear()
+        }
+
+        if (oldStore.getAutoDestroy()) {
+          oldStore.destroy()
+        }else {
+          proxy = oldStore.getProxy()
+          if (proxy) {
+            reader = proxy.getReader()
+            if (reader) {
+              reader.un('exception', 'handleException', this)
+            }
+          }
+        }
+      }
+
+      if (newStore) {
+        if (newStore.isLoaded()) {
+          this.hasLoadedStore = true
+        }
+
+        if (newStore.isLoading()) {
+          me.onBeforeLoad()
+        }
+        if (me.container) {
+          me.refresh()
+        }
+      }
     }
-  })
+  }).mixin(Selectable)
 }))

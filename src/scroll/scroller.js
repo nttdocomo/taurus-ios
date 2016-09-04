@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../class', '../polyfill/object/merge', '../core/factory', 'underscore', 'tau'], factory)
+      define(['../core/define', '../class', '../polyfill/object/merge', '../util/translatable', '../core/factory', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../class'), require('../polyfill/object/merge'), require('../core/factory'), require('underscore'), require('tau'))
+        return factory(require('../core/define'), require('../class'), require('../polyfill/object/merge'), require('../util/translatable'), require('../core/factory'), require('underscore'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../class'), require('../polyfill/object/merge'), require('../core/factory'), require('underscore'), require('tau'))
+    module.exports = factory(require('../core/define'), require('../class'), require('../polyfill/object/merge'), require('../util/translatable'), require('../core/factory'), require('underscore'), require('tau'))
   }
-}(this, function (define, Class, merge, factory, _, Tau) {
+}(this, function (define, Class, merge, Translatable, factory, _, Tau) {
   return define('Tau.scroll.Scroller', Class, {
     config: {
       element: null,
@@ -83,6 +83,23 @@
 
       return this.isAxisEnabledFlags[axis]
     },
+    /**
+     * @private
+     * @return {Ext.scroll.Scroller} this
+     * @chainable
+     */
+    refresh: function () {
+      this.stopAnimation()
+
+      this.getTranslatable().refresh()
+      this.setSize(this.givenSize)
+      this.setContainerSize(this.givenContainerSize)
+      this.setDirection(this.givenDirection)
+
+      this.trigger('refresh', this)
+
+      return this
+    },
 
     /**
      * Scrolls to the given location.
@@ -145,12 +162,35 @@
         if (animation !== undefined && animation !== false) {
           translatable.translateAnimated(translationX, translationY, animation)
         } else {
-          this.fireEvent('scroll', this, position.x, position.y)
+          this.trigger('scroll', this, position.x, position.y)
           translatable.translate(translationX, translationY)
         }
       }
 
       return this
+    },
+
+    applyTranslatable: function (config, translatable) {
+      return factory(config, Translatable, translatable)
+    },
+
+    updateTranslatable: function (translatable) {
+      translatable.setConfig({
+        element: this.getElement(),
+        listeners: {
+          animationframe: 'onAnimationFrame',
+          animationend: 'onAnimationEnd',
+          scope: this
+        }
+      })
+    },
+
+    /**
+     * @private
+     * Stops the animation of the scroller at any time.
+     */
+    stopAnimation: function () {
+      this.getTranslatable().stopAnimation()
     }
   })
 }))

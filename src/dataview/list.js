@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './listItemHeader', '../container', '../util/positionMap', '../env/browser', 'underscore', 'tau'], factory)
+      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './component/simpleListItem', './component/ListItem', './listItemHeader', '../container', '../util/positionMap', '../env/browser', '../polyfill/array/remove', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('underscore'), require('tau'))
+        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./component/simpleListItem'), require('./component/ListItem'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('../polyfill/array/remove'), require('underscore'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('underscore'), require('tau'))
+    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./component/simpleListItem'), require('./component/ListItem'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('../polyfill/array/remove'), require('underscore'), require('tau'))
   }
-}(this, function (define, DataView, Fit, factory, ListItemHeader, Container, PositionMap, browser, _, Tau) {
+}(this, function (define, DataView, Fit, factory, SimpleListItem, ListItem, ListItemHeader, Container, PositionMap, browser, remove, _, Tau) {
   return define('Tau.dataview.List', DataView, {
     config: {
       /**
@@ -20,6 +20,13 @@
        * @inheritdoc
        */
       baseCls: Tau.baseCSSPrefix + 'list',
+      /**
+         * @cfg {String} defaultType
+         * The xtype used for the component based DataView. Defaults to dataitem.
+         * Note this is only used when useComponents is true.
+         * @accessor
+         */
+      defaultType: undefined,
       /**
        * @cfg {Boolean} grouped
        * Whether or not to group items in the provided Store with a header for each item.
@@ -53,6 +60,18 @@
        * @private
        */
       itemMap: {},
+      /**
+         * @cfg {Boolean/Function/Object} onItemDisclosure
+         * `true` to display a disclosure icon on each list item.
+         * The list will still fire the disclose event, and the event can be stopped before itemtap.
+         * By setting this config to a function, the function passed will be called when the disclosure
+         * is tapped.
+         * Finally you can specify an object with a 'scope' and 'handler'
+         * property defined. This will also be bound to the tap event listener
+         * and is useful when you want to change the scope of the handler.
+         * @accessor
+         */
+      onItemDisclosure: null,
 
       /**
        * @cfg {Object} scrollable
@@ -79,8 +98,17 @@
        * Please note: if you use the `round` UI, {@link #pinHeaders} will be automatically turned off as
        * it is not supported.
        */
-      ui: 'normal'
+      ui: 'normal',
+      /**
+         * @cfg {Boolean} useSimpleItems
+         * Set this to true if you just want to have the list create simple items that use the itemTpl.
+         * These simple items still support headers, grouping and disclosure functionality but avoid
+         * container layouts and deeply nested markup. For many Lists using this configuration will
+         * drastically increase the scrolling and render performance.
+         */
+      useSimpleItems: true
     },
+    topRenderedIndex: 0,
     constructor: function () {
       var me = this
       var layout
@@ -93,6 +121,13 @@
         console.error('The base layout for a DataView must always be a Fit Layout')
       }
     // </debug>
+    },
+
+    applyDefaultType: function (defaultType) {
+      if (!defaultType) {
+        defaultType = this.getUseSimpleItems() ? SimpleListItem : ListItem
+      }
+      return defaultType
     },
 
     applyItemMap: function (itemMap) {
@@ -201,11 +236,46 @@
       me.bind(scrollable.getScroller().getTranslatable(), 'doTranslate', 'onTranslate')
     },
 
+    createItem: function (config) {
+      var me = this
+      var container = me.container
+      var listItems = me.listItems
+      var infinite = me.getInfinite()
+      var scrollElement = me.scrollElement
+      var item, header, itemCls
+
+      item = factory(config)
+      item.dataview = me
+      item.$height = config.minHeight
+
+      if (!infinite) {
+        itemCls = me.getBaseCls() + '-item-relative'
+        item.addCls(itemCls)
+      }
+
+      header = item.getHeader()
+      if (!infinite) {
+        header.addCls(itemCls)
+      } else {
+        header.setTranslatable({
+          translationMethod: this.translationMethod
+        })
+        header.translate(0, -10000)
+
+        scrollElement.insertFirst(header.renderElement)
+      }
+
+      container.doAdd(item)
+      listItems.push(item)
+
+      return item
+    },
+
     getListItemConfig: function () {
       var me = this
       var minimumHeight = me.getItemMap().getMinimumHeight()
       var config = {
-        xtype: me.getDefaultType(),
+        xclass: me.getDefaultType(),
         itemConfig: me.getItemConfig(),
         tpl: me.getItemTpl(),
         minHeight: minimumHeight,
@@ -303,6 +373,27 @@
       me.trigger('disclose', [me, record, item, index, e], 'doDisclose')
     },
 
+    hideScrollDockItems: function () {
+      var me = this
+      var infinite = me.getInfinite()
+      var scrollDockItems = me.scrollDockItems
+      var i, ln, item
+
+      if (!infinite) {
+        return
+      }
+
+      for (i = 0, ln = scrollDockItems.top.length; i < ln; i++) {
+        item = scrollDockItems.top[i]
+        item.translate(0, -10000)
+      }
+
+      for (i = 0, ln = scrollDockItems.bottom.length; i < ln; i++) {
+        item = scrollDockItems.bottom[i]
+        item.translate(0, -10000)
+      }
+    },
+
     onStoreClear: function () {
       var me = this
       var scroller = me.container.getScrollable().getScroller()
@@ -320,6 +411,18 @@
         me.topVisibleIndex = 0
         scroller.position.y = 0
         me.updateAllListItems()
+      }
+    },
+
+    refreshScroller: function () {
+      var me = this
+
+      if (me.isPainted()) {
+        if (!me.getInfinite() && me.getGrouped() && me.getPinHeaders()) {
+          me.updateHeaderMap()
+        }
+
+        me.container.getScrollable().getScroller().refresh()
       }
     },
 
@@ -373,6 +476,194 @@
         }
         me.refreshScroller()
       }
+    },
+
+    updateListItem: function (item, index, info) {
+      var me = this,
+        record = info.store.at(index),
+        headerIndices = me.headerIndices,
+        footerIndices = me.footerIndices,
+        header = item.getHeader(),
+        scrollDockItems = me.scrollDockItems,
+        updatedItems = me.updatedItems,
+        currentItemCls = item.renderElement.classList.slice(),
+        currentHeaderCls = header.renderElement.classList.slice(),
+        infinite = me.getInfinite(),
+        storeCount = info.store.getCount(),
+        itemCls = [],
+        headerCls = [],
+        itemRemoveCls = [info.headerCls, info.footerCls, info.firstCls, info.lastCls, info.selectedCls, info.stripeCls],
+        headerRemoveCls = [info.headerCls, info.footerCls, info.firstCls, info.lastCls],
+        ln, i, scrollDockItem, classCache
+
+      // When we update a list item, the header and scrolldocks can make it have to be retransformed.
+      // For that reason we want to always set the position to -10000 so that the next time we translate
+      // all the pieces are transformed to the correct location
+      if (infinite) {
+        item.$position = -10000
+      }
+
+      // We begin by hiding/showing the item and its header depending on a record existing at this index
+      if (!record) {
+        item.setRecord(null)
+        if (infinite) {
+          item.translate(0, -10000)
+        } else {
+          item.hide()
+        }
+
+        if (infinite) {
+          header.translate(0, -10000)
+        } else {
+          header.hide()
+        }
+        item.$hidden = true
+        return
+      } else if (item.$hidden) {
+        if (!infinite) {
+          item.show()
+        }
+        item.$hidden = false
+      }
+
+      if (infinite) {
+        updatedItems.push(item)
+      }
+
+      // If this item was previously used for the first record in the store, and now it will not be, then we hide
+      // any scrollDockTop items and change the isFirst flag
+      if (item.isFirst && index !== 0 && scrollDockItems.top.length) {
+        for (i = 0, ln = scrollDockItems.top.length; i < ln; i++) {
+          scrollDockItem = scrollDockItems.top[i]
+          if (infinite) {
+            scrollDockItem.translate(0, -10000)
+          }
+        }
+        item.isFirst = false
+      }
+
+      // If this item was previously used for the last record in the store, and now it will not be, then we hide
+      // any scrollDockBottom items and change the istLast flag
+      if (item.isLast && index !== storeCount - 1 && scrollDockItems.bottom.length) {
+        for (i = 0, ln = scrollDockItems.bottom.length; i < ln; i++) {
+          scrollDockItem = scrollDockItems.bottom[i]
+          if (infinite) {
+            scrollDockItem.translate(0, -10000)
+          }
+        }
+        item.isLast = false
+      }
+
+      // If the item is already bound to this record then we shouldn't have to do anything
+      if (item.$dataIndex !== index) {
+        item.$dataIndex = index
+        me.trigger('itemindexchange', me, record, index, item)
+      }
+
+      // This is where we actually update the item with the record
+      if (item.getRecord() === record) {
+        item.updateRecord(record)
+      } else {
+        item.setRecord(record)
+      }
+
+      if (me.isSelected(record)) {
+        itemCls.push(info.selectedCls)
+      }
+
+      if (info.grouped) {
+        if (headerIndices[index]) {
+          itemCls.push(info.headerCls)
+          headerCls.push(info.headerCls)
+          header.setHtml(info.store.getGroupString(record))
+
+          if (!infinite) {
+            header.renderElement.insertBefore(item.renderElement)
+          }
+          header.show()
+        } else {
+          if (infinite) {
+            header.translate(0, -10000)
+          } else {
+            header.hide()
+          }
+        }
+        if (footerIndices[index]) {
+          itemCls.push(info.footerCls)
+          headerCls.push(info.footerCls)
+        }
+      }
+
+      if (!info.grouped) {
+        header.hide()
+      }
+
+      if (index === 0) {
+        item.isFirst = true
+        itemCls.push(info.firstCls)
+        headerCls.push(info.firstCls)
+
+        if (!info.grouped) {
+          itemCls.push(info.headerCls)
+          headerCls.push(info.headerCls)
+        }
+
+        if (!infinite) {
+          for (i = 0, ln = scrollDockItems.top.length; i < ln; i++) {
+            scrollDockItem = scrollDockItems.top[i]
+            if (info.grouped) {
+              scrollDockItem.renderElement.insertBefore(header.renderElement)
+            } else {
+              scrollDockItem.renderElement.insertBefore(item.renderElement)
+            }
+          }
+        }
+      }
+
+      if (index === storeCount - 1) {
+        item.isLast = true
+        itemCls.push(info.lastCls)
+        headerCls.push(info.lastCls)
+
+        if (!info.grouped) {
+          itemCls.push(info.footerCls)
+          headerCls.push(info.footerCls)
+        }
+
+        if (!infinite) {
+          for (i = 0, ln = scrollDockItems.bottom.length; i < ln; i++) {
+            scrollDockItem = scrollDockItems.bottom[i]
+            scrollDockItem.renderElement.insertAfter(item.renderElement)
+          }
+        }
+      }
+
+      if (info.striped && index % 2 == 1) {
+        itemCls.push(info.stripeCls)
+      }
+
+      if (currentItemCls) {
+        for (i = 0; i < itemRemoveCls.length; i++) {
+          remove(currentItemCls, itemRemoveCls[i])
+        }
+        itemCls = _.union(itemCls, currentItemCls)
+      }
+
+      if (currentHeaderCls) {
+        for (i = 0; i < headerRemoveCls.length; i++) {
+          remove(currentHeaderCls, headerRemoveCls[i])
+        }
+        headerCls = _.union(headerCls, currentHeaderCls)
+      }
+
+      classCache = itemCls.join(' ')
+
+      if (item.classCache !== classCache) {
+        item.renderElement.setCls(itemCls)
+        item.classCache = classCache
+      }
+
+      header.renderElement.setCls(headerCls)
     }
   })
 }))

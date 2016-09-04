@@ -282,6 +282,9 @@
 
       return this
     },
+    setCls: function (names) {
+      this.$dom.attr('class', names.join(' '))
+    },
 
     /**
      * Sets the `innerHTML` of this element.

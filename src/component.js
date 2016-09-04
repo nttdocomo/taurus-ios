@@ -118,6 +118,17 @@
       top: null,
 
       /**
+       * @cfg {String/String[]/Ext.Template/Ext.XTemplate[]} tpl
+       * A {@link String}, {@link Ext.Template}, {@link Ext.XTemplate} or an {@link Array} of strings to form an {@link Ext.XTemplate}.
+       * Used in conjunction with the {@link #data} and {@link #tplWriteMode} configurations.
+       *
+       * __Note__
+       * The {@link #data} configuration _must_ be set for any content to be shown in the component when using this configuration.
+       * @accessor
+       */
+      tpl: null,
+
+      /**
        * @cfg {Number/String} right
        * The absolute right position of this Component; must be a valid CSS length value, e.g: `300`, `100px`, `30%`, etc.
        * Explicitly setting this value will make this Component become 'floating', which means its layout will no
@@ -714,6 +725,31 @@
     updateCls: function (newCls, oldCls) {
       if (this.element && ((newCls && !oldCls) || (!newCls && oldCls) || newCls.length !== oldCls.length || _.difference(newCls, oldCls).length > 0)) {
         this.element.replaceCls(oldCls, newCls)
+      }
+    },
+
+    /**
+     * @private
+     */
+    updateData: function (newData) {
+      var me = this
+      if (newData) {
+        var tpl = me.getTpl()
+        //var tplWriteMode = me.getTplWriteMode()
+
+        if (tpl) {
+          //tpl[tplWriteMode](me.getInnerHtmlElement(), newData)
+          console.log(me.getInnerHtmlElement())
+          me.getInnerHtmlElement().$dom.html(_.template(tpl)(newData))
+        }
+
+        /**
+         * @event updatedata
+         * Fires whenever the data of the component is updated
+         * @param {Ext.Component} this The component instance
+         * @param {Object} newData The new data
+         */
+        this.trigger('updatedata', me, newData)
       }
     },
 

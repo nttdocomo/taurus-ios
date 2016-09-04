@@ -17,6 +17,16 @@
     constructor: function () {
       this.selected = new MixedCollection()
       Mixin.apply(this, arguments)
+    },
+
+    /**
+     * Returns `true` if the specified row is selected.
+     * @param {Ext.data.Model/Number} record The record or index of the record to check.
+     * @return {Boolean}
+     */
+    isSelected: function (record) {
+      record = _.isNumber(record) ? this.getStore().getAt(record) : record
+      return this.selected.indexOf(record) !== -1
     }
   })
 }))
