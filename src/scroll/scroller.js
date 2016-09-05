@@ -15,6 +15,11 @@
 }(this, function (define, Base, merge, Translatable, Element, factory, _, Tau) {
   return define('Tau.scroll.Scroller', Base, {
     config: {
+      /**
+       * @cfg size
+       * @private
+       */
+      size: 'auto',
       element: null,
 
       /**

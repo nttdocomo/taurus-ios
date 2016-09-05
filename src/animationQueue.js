@@ -15,7 +15,7 @@
     module.exports = factory(require('./core/define'), require('./class'))
   }
 }(this, function (define, Class) {
-  return define('Tau.AnimationQueue', Class, {
+  AnimationQueue = define('Tau.AnimationQueue', Class, {
     /**
      *
      * @param {Function} fn
@@ -51,4 +51,5 @@
       }
     }
   })
+  return new AnimationQueue
 }))

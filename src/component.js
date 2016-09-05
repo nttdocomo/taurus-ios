@@ -315,7 +315,7 @@
       me.initialConfig = config
       me.initElement()
       me.initConfig(me.initialConfig)
-      AbstractComponent.apply(me, arguments)
+      // AbstractComponent.apply(me, arguments)
       me.initialize()
     },
 

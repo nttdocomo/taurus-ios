@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', 'class', 'underscore', './mixin/observable', './mixin/identifiable', 'backbone-super', './underscore/deepClone'], factory)
+      define(['./core/define', 'class', 'underscore', './mixin/observable', './mixin/identifiable', 'taurus', 'jquery', 'backbone-super', './underscore/deepClone', './core/lang/string'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('backbone-super'), require('./underscore/deepClone'))
+        return factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('taurus'), require('jquery'), require('backbone-super'), require('./underscore/deepClone'), require('./core/lang/string'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('backbone-super'), require('./underscore/deepClone'))
+    module.exports = factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('taurus'), require('jquery'), require('backbone-super'), require('./underscore/deepClone'), require('./core/lang/string'))
   }
-}(this, function (define, Class, _, Observable, Identifiable) {
+}(this, function (define, Class, _, Observable, Identifiable, Tau, $) {
   var Base = define(Class, {
     initConfigList: [],
     defaultConfig: {},
@@ -40,31 +40,30 @@
      * @private
      */
     onConfigUpdate: function (names, callback, scope) {
-      var self = this.self
-      var className = self.$className,
-      //</debug>
-      i, ln, name,
-      updaterName, updater, newUpdater;
+      var self = this.constructor
+      var className = self.$className
+        // </debug>
+      var i, ln, name, updaterName, updater, newUpdater
 
-      names = Ext.Array.from(names);
+      names = $.makeArray(names)
 
-      scope = scope || this;
+      scope = scope || this
 
-      for (i = 0,ln = names.length; i < ln; i++) {
-        name = names[i];
-        updaterName = 'update' + Ext.String.capitalize(name);
-        updater = this[updaterName] || Ext.emptyFn;
-        newUpdater = function() {
-          updater.apply(this, arguments);
-          scope[callback].apply(scope, arguments);
+      for (i = 0, ln = names.length; i < ln; i++) {
+        name = names[i]
+        updaterName = 'update' + name.capitalize()
+        updater = this[updaterName] || Tau.emptyFn
+        newUpdater = function () {
+          updater.apply(this, arguments)
+          scope[callback].apply(scope, arguments)
         }
-        newUpdater.$name = updaterName;
-        newUpdater.$owner = self;
-        //<debug>
-        newUpdater.displayName = className + '#' + updaterName;
-        //</debug>
+        newUpdater.$name = updaterName
+        newUpdater.$owner = self
+        // <debug>
+        newUpdater.displayName = className + '#' + updaterName
+        // </debug>
 
-        this[updaterName] = newUpdater;
+        this[updaterName] = newUpdater
       }
     }
   }, {
@@ -93,9 +92,9 @@
 
         if (value !== oldValue) {
           if (initialized) {
-            this.fireAction(changeEventName, [this, value, oldValue], this.doSet, this, {
+            /* this.trigger(changeEventName, [this, value, oldValue], this.doSet, this, {
               nameMap: nameMap
-            })
+            })*/
           } else {
             this[internalName] = value
             if (this[doSetName]) {
@@ -147,7 +146,7 @@
       return this
       // </feature>
 
-      // prototype.mixins[name] = mixin
+    // prototype.mixins[name] = mixin
     },
     onClassExtended: function (Class, data) {
       if (!data.hasOwnProperty('eventedConfig')) {
