@@ -36,38 +36,37 @@
       }
     },
 
-      /**
-       * @private
-       */
-      onConfigUpdate: function(names, callback, scope) {
-          var self = this.self,
-              //<debug>
-              className = self.$className,
-              //</debug>
-              i, ln, name,
-              updaterName, updater, newUpdater;
+    /**
+     * @private
+     */
+    onConfigUpdate: function (names, callback, scope) {
+      var self = this.self
+      var className = self.$className,
+      //</debug>
+      i, ln, name,
+      updaterName, updater, newUpdater;
 
-          names = Ext.Array.from(names);
+      names = Ext.Array.from(names);
 
-          scope = scope || this;
+      scope = scope || this;
 
-          for (i = 0,ln = names.length; i < ln; i++) {
-              name = names[i];
-              updaterName = 'update' + Ext.String.capitalize(name);
-              updater = this[updaterName] || Ext.emptyFn;
-              newUpdater = function() {
-                  updater.apply(this, arguments);
-                  scope[callback].apply(scope, arguments);
-              };
-              newUpdater.$name = updaterName;
-              newUpdater.$owner = self;
-              //<debug>
-              newUpdater.displayName = className + '#' + updaterName;
-              //</debug>
+      for (i = 0,ln = names.length; i < ln; i++) {
+        name = names[i];
+        updaterName = 'update' + Ext.String.capitalize(name);
+        updater = this[updaterName] || Ext.emptyFn;
+        newUpdater = function() {
+          updater.apply(this, arguments);
+          scope[callback].apply(scope, arguments);
+        }
+        newUpdater.$name = updaterName;
+        newUpdater.$owner = self;
+        //<debug>
+        newUpdater.displayName = className + '#' + updaterName;
+        //</debug>
 
-              this[updaterName] = newUpdater;
-          }
+        this[updaterName] = newUpdater;
       }
+    }
   }, {
     generateSetter: function (nameMap) {
       var internalName = nameMap.internal
