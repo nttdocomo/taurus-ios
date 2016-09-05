@@ -16,16 +16,6 @@
   var Base = define(Class, {
     initConfigList: [],
     defaultConfig: {},
-
-    constructor: function (config) {
-      this.initialConfig = config
-      this.initialize()
-    },
-
-    initialize: function () {
-      this.initConfig(this.initialConfig)
-      this.initialized = true
-    },
     getInitialConfig: function (name) {
       var config = this.config
 
@@ -34,40 +24,7 @@
       } else {
         return config[name]
       }
-    },
-
-      /**
-       * @private
-       */
-      onConfigUpdate: function(names, callback, scope) {
-          var self = this.self,
-              //<debug>
-              className = self.$className,
-              //</debug>
-              i, ln, name,
-              updaterName, updater, newUpdater;
-
-          names = Ext.Array.from(names);
-
-          scope = scope || this;
-
-          for (i = 0,ln = names.length; i < ln; i++) {
-              name = names[i];
-              updaterName = 'update' + Ext.String.capitalize(name);
-              updater = this[updaterName] || Ext.emptyFn;
-              newUpdater = function() {
-                  updater.apply(this, arguments);
-                  scope[callback].apply(scope, arguments);
-              };
-              newUpdater.$name = updaterName;
-              newUpdater.$owner = self;
-              //<debug>
-              newUpdater.displayName = className + '#' + updaterName;
-              //</debug>
-
-              this[updaterName] = newUpdater;
-          }
-      }
+    }
   }, {
     generateSetter: function (nameMap) {
       var internalName = nameMap.internal

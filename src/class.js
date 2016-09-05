@@ -77,6 +77,47 @@
       }
     // console.log(me)
     },
+
+    /**
+     * @private
+     */
+    setConfig: function (config, applyIfNotSet) {
+      if (!config) {
+        return this
+      }
+
+      var configNameCache = define.configNameCache
+      var currentConfig = this.config
+      var defaultConfig = this.defaultConfig
+      var initialConfig = this.initialConfig
+      var configList = []
+      var name, i, ln, nameMap
+
+      applyIfNotSet = Boolean(applyIfNotSet)
+
+      for (name in config) {
+        if ((applyIfNotSet && (name in initialConfig))) {
+          continue
+        }
+
+        currentConfig[name] = config[name]
+
+        if (name in defaultConfig) {
+          configList.push(name)
+          nameMap = configNameCache[name]
+          this[nameMap.get] = this[nameMap.initGet]
+        }
+      }
+
+      for (i = 0, ln = configList.length; i < ln; i++) {
+        name = configList[i]
+        nameMap = configNameCache[name]
+        this[nameMap.set].call(this, config[name])
+        delete this[nameMap.get]
+      }
+
+      return this
+    },
     beforeInitConfig: function () {},
     isInstance: true,
     // </feature>

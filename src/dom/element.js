@@ -90,6 +90,9 @@
     getFirstChild: function () {
       return Element.get(this.dom.firstElementChild)
     },
+    getParent: function () {
+      return Element.get(this.dom.parentNode)
+    },
 
     getUniqueId: function () {
       var id = this.id
