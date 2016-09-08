@@ -16,6 +16,11 @@
   return define('Tau.scroll.Scroller', Base, {
     config: {
       /**
+       * @cfg containerSize
+       * @private
+       */
+      containerSize: 'auto',
+      /**
        * @cfg size
        * @private
        */
@@ -104,13 +109,55 @@
         this.container = container = this.FixedHBoxStretching ? element.getParent() : element
         // <debug error>
         if (!container) {
-            console.error("Making an element scrollable that doesn't have any container")
+          console.error("Making an element scrollable that doesn't have any container")
         }
         // </debug>
         container.addCls(this.containerCls)
       }
 
       return container
+    },
+
+    /**
+     * @private
+     * @return {Object}
+     */
+    getMaxPosition: function () {
+      var maxPosition = this.maxPosition
+      var size, containerSize
+
+      if (!maxPosition) {
+        size = this.getSize()
+        containerSize = this.getContainerSize()
+
+        this.maxPosition = maxPosition = {
+          x: Math.max(0, size.x - containerSize.x),
+          y: Math.max(0, size.y - containerSize.y)
+        }
+
+        this.trigger('maxpositionchange', this, maxPosition)
+      }
+
+      return maxPosition
+    },
+
+    /**
+     * @private
+     * @return {Object}
+     */
+    getMinPosition: function () {
+      var minPosition = this.minPosition
+
+      if (!minPosition) {
+        this.minPosition = minPosition = {
+          x: 0,
+          y: 0
+        }
+
+        this.trigger('minpositionchange', this, minPosition)
+      }
+
+      return minPosition
     },
 
     /**
@@ -139,6 +186,13 @@
       this.trigger('refresh', this)
 
       return this
+    },
+    /**
+     * @private
+     */
+    refreshMaxPosition: function () {
+      this.maxPosition = null
+      this.getMaxPosition()
     },
 
     /**
@@ -213,6 +267,95 @@
     /**
      * @private
      */
+    snapToBoundary: function () {
+      var position = this.position
+      var minPosition = this.getMinPosition()
+      var maxPosition = this.getMaxPosition()
+      var minX = minPosition.x
+      var minY = minPosition.y
+      var maxX = maxPosition.x
+      var maxY = maxPosition.y
+      var x = Math.round(position.x)
+      var y = Math.round(position.y)
+
+      if (x < minX) {
+        x = minX
+      } else if (x > maxX) {
+        x = maxX
+      }
+
+      if (y < minY) {
+        y = minY
+      } else if (y > maxY) {
+        y = maxY
+      }
+
+      this.scrollTo(x, y)
+    },
+
+    /**
+     * @private
+     * @return {Object}
+     */
+    applyContainerSize: function (size) {
+      var containerDom = this.getContainer().dom
+      var x, y
+
+      if (!containerDom) {
+        return
+      }
+
+      this.givenContainerSize = size
+
+      if (size === 'auto') {
+        x = containerDom.offsetWidth
+        y = containerDom.offsetHeight
+      } else {
+        x = size.x
+        y = size.y
+      }
+
+      return {
+        x: x,
+        y: y
+      }
+    },
+
+    /**
+     * @private
+     * @param {String/Object} size
+     * @return {Object}
+     */
+    applySize: function (size) {
+      var dom = this.getElement().dom
+      var x, y
+
+      if (!dom) {
+        return
+      }
+
+      this.givenSize = size
+
+      if (size === 'auto') {
+        x = dom.offsetWidth
+        y = dom.offsetHeight
+      } else if (typeof size === 'number') {
+        x = size
+        y = size
+      } else {
+        x = size.x
+        y = size.y
+      }
+
+      return {
+        x: x,
+        y: y
+      }
+    },
+
+    /**
+     * @private
+     */
     applyElement: function (element) {
       if (!element) {
         return
@@ -238,8 +381,8 @@
 
       this.onConfigUpdate(['containerSize', 'size'], 'refreshMaxPosition')
 
-      this.on('maxpositionchange', 'snapToBoundary')
-      this.on('minpositionchange', 'snapToBoundary')
+      this.on('maxpositionchange', _.bind(this.snapToBoundary, this))
+      this.on('minpositionchange', _.bind(this.snapToBoundary, this))
 
       return this
     },
