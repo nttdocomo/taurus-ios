@@ -67,6 +67,10 @@
         names = names.split(this.spacesRe)
       }
 
+      this.$dom.addClass(_.map(names, function(name){
+        return prefix + name + suffix
+      }).join(''))
+
       for (i = 0, ln = names.length; i < ln; i++) {
         name = prefix + names[i] + suffix
 
@@ -76,7 +80,7 @@
         }
       }
 
-      dom.className = classList.join(' ')
+      //dom.className = classList.join(' ')
 
       return this
     },
@@ -188,16 +192,19 @@
         names = names.split(this.spacesRe)
       }
 
-      for (i = 0, ln = names.length; i < ln; i++) {
+      /*for (i = 0, ln = names.length; i < ln; i++) {
         name = prefix + names[i] + suffix
 
         if (map[name]) {
           delete map[name]
           removeClsList.push(name)
         }
-      }
+      }*/
+      removeClsList = _.map(names, function (name) {
+        return prefix + name + suffix
+      })
 
-      dom.removeClass(removeClsList.join(' '))
+      this.$dom.removeClass(removeClsList.join(' '))
 
       return this
     },
@@ -242,10 +249,10 @@
       }
 
       var $dom = this.$dom
-      /* var map = this.hasClassMap
-      var classList = this.classList*/
+      var map = this.hasClassMap
+      var classList = this.classList
       var SEPARATOR = this.SEPARATOR
-      // var i, ln, name
+      var i, ln, name
 
       prefix = prefix ? prefix + SEPARATOR : ''
       suffix = suffix ? SEPARATOR + suffix : ''
@@ -426,7 +433,7 @@
       }
       if (classList) {
         attributes.className += classList.join(' ')
-        // tag += '.' + classList.join('.')
+      // tag += '.' + classList.join('.')
       }
       if (attributes.children) {
         return h(tag, attributes, _.map(attributes.children, function (children) {

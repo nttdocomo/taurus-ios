@@ -45,6 +45,7 @@
         useWrapper: false
       }
     },
+    cls: Tau.baseCSSPrefix + 'scroll-scroller',
 
     /**
      * @private
@@ -400,6 +401,63 @@
           scope: this
         }
       })
+    },
+
+    /**
+     * @private
+     * @return {String}
+     */
+    applyDirection: function (direction) {
+      var minPosition = this.getMinPosition(),
+        maxPosition = this.getMaxPosition(),
+        isHorizontal, isVertical
+
+      this.givenDirection = direction
+
+      if (direction === 'auto') {
+        isHorizontal = maxPosition.x > minPosition.x
+        isVertical = maxPosition.y > minPosition.y
+
+        if (isHorizontal && isVertical) {
+          direction = 'both'
+        }
+        else if (isHorizontal) {
+          direction = 'horizontal'
+        }else {
+          direction = 'vertical'
+        }
+      }
+
+      return direction
+    },
+
+    /**
+     * @private
+     */
+    updateDirection: function (direction, oldDirection) {
+      var isAxisEnabledFlags = this.isAxisEnabledFlags,
+        verticalCls = this.cls + '-vertical',
+        horizontalCls = this.cls + '-horizontal',
+        element = this.getElement()
+
+      if (oldDirection === 'both' || oldDirection === 'horizontal') {
+        element.removeCls(horizontalCls)
+      }
+
+      if (oldDirection === 'both' || oldDirection === 'vertical') {
+        element.removeCls(verticalCls)
+      }
+
+      isAxisEnabledFlags.x = isAxisEnabledFlags.y = false
+      if (direction === 'both' || direction === 'horizontal') {
+        isAxisEnabledFlags.x = true
+        element.addCls(horizontalCls)
+      }
+
+      if (direction === 'both' || direction === 'vertical') {
+        isAxisEnabledFlags.y = true
+        element.addCls(verticalCls)
+      }
     },
 
     /**

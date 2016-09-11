@@ -23,8 +23,28 @@
      * Ext.Element instance of the reference domNode is only created the very first time
      * it's ever used.
      */
-    addReferenceNode: function (name, domNode) {
-      Object.defineProperty(this, name, {
+    addReferenceNode: function (config, domNode) {
+      var me = this
+      var name
+      if (config.reference) {
+        name = config.reference
+        Object.defineProperty(this, name, {
+          get: function () {
+            var reference
+
+            delete this[name]
+            this[name] = reference = new Element(domNode)
+            return reference
+          },
+          configurable: true
+        })
+      }
+      if (config.children) {
+        _.each(config.children, function (children, i) {
+          me.addReferenceNode(children, domNode.childNodes[i])
+        })
+      }
+      /*Object.defineProperty(this, name, {
         get: function () {
           var reference
 
@@ -33,7 +53,7 @@
           return reference
         },
         configurable: true
-      })
+      })*/
     },
     onClassExtended: function (Class, members) {
       if (!members.hasOwnProperty('cachedConfig')) {
@@ -78,13 +98,16 @@
       var renderElement = element.dom
       var i, ln
       this.setElement(renderElement)
-      if (elementConfig.reference) {
+      console.log(elementConfig)
+      console.log(element)
+      /*if (elementConfig.reference) {
         if (elementConfig.reference === 'element') {
           this.element = element
         } else {
           this[elementConfig.reference] = this.$el
         }
-      }
+      }*/
+      this.addReferenceNode(elementConfig, element.dom)
       var children = me.$el.children()
       _.each(elementConfig.children, function (item, i) {
         if (item.reference) {

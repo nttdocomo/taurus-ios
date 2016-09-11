@@ -49,7 +49,7 @@
         console.log('rendered')
         this.renderTo(body)
         classList.push(clsPrefix + osEnv.deviceType.toLowerCase())
-        body.addCls(classList);
+        body.addCls(classList)
       }
     }
   })
