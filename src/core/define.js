@@ -26,7 +26,7 @@
     var child = Class.extend()
     Class.triggerExtended.apply(child, [child, data, classProps])
     if (data.onClassExtended) {
-      Class.onExtended(data.onClassExtended, Class)
+      Class.onExtended(data.onClassExtended, child)
       delete data.onClassExtended
     }
     Class.onClassExtended && Class.onClassExtended(Class, data)

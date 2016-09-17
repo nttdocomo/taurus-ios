@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../../core/define', '../../component', 'underscore', 'tau'], factory)
+      define(['../../core/define', '../../component', '../../taskQueue', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../../core/define'), require('../../component'), require('underscore'), require('tau'))
+        return factory(require('../../core/define'), require('../../component'), require('../../taskQueue'), require('underscore'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../../core/define'), require('../../component'), require('underscore'), require('tau'))
+    module.exports = factory(require('../../core/define'), require('../../component'), require('../../taskQueue'), require('underscore'), require('tau'))
   }
-}(this, function (define, Component, _, Tau) {
+}(this, function (define, Component, TaskQueue, _, Tau) {
   return define('Tau.scroll.indicator.Abstract', Component, {
     cachedConfig: {
       active: true,
@@ -25,6 +25,19 @@
     },
 
     barElement: null,
+
+    doUpdateLength: function (length) {
+      if (!this.isDestroyed) {
+        var axis = this.getAxis(),
+          element = this.element
+
+        if (axis === 'x') {
+          element.setWidth(length)
+        }else {
+          element.setHeight(length)
+        }
+      }
+    },
 
     getElementConfig: function () {
       return {
@@ -50,11 +63,33 @@
       this.updateValue(this.getValue())
     },
 
+    setOffset: function (offset) {
+      offset = Math.round(offset)
+      if (this.lastOffset === offset || this.lastOffset === -10000) {
+        return
+      }
+      this.lastOffset = offset
+      TaskQueue.requestWrite('doSetOffset', this, [offset])
+    },
+
+    doSetOffset: function (offset) {
+      if (!this.isDestroyed) {
+        var axis = this.getAxis()
+        var element = this.element
+
+        if (axis === 'x') {
+          element.translate(offset, 0)
+        }else {
+          element.translate(0, offset)
+        }
+      }
+    },
+
     updateValue: function (value) {
-      var barLength = this.barLength,
-        gapLength = this.gapLength,
-        length = this.getLength(),
-        newLength, offset, extra
+      var barLength = this.barLength
+      var gapLength = this.gapLength
+      var length = this.getLength()
+      var newLength, offset, extra
 
       if (value <= 0) {
         offset = 0
@@ -83,7 +118,7 @@
         return
       }
       this.lastLength = length
-      Ext.TaskQueue.requestWrite('doUpdateLength', this, [length])
+      TaskQueue.requestWrite('doUpdateLength', this, [length])
     }
   })
 }))

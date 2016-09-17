@@ -2,18 +2,18 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../class', '../polyfill/object/merge', '../core/factory', './scroller', './indicator', '../dom/element', 'underscore', 'tau'], factory)
+      define(['../core/define', '../evented', '../polyfill/object/merge', '../core/factory', './scroller', './indicator', '../dom/element', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../class'), require('../polyfill/object/merge'), require('../core/factory'), require('./scroller'), require('./indicator'), require('../dom/element'), require('underscore'), require('tau'))
+        return factory(require('../core/define'), require('../evented'), require('../polyfill/object/merge'), require('../core/factory'), require('./scroller'), require('./indicator'), require('../dom/element'), require('underscore'), require('tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../class'), require('../polyfill/object/merge'), require('../core/factory'), require('./scroller'), require('./indicator'), require('../dom/element'), require('underscore'), require('tau'))
+    module.exports = factory(require('../core/define'), require('../evented'), require('../polyfill/object/merge'), require('../core/factory'), require('./scroller'), require('./indicator'), require('../dom/element'), require('underscore'), require('tau'))
   }
-}(this, function (define, Class, merge, factory, Scroller, Indicator, Element, _, Tau) {
-  return define('Tau.scroll.View', Class, {
+}(this, function (define, Evented, merge, factory, Scroller, Indicator, Element, _, Tau) {
+  return define('Tau.scroll.View', Evented, {
     config: {
       cls: Tau.baseCSSPrefix + 'scroll-view',
       element: null,

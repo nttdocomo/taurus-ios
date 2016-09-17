@@ -13,109 +13,36 @@
     module.exports = factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('backbone-super'), require('./underscore/deepClone'))
   }
 }(this, function (define, Class, _, Observable, Identifiable) {
-  var Base = define(Class, {
-    initConfigList: [],
-    defaultConfig: {},
-    getInitialConfig: function (name) {
-      var config = this.config
+  return define('Tau.Evented', Class, {
+    initialized: false,
 
-      if (!name) {
-        return config
-      } else {
-        return config[name]
-      }
-    }
-  }, {
-    generateSetter: function (nameMap) {
-      var internalName = nameMap.internal
-      var applyName = nameMap.apply
-      var changeEventName = nameMap.changeEvent
-      var doSetName = nameMap.doSet
+    constructor: function (config) {
+      this.initialConfig = config
+      this.initialize()
+    },
 
-      return function (value) {
-        var initialized = this.initialized
-        var oldValue = this[internalName]
-        var applier = this[applyName]
+    initialize: function () {
+      this.initConfig(this.initialConfig)
+      this.initialized = true
+    },
 
-        if (applier) {
-          value = applier.call(this, value, oldValue)
+    doSet: function (me, value, oldValue, options) {
+      var nameMap = options.nameMap
 
-          if (typeof value === 'undefined') {
-            return this
-          }
-        }
-
-        // The old value might have been changed at this point
-        // (after the apply call chain) so it should be read again
-        oldValue = this[internalName]
-
-        if (value !== oldValue) {
-          if (initialized) {
-            this.fireAction(changeEventName, [this, value, oldValue], this.doSet, this, {
-              nameMap: nameMap
-            })
-          } else {
-            this[internalName] = value
-            if (this[doSetName]) {
-              this[doSetName](value, oldValue)
-            }
-          }
-        }
-
-        return this
+      me[nameMap.internal] = value
+      if (me[nameMap.doSet]) {
+        me[nameMap.doSet].call(this, value, oldValue)
       }
     },
 
-    // <feature classSystem.mixins>
-    /**
-     * Used internally by the mixins pre-processor
-     * @private
-     * @static
-     * @inheritable
-     */
-    mixin: function (mixinClass) {
-      var mixin = mixinClass.prototype
-      var prototype = this.prototype
-      var key
-
-      if (typeof mixin.onClassMixedIn !== 'undefined') {
-        mixin.onClassMixedIn.call(mixinClass, this)
-      }
-
-      if (!prototype.hasOwnProperty('mixins')) {
-        if ('mixins' in prototype) {
-          prototype.mixins = _.clone(prototype.mixins)
-        } else {
-          prototype.mixins = {}
-        }
-      }
-
-      for (key in mixin) {
-        if (key === 'mixins') {
-          _.extend(prototype.mixins, mixin[key])
-        } else if (typeof prototype[key] === 'undefined' && key !== 'mixinId' && key !== 'config') {
-          prototype[key] = mixin[key]
-        }
-      }
-
-      // <feature classSystem.config>
-      if ('config' in mixin) {
-        this.addConfig(mixin.config, false)
-      }
-      return this
-      // </feature>
-
-      // prototype.mixins[name] = mixin
-    },
     onClassExtended: function (Class, data) {
       if (!data.hasOwnProperty('eventedConfig')) {
         return
       }
 
-      var ExtClass = define
-      var config = data.config
-      var eventedConfig = data.eventedConfig
-      var name, nameMap
+      var config = data.config,
+        eventedConfig = data.eventedConfig,
+        name, nameMap
 
       data.config = (config) ? _.extend(config, eventedConfig) : eventedConfig
 
@@ -132,21 +59,51 @@
        */
       for (name in eventedConfig) {
         if (eventedConfig.hasOwnProperty(name)) {
-          nameMap = ExtClass.getConfigNameMap(name)
+          nameMap = define.getConfigNameMap(name)
 
-          data[nameMap.set] = this.generateSetter(nameMap)
+          data[nameMap.set] = define.generateSetter(nameMap)
         }
       }
     }
-  })
-  /* Base.extend = function (protoProps, classProps) {
-    var parentPrototype = this.prototype
+  }, {
+    generateSetter: function (nameMap) {
+      var internalName = nameMap.internal,
+        applyName = nameMap.apply,
+        changeEventName = nameMap.changeEvent,
+        doSetName = nameMap.doSet
 
-    protoProps = _.extend({}, parentPrototype, protoProps)
-    parentPrototype.initConfigList = parentPrototype.initConfigList.slice()
-    parentPrototype.initConfigMap = _.clone(parentPrototype.initConfigMap)
-    return Backbone.View.extend.apply(this, protoProps, classProps)
-  }*/
-  Base.mixin(Observable).mixin(Identifiable)
-  return Base
+      return function (value) {
+        var initialized = this.initialized,
+          oldValue = this[internalName],
+          applier = this[applyName]
+
+        if (applier) {
+          value = applier.call(this, value, oldValue)
+
+          if (typeof value == 'undefined') {
+            return this
+          }
+        }
+
+        // The old value might have been changed at this point
+        // (after the apply call chain) so it should be read again
+        oldValue = this[internalName]
+
+        if (value !== oldValue) {
+          if (initialized) {
+            this.fireAction(changeEventName, [this, value, oldValue], this.doSet, this, {
+              nameMap: nameMap
+            })
+          }else {
+            this[internalName] = value
+            if (this[doSetName]) {
+              this[doSetName].call(this, value, oldValue)
+            }
+          }
+        }
+
+        return this
+      }
+    }
+  }).mixin(Observable)
 }))

@@ -128,5 +128,5 @@
   }
   osEnv.setFlag(deviceType, true)
   osEnv.deviceType = deviceType
-  return OS
+  return osEnv
 }))

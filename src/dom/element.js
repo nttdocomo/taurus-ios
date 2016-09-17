@@ -39,6 +39,10 @@
       }
 
       this.getUniqueId()
+
+      if (!this.isSynchronized) {
+        this.synchronize()
+      }
     }, /**
      * Adds the given CSS class(es) to this Element.
      * @param {String} names The CSS class(es) to add to this element.
@@ -67,7 +71,7 @@
         names = names.split(this.spacesRe)
       }
 
-      this.$dom.addClass(_.map(names, function(name){
+      this.$dom.addClass(_.map(names, function (name) {
         return prefix + name + suffix
       }).join(''))
 
@@ -80,7 +84,7 @@
         }
       }
 
-      //dom.className = classList.join(' ')
+      // dom.className = classList.join(' ')
 
       return this
     },
@@ -297,6 +301,15 @@
     },
 
     /**
+     * Set the height of this Element.
+     * @param {Number/String} height The new height.
+     * @return {Ext.dom.Element} this
+     */
+    setHeight: function (height) {
+      return this.$dom.height(height)
+    },
+
+    /**
      * Sets the `innerHTML` of this element.
      * @param {String} html The new HTML.
      */
@@ -333,7 +346,7 @@
       var classList, i, ln, name
 
       if (className.length > 0) {
-        classList = dom.className.split(this.classNameSplitRegex)
+        classList = className.split(this.classNameSplitRegex)
 
         for (i = 0, ln = classList.length; i < ln; i++) {
           name = classList[i]
