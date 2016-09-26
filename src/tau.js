@@ -23,8 +23,8 @@
     baseCSSPrefix: 't-',
     doc: $(document),
     emptyFn: function () {},
-    getBody:function (){
-      body
+    getBody: function () {
+      return body
     },
     getDom: function (el) {
       if (!el || !document) {

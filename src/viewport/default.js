@@ -38,8 +38,14 @@
       Container.apply(this, arguments)
     },
 
+    doSetHeight: function (height) {
+      Tau.getBody().height(height)
+
+      this._super.apply(this, arguments)
+    },
+
     doSetWidth: function (width) {
-      Tau.getBody().setWidth(width)
+      Tau.getBody().width(width)
 
       this._super.apply(this, arguments)
     },
