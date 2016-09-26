@@ -23,6 +23,23 @@
     constructor: function (config) {
       Abstract.apply(this, arguments)
       this.transformPropertyName = Modernizr.prefixed('transform')
+    },
+    getElementConfig: function () {
+      var config = this._super()
+
+      config.children[0].children = [
+        {
+          reference: 'startElement'
+        },
+        {
+          reference: 'middleElement'
+        },
+        {
+          reference: 'endElement'
+        }
+      ]
+
+      return config
     }
   })
 }))

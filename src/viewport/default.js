@@ -19,12 +19,29 @@
        * @cfg
        * @private
        */
-      autoRender: true
+      autoRender: true,
+      /**
+       * @cfg
+       * @private
+       */
+      width: '100%',
+
+      /**
+       * @cfg
+       * @private
+       */
+      height: '100%'
     },
     constructor: function (config) {
       this.on('ready', _.bind(this.onReady, this))
       $(document).ready(_.bind(this.onDomReady, this))
       Container.apply(this, arguments)
+    },
+
+    doSetWidth: function (width) {
+      Tau.getBody().setWidth(width)
+
+      this._super.apply(this, arguments)
     },
 
     onDomReady: function () {

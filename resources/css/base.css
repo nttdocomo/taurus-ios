@@ -6,3 +6,7 @@ html, body {
 body {
   font-size: 104%;
 }
+.t-layout-card {
+  position: relative;
+  overflow: hidden;
+}

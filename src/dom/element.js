@@ -274,12 +274,12 @@
         return prefix + item + suffix
       })
       $dom.replaceClass(oldName, newName)
-      /* for (i = 0, ln = oldName.length; i < ln; i++) {
+      for (i = 0, ln = oldName.length; i < ln; i++) {
         name = prefix + oldName[i] + suffix
 
         if (map[name]) {
           delete map[name]
-          classList.remove(name)
+          classList = _.without(classList, name)
         }
       }
 
@@ -291,8 +291,9 @@
           classList.push(name)
         }
       }
+      this.classList = classList
 
-      dom.className = classList.join(' ')*/
+      /*dom.className = classList.join(' ')*/
 
       return this
     },
@@ -333,6 +334,10 @@
 
       this.removeCls(classes)
 
+      return this
+    },
+    setWidth: function (width) {
+      this.$dom.width(width)
       return this
     },
 

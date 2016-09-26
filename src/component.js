@@ -315,6 +315,9 @@
       me.initialConfig = config
       me.initElement()
       me.initConfig(me.initialConfig)
+      if (me.refreshSizeStateOnInitialized) {
+        me.refreshSizeState()
+      }
       // AbstractComponent.apply(me, arguments)
       me.initialize()
     },
@@ -400,6 +403,11 @@
 
       this.setSizeState(state)
       this.setSizeFlags(flags)
+    },
+
+    doSetWidth: function (width) {
+      this.element.setWidth(width)
+      this.refreshSizeState()
     },
 
     /**

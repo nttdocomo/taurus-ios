@@ -33,7 +33,7 @@
             var reference
 
             delete this[name]
-            this[name] = reference = new Element(domNode)
+            this[name] = reference = Element.get(domNode)
             return reference
           },
           configurable: true
@@ -109,11 +109,11 @@
       }*/
       this.addReferenceNode(elementConfig, element.dom)
       var children = me.$el.children()
-      _.each(elementConfig.children, function (item, i) {
+      /*_.each(elementConfig.children, function (item, i) {
         if (item.reference) {
           me[item.reference] = new Element(children.get(i), item)
         }
-      })
+      })*/
       if (!this.innerElement) {
         this.innerElement = element
       }

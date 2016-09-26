@@ -14,6 +14,26 @@
   }
 }(this, function (define, Component, TaskQueue, _, Tau) {
   return define('Tau.scroll.indicator.Abstract', Component, {
+    config: {
+      baseCls: Tau.baseCSSPrefix + 'scroll-indicator',
+
+      axis: 'x',
+
+      value: null,
+
+      length: null,
+
+      minLength: 6,
+
+      hidden: true,
+
+      ui: 'dark',
+
+      /**
+       * @cfg {Boolean} [autoHide=true] Set to `false` to always show the indicator for this axis.
+       */
+      autoHide: true
+    },
     cachedConfig: {
       active: true,
       axis: 'x',
@@ -83,6 +103,19 @@
           element.translate(0, offset)
         }
       }
+    },
+
+    updateActive: function (active) {
+      this.barElement[active ? 'addCls' : 'removeCls']('active')
+    },
+
+    updateAxis: function (axis) {
+      this.element.addCls(this.getBaseCls(), null, axis)
+      this.barElement.addCls(this.getBarCls(), null, axis)
+    },
+
+    updateBarCls: function (barCls) {
+      this.barElement.addCls(barCls)
     },
 
     updateValue: function (value) {

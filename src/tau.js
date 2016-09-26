@@ -17,11 +17,15 @@
   }
 }(this, function (_, $) {
   var Tau = Tau || {}
+  var body = $(document.body)
   _.extend(Tau, {
     enumerables: ['hasOwnProperty', 'valueOf', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toString', 'constructor'],
     baseCSSPrefix: 't-',
     doc: $(document),
     emptyFn: function () {},
+    getBody:function (){
+      body
+    },
     getDom: function (el) {
       if (!el || !document) {
         return null

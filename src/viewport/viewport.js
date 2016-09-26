@@ -13,7 +13,6 @@
     module.exports = factory(require('../core/define'), require('../class'), require('../tau'), require('../core/create'), require('../env/os'), require('./ios'))
   }
 }(this, function (define, Class, Tau, create, OS, Ios) {
-  console.log('asdasd')
   var Viewport = define('Tau.viewport.Viewport', Class, {
     constructor: function (config) {
       var osName = Tau.os.name

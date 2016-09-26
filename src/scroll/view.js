@@ -170,17 +170,19 @@
           children: [
             {
               children: [{}, {
-                children: [indicators.y.barElement]
+                /*children: [indicators.y.barElement]*/
               }]
             },
             {
               children: [{
-                children: [indicators.x.barElement]
+                /*children: [indicators.x.barElement]*/
               }, {}]
             }
           ]
         }]
       })
+      this.indicatorsGrid.$dom.children(':first-child').children(':first-child').children(':last-child').append(indicators.y.barElement.$dom)
+      this.indicatorsGrid.$dom.children(':first-child').children(':last-child').children(':first-child').append(indicators.x.barElement.$dom)
     }
   })
 }))
