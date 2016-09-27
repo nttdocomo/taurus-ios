@@ -2,17 +2,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../container', '../tau', '../env/os', 'jquery', 'underscore', '../core/tau/getBody'], factory)
+      define(['../core/define', '../container', '../layout/card', '../tau', '../env/os', 'jquery', 'underscore', '../core/tau/getBody'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../container'), require('../tau'), require('../env/os'), require('jquery'), require('underscore'), require('../core/tau/getBody'))
+        return factory(require('../core/define'), require('../container'), require('../layout/card'), require('../tau'), require('../env/os'), require('jquery'), require('underscore'), require('../core/tau/getBody'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../container'), require('../tau'), require('../env/os'), require('jquery'), require('underscore'), require('../core/tau/getBody'))
+    module.exports = factory(require('../core/define'), require('../container'), require('../layout/card'), require('../tau'), require('../env/os'), require('jquery'), require('underscore'), require('../core/tau/getBody'))
   }
-}(this, function (define, Container, Tau, OS, $, _, getBody) {
+}(this, function (define, Container, Card, Tau, OS, $, _, getBody) {
   return define('Tau.viewport.Default', Container, {
     config: {
       /**
@@ -30,7 +30,8 @@
        * @cfg
        * @private
        */
-      height: '100%'
+      height: '100%',
+      layout: Card
     },
     constructor: function (config) {
       this.on('ready', _.bind(this.onReady, this))

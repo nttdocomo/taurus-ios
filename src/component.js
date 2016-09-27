@@ -334,6 +334,8 @@
       me.initialConfig = config
       me.initElement()
       me.initConfig(me.initialConfig)
+      me.refreshSizeState = me.doRefreshSizeState
+      me.refreshFloating = me.doRefreshFloating
       if (me.refreshSizeStateOnInitialized) {
         me.refreshSizeState()
       }
@@ -655,7 +657,7 @@
         }
 
         if (this.initialized) {
-          this.fireEvent('sizeflagschange', this, flags)
+          this.trigger('sizeflagschange', this, flags)
         }
       }
     },
@@ -667,7 +669,7 @@
         this.element.setSizeState(state)
 
         if (this.initialized) {
-          this.fireEvent('sizestatechange', this, state)
+          this.trigger('sizestatechange', this, state)
         }
       }
     },

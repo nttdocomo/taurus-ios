@@ -196,7 +196,7 @@
 
     monitorSizeStateChange: function () {
       this.monitorSizeStateChange = Tau.emptyFn
-      this.container.on('sizestatechange', 'onContainerSizeStateChange', this)
+      this.container.on('sizestatechange', this.onContainerSizeStateChange, this)
     },
 
     onContainerSizeFlagsChange: function () {
@@ -206,6 +206,14 @@
       for (i = 0, ln = items.length; i < ln; i++) {
         item = items[i]
         this.refreshDockedItemLayoutSizeFlags(item)
+      }
+    },
+
+    onContainerSizeStateChange: function () {
+      var dockWrapper = this.getDockWrapper()
+
+      if (dockWrapper) {
+        dockWrapper.setSizeState(this.container.getSizeState())
       }
     },
 
