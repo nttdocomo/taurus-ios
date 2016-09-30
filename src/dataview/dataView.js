@@ -47,6 +47,12 @@
        * @accessor
        */
       itemConfig: {},
+      /**
+       * @cfg {String} pressedCls
+       * The CSS class to apply to an item on the view while it is being pressed.
+       * @accessor
+       */
+      pressedCls: Tau.baseCSSPrefix + 'item-pressed',
 
       /**
        * @cfg {Boolean} scrollToTopOnRefresh
@@ -59,7 +65,7 @@
        * The CSS class to apply to an item on the view while it is selected.
        * @accessor
        */
-      selectedCls: Tau.baseCSSPrefix + 'x-item-selected',
+      selectedCls: Tau.baseCSSPrefix + 'item-selected',
 
       /**
        * @cfg {Ext.data.Store/Object} store
@@ -108,7 +114,7 @@
       return {
         // beforeload: _.bind(me.onBeforeLoad, me),
         // sync: _.bind(me.onLoad, me),
-        reset: _.bind(me.refresh, me),
+        reset: _.bind(me.refresh, me)
       // add: _.bind(me.onStoreAdd, me),
       // remove: _.bind(me.onStoreRemove, me),
       // update: _.bind(me.onStoreUpdate, me)
@@ -193,6 +199,38 @@
       }
     },
 
+    onItemDoubleTap: function (container, target, index, e) {
+      var me = this
+      var store = me.getStore()
+      var record = store && store.getAt(index)
+
+      me.trigger('itemdoubletap', index, target, record, e)
+    },
+
+    onItemSingleTap: function (container, target, index, e) {
+      var me = this
+      var store = me.getStore()
+      var record = store && store.getAt(index)
+
+      me.trigger('itemsingletap', index, target, record, e)
+    },
+
+    onItemSwipe: function (container, target, index, e) {
+      var me = this
+      var store = me.getStore()
+      var record = store && store.getAt(index)
+
+      me.trigger('itemswipe', index, target, record, e)
+    },
+
+    onItemTapHold: function (container, target, index, e) {
+      var me = this
+      var store = me.getStore()
+      var record = store && store.getAt(index)
+
+      me.trigger('itemtaphold', index, target, record, e)
+    },
+
     /**
      * Function which can be overridden to provide custom formatting for each Record that is used by this
      * DataView's {@link #tpl template} to render each node.
@@ -226,9 +264,9 @@
     },
 
     updateStore: function (newStore, oldStore) {
-      var me = this,
-        bindEvents = _.extend({}, me.storeEventHooks(), { scope: me }),
-        proxy, reader
+      var me = this
+      var bindEvents = _.extend({}, me.storeEventHooks(), { scope: me })
+      var proxy, reader
 
       if (oldStore && _.isObject(oldStore) && oldStore.isStore) {
         oldStore.un(bindEvents)
@@ -239,7 +277,7 @@
 
         if (oldStore.getAutoDestroy()) {
           oldStore.destroy()
-        }else {
+        } else {
           proxy = oldStore.getProxy()
           if (proxy) {
             reader = proxy.getReader()

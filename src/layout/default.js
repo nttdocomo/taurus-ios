@@ -154,6 +154,16 @@
       container.onInitialized('refreshDockedItemLayoutSizeFlags', this, [item])
     },
 
+    getDockWrapper: function () {
+      var dockedItems = this.dockedItems
+
+      if (dockedItems.length > 0) {
+        return dockedItems[0].$dockWrapper
+      }
+
+      return null
+    },
+
     insertBodyItem: function (item) {
       var container = this.container.setUseBodyElement(true)
       var bodyDom = container.bodyElement.dom
@@ -191,7 +201,7 @@
 
     monitorSizeFlagsChange: function () {
       this.monitorSizeFlagsChange = Tau.emptyFn
-      this.container.on('sizeflagschange', 'onContainerSizeFlagsChange', this)
+      this.container.on('sizeflagschange', this.onContainerSizeFlagsChange, this)
     },
 
     monitorSizeStateChange: function () {
@@ -215,21 +225,6 @@
       if (dockWrapper) {
         dockWrapper.setSizeState(this.container.getSizeState())
       }
-    },
-
-    setContainer: function (container) {
-      /* var options = {
-        delegate: '> component'
-      }*/
-
-      this.dockedItems = []
-
-      this._super.apply(this, arguments)
-
-    /* container.on('centeredchange', 'onItemCenteredChange', this, options, 'before')
-      .on('floatingchange', 'onItemFloatingChange', this, options, 'before')
-      .on('dockedchange', 'onBeforeItemDockedChange', this, options, 'before')
-      .on('afterdockedchange', 'onAfterItemDockedChange', this, options)*/
     },
 
     onItemAdd: function (item) {
@@ -279,6 +274,30 @@
       } else {
         this.removeInnerItem(item)
       }
+    },
+
+    refreshDockedItemLayoutSizeFlags: function (item) {
+      var container = this.container
+      var dockedDirection = this.positionDirectionMap[item.getDocked()]
+      var binaryMask = (dockedDirection === 'horizontal') ? container.LAYOUT_HEIGHT : container.LAYOUT_WIDTH
+      var flags = (container.getSizeFlags() & binaryMask)
+
+      item.setLayoutSizeFlags(flags)
+    },
+
+    setContainer: function (container) {
+      /* var options = {
+        delegate: '> component'
+      }*/
+
+      this.dockedItems = []
+
+      this._super.apply(this, arguments)
+
+    /* container.on('centeredchange', 'onItemCenteredChange', this, options, 'before')
+      .on('floatingchange', 'onItemFloatingChange', this, options, 'before')
+      .on('dockedchange', 'onBeforeItemDockedChange', this, options, 'before')
+      .on('afterdockedchange', 'onAfterItemDockedChange', this, options)*/
     }
   })
 }))

@@ -59,8 +59,8 @@
       }
 
       item.$dockWrapper = this
-      item.addCls('x-dock-item')
-      item.addCls('x-docked-' + docked)
+      item.addCls(Tau.baseCSSPrefix + 'dock-item')
+      item.addCls(Tau.baseCSSPrefix + 'docked-' + docked)
 
       for (i = 0, ln = sideItems.length; i < ln; i++) {
         sibling = sideItems[i]
@@ -100,7 +100,7 @@
     },
 
     updateElement: function (element) {
-      element.addCls('x-dock-' + this.getDirection())
+      element.addCls(Tau.baseCSSPrefix + 'dock-' + this.getDirection())
     },
 
     updateInnerWrapper: function (innerWrapper, oldInnerWrapper) {
@@ -115,6 +115,16 @@
         innerWrapper.setSizeState(this.getSizeState())
         innerWrapper.$outerWrapper = this
         bodyElement.append(innerWrapper.getElement())
+      }
+    },
+
+    updateSizeState: function (state) {
+      var innerWrapper = this.getInnerWrapper()
+
+      this.getElement().setSizeState(state)
+
+      if (innerWrapper) {
+        innerWrapper.setSizeState(state)
       }
     }
   })

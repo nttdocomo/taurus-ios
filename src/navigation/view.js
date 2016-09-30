@@ -269,7 +269,7 @@
         // </debug>
 
         this.$titleContainer.setTitle(title)
-      }else {
+      } else {
         this.$currentTitle = title
       }
     }

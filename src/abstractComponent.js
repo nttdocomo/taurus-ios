@@ -17,6 +17,10 @@
   }
 }(this, function (define, Element, Base, h, diff, patch, createElement, renderQueue, dom2hscript, _, Backbone) {
   return define('Tau.AbstractComponent', Base, {
+    constructor: function () {
+      Base.apply(this, arguments)
+      //Backbone.View.apply(this, arguments)
+    },
     /**
      * @private
      * Significantly improve instantiation time for Component with multiple references
@@ -44,7 +48,7 @@
           me.addReferenceNode(children, domNode.childNodes[i])
         })
       }
-      /*Object.defineProperty(this, name, {
+      /* Object.defineProperty(this, name, {
         get: function () {
           var reference
 
@@ -100,7 +104,7 @@
       this.setElement(renderElement)
       console.log(elementConfig)
       console.log(element)
-      /*if (elementConfig.reference) {
+      /* if (elementConfig.reference) {
         if (elementConfig.reference === 'element') {
           this.element = element
         } else {
@@ -109,7 +113,7 @@
       }*/
       this.addReferenceNode(elementConfig, element.dom)
       var children = me.$el.children()
-      /*_.each(elementConfig.children, function (item, i) {
+      /* _.each(elementConfig.children, function (item, i) {
         if (item.reference) {
           me[item.reference] = new Element(children.get(i), item)
         }

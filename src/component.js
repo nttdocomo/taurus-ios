@@ -317,6 +317,7 @@
     isInner: true,
     template: [],
     floating: false,
+    sizeState: false,
     LAYOUT_BOTH: 0x3,
     LAYOUT_WIDTH: 0x1,
 
@@ -324,7 +325,7 @@
 
     LAYOUT_STRETCHED: 0x4,
     events: {
-      'click': function () {
+      'touchstart': function () {
         console.log('click')
       }
     },
@@ -341,6 +342,7 @@
       }
       // AbstractComponent.apply(me, arguments)
       me.initialize()
+      me.triggerInitialized()
     },
 
     /**
@@ -475,6 +477,14 @@
       }
 
       return this.sizeFlags
+    },
+
+    getSizeState: function () {
+      if (!this.initialized) {
+        this.doRefreshSizeState()
+      }
+
+      return this.sizeState
     },
     getTemplate: function () {
       return this.template
@@ -730,6 +740,36 @@
       }
 
       translatable.translate.apply(translatable, arguments)
+    },
+
+    /**
+     * @private
+     */
+    triggerInitialized: function () {
+      var listeners = this.onInitializedListeners
+      var ln = listeners.length
+      var listener, fn, scope, args, i
+
+      if (!this.initialized) {
+        this.initialized = true
+
+        if (ln > 0) {
+          for (i = 0; i < ln; i++) {
+            listener = listeners[i]
+            fn = listener.fn
+            scope = listener.scope
+            args = listener.args
+
+            if (typeof fn === 'string') {
+              scope[fn].apply(scope, args)
+            } else {
+              fn.apply(scope, args)
+            }
+          }
+
+          listeners.length = 0
+        }
+      }
     },
     updateBaseCls: function (newBaseCls, oldBaseCls) {
       var me = this

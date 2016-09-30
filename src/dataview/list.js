@@ -347,17 +347,19 @@
       })*/
 
       // Android 2.x not a direct child
-      container.innerElement.on({
-        touchstart: 'onItemTouchStart',
-        touchend: 'onItemTouchEnd',
-        tap: 'onItemTap',
-        taphold: 'onItemTapHold',
-        singletap: 'onItemSingleTap',
-        doubletap: 'onItemDoubleTap',
-        swipe: 'onItemSwipe',
-        delegate: '.' + Tau.baseCSSPrefix + 'list-item',
-        scope: me
+      container.innerElement.$dom.on({
+        click: function () {
+          console.log('asdasd')
+        },
+        touchend: this.onItemTouchEnd,
+        tap: this.onItemTap,
+        taphold: this.onItemTapHold,
+        singletap: this.onItemSingleTap,
+        doubletap: this.onItemDoubleTap,
+        swipe: this.onItemSwipe
       })
+
+      //container.innerElement.$dom.trigger('touchstart')
 
       if (me.getStore()) {
         me.refresh()
@@ -392,6 +394,30 @@
         item = scrollDockItems.bottom[i]
         item.translate(0, -10000)
       }
+    },
+
+    onItemTap: function (e) {
+      this._super(this.parseEvent(e))
+    },
+
+    onItemTouchStart: function (e) {
+      console.log('asdads')
+      this.container.innerElement.on({
+        touchmove: 'onItemTouchMove'/*,
+        delegate: '.' + Tau.baseCSSPrefix + 'list-item',
+        single: true,
+        scope: this*/
+      })
+      // this._super(e)
+    },
+
+    onItemTouchEnd: function (e) {
+      this.container.innerElement.un({
+        touchmove: 'onItemTouchMove',
+        delegate: '.' + Tau.baseCSSPrefix + 'list-item',
+        scope: this
+      })
+      this.callParent(this.parseEvent(e))
     },
 
     onStoreClear: function () {
@@ -479,22 +505,22 @@
     },
 
     updateListItem: function (item, index, info) {
-      var me = this,
-        record = info.store.at(index),
-        headerIndices = me.headerIndices,
-        footerIndices = me.footerIndices,
-        header = item.getHeader(),
-        scrollDockItems = me.scrollDockItems,
-        updatedItems = me.updatedItems,
-        currentItemCls = item.renderElement.classList.slice(),
-        currentHeaderCls = header.renderElement.classList.slice(),
-        infinite = me.getInfinite(),
-        storeCount = info.store.getCount(),
-        itemCls = [],
-        headerCls = [],
-        itemRemoveCls = [info.headerCls, info.footerCls, info.firstCls, info.lastCls, info.selectedCls, info.stripeCls],
-        headerRemoveCls = [info.headerCls, info.footerCls, info.firstCls, info.lastCls],
-        ln, i, scrollDockItem, classCache
+      var me = this
+      var record = info.store.at(index)
+      var headerIndices = me.headerIndices
+      var footerIndices = me.footerIndices
+      var header = item.getHeader()
+      var scrollDockItems = me.scrollDockItems
+      var updatedItems = me.updatedItems
+      var currentItemCls = item.renderElement.classList.slice()
+      var currentHeaderCls = header.renderElement.classList.slice()
+      var infinite = me.getInfinite()
+      var storeCount = info.store.getCount()
+      var itemCls = []
+      var headerCls = []
+      var itemRemoveCls = [info.headerCls, info.footerCls, info.firstCls, info.lastCls, info.selectedCls, info.stripeCls]
+      var headerRemoveCls = [info.headerCls, info.footerCls, info.firstCls, info.lastCls]
+      var ln, i, scrollDockItem, classCache
 
       // When we update a list item, the header and scrolldocks can make it have to be retransformed.
       // For that reason we want to always set the position to -10000 so that the next time we translate
@@ -638,7 +664,7 @@
         }
       }
 
-      if (info.striped && index % 2 == 1) {
+      if (info.striped && index % 2 === 1) {
         itemCls.push(info.stripeCls)
       }
 
