@@ -14,8 +14,17 @@
   }
 }(this, function (define, Mixin, _, Backbone) {
   return define(Mixin, {
+    config: {
+      listeners: null
+    },
     // @private
     isObservable: true,
+
+    applyListeners: function (listeners) {
+      if (listeners) {
+        this.on(listeners)
+      }
+    },
     /**
      * @private
      * Creates an event handling function which re-fires the event from this object as the passed event name.

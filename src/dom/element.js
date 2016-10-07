@@ -220,9 +220,10 @@
      * @return {Ext.dom.Element} This element.
      */
     replace: function (element) {
-      element = getDom(element)
+      element = getDom(element).get(0)
 
-      element.replaceWith(this.$dom)
+      //element.replaceWith(this.$dom)
+      element.parentNode.replaceChild(this.dom, element)
 
       return this
     },

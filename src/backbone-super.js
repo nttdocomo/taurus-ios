@@ -35,7 +35,9 @@
         child.extend = this.extend;
         return child;
     };
-    var unImplementedSuper = function(method){throw "Super does not implement this method: " + method;};
+    var unImplementedSuper = function(method){
+      throw "Super does not implement this method: " + method;
+    };
 
   var fnTest = /\b_super\b/;
 

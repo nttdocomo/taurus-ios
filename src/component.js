@@ -324,11 +324,6 @@
     LAYOUT_HEIGHT: 0x2,
 
     LAYOUT_STRETCHED: 0x4,
-    events: {
-      'touchstart': function () {
-        console.log('click')
-      }
-    },
     constructor: function (config) {
       var me = this
       me.onInitializedListeners = []

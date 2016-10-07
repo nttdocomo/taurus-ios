@@ -53,6 +53,14 @@
        * @accessor
        */
       pressedCls: Tau.baseCSSPrefix + 'item-pressed',
+      /**
+       * @cfg {Number} pressedDelay
+       * The amount of delay between the `tapstart` and the moment we add the `pressedCls`.
+       *
+       * Settings this to `true` defaults to 100ms.
+       * @accessor
+       */
+      pressedDelay: 100,
 
       /**
        * @cfg {Boolean} scrollToTopOnRefresh
@@ -197,6 +205,69 @@
           })
         }
       }
+    },
+
+    onItemTouchStart: function (container, target, index, e) {
+      var me = this
+      var store = me.getStore()
+      var record = store && store.at(index)
+
+      //me.fireAction('itemtouchstart', [me, index, target, record, e], 'doItemTouchStart');
+      me.trigger('itemtouchstart', index, target, record, e)
+      me.doItemTouchStart(index, target, record, e)
+    },
+
+    doItemTouchStart: function (index, target, record) {
+      var me = this
+      var pressedDelay = me.getPressedDelay()
+
+      if (record) {
+        if (pressedDelay > 0) {
+          me.pressedTimeout = _.delay(_.bind(me.doAddPressedCls, me), pressedDelay, target, record)
+        } else {
+          me.doAddPressedCls(target, record)
+        }
+      }
+    },
+
+    doAddPressedCls: function (item, record) {
+      var me = this
+      if (item) {
+        item.addClass(me.getPressedCls())
+      }
+    },
+
+    onItemTouchEnd: function (container, target, index, e) {
+      var me = this
+      var store = me.getStore()
+      var record = store && store.at(index)
+
+      if (this.hasOwnProperty('pressedTimeout')) {
+        clearTimeout(this.pressedTimeout)
+        delete this.pressedTimeout
+      }
+
+      if (record && target) {
+        target.removeClass(me.getPressedCls())
+      }
+
+      me.trigger('itemtouchend', index, target, record, e)
+    },
+
+    onItemTouchMove: function (container, target, index, e) {
+      var me = this
+      var store = me.getStore()
+      var record = store && store.at(index)
+
+      if (me.hasOwnProperty('pressedTimeout')) {
+        clearTimeout(me.pressedTimeout)
+        delete me.pressedTimeout
+      }
+
+      if (record && target) {
+        target.removeClass(me.getPressedCls())
+      }
+      me.trigger('itemtouchmove', index, target, record, e)
     },
 
     onItemDoubleTap: function (container, target, index, e) {

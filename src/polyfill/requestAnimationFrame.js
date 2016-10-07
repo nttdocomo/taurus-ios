@@ -12,7 +12,7 @@
   } else if (typeof module === 'object' && module.exports) {
     module.exports = factory()
   }
-}(this, function (define, Class, _, Tau) {
+}(this, function () {
   var lastTime = 0
   var vendors = ['webkit', 'moz']
   for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {

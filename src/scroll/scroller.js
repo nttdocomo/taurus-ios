@@ -20,6 +20,7 @@
        * @private
        */
       containerSize: 'auto',
+      minPosition: { x: 0, y: 0 },
       /**
        * @cfg size
        * @private
@@ -46,6 +47,7 @@
       }
     },
     cls: Tau.baseCSSPrefix + 'scroll-scroller',
+    containerCls: Tau.baseCSSPrefix + 'scroll-container',
 
     /**
      * @private
@@ -57,11 +59,11 @@
 
       this.listeners = {
         // scope: this,
-        touchstart: 'onTouchStart',
-        touchend: 'onTouchEnd',
-        dragstart: 'onDragStart',
-        drag: 'onDrag',
-        dragend: 'onDragEnd'
+        touchstart: _.bind(this.onTouchStart, this),
+        touchend: _.bind(this.onTouchEnd, this)
+      /* dragstart: this.onDragStart,
+      drag: 'onDrag',
+      dragend: 'onDragEnd'*/
       }
 
       this.minPosition = { x: 0, y: 0 }
@@ -94,7 +96,19 @@
      * @private
      */
     attachListeneners: function () {
-      this.getContainer().on(this.listeners)
+      this.getContainer().$dom.on(this.listeners)
+    },
+    getAnimationEasing: function (axis) {
+      var currentPosition = this.position[axis]
+      var minPosition = this.getMinPosition()[axis]
+      var maxPosition = this.getMaxPosition()[axis]
+      var boundValue = null
+      if (currentPosition < minPosition) {
+        boundValue = minPosition
+      } else if (currentPosition > maxPosition) {
+        boundValue = maxPosition
+      }
+      return boundValue
     },
 
     /**
@@ -170,6 +184,115 @@
       this.getDirection()
 
       return this.isAxisEnabledFlags[axis]
+    },
+
+    /**
+     * @private
+     */
+    onAnimationEnd: function () {
+      this.snapToBoundary()
+      this.onScrollEnd()
+    },
+
+    /**
+     * @private
+     */
+    onAnimationFrame: function (translatable, x, y) {
+      var position = this.position
+
+      position.x = -x
+      position.y = -y
+
+      this.trigger('scroll', this, position.x, position.y)
+    },
+
+    /**
+     * @private
+     */
+    onScrollEnd: function () {
+      var position = this.position
+
+      if (this.isTouching/* || !this.snapToSlot()*/) {
+        this.trigger('scrollend', this, position.x, position.y)
+      }
+    },
+
+    /**
+     * @private
+     */
+    onTouchStart: function (e) {
+      console.log('touchstart')
+      var point = e.touches ? e.touches[0] : e
+      var startPosition = this.startPosition
+      var position = this.position
+      this.isTouching = true
+      this.stopAnimation()
+
+      // position.x    = point.pageX
+      // position.y    = point.pageY
+
+      startPosition.x = point.pageX
+      startPosition.y = point.pageY
+      console.log(startPosition)
+      $(window).on({
+        touchmove: _.bind(this.onTouchMove, this) /*,
+        delegate: '.' + Tau.baseCSSPrefix + 'list-item',
+        single: true,
+        scope: this*/
+      })
+    },
+
+    /**
+     * @private
+     */
+    onTouchEnd: function () {
+      console.log('touchend')
+      var position = this.position
+      var easingX, easingY
+      if (!this.isDragging) {
+        return
+      }
+
+      this.isTouching = false
+      this.isDragging = false
+
+      easingY = this.getAnimationEasing('y')
+
+      this.getTranslatable().animate(null, easingY)
+      //this.getContainer().$dom.animate(easingX, easingY)
+      /* if (easingX || easingY) {
+        this.getTranslatable().animate(null, null)
+      } else {
+        this.onScrollEnd()
+      }*/
+      if (!this.isDragging /* && this.snapToSlot()*/) {
+        this.trigger('scrollstart', position.x, position.y)
+      }
+      $(window).off({
+        touchmove: _.bind(this.onTouchMove, this)
+      })
+    },
+    onTouchMove: function (e) {
+      var point = e.touches ? e.touches[0] : e
+      var startPosition = this.startPosition
+      var position = this.position
+      var timestamp = (new Date).getTime()
+      var deltaX, deltaY, newX, newY
+      deltaX = point.pageX - startPosition.x
+      // lastDragPosition.x = x
+      startPosition.x = point.pageX
+
+      deltaY = point.pageY - startPosition.y
+      // lastDragPosition.y = y
+      startPosition.y = point.pageY
+
+      newX = position.x + deltaX
+      newY = position.y + deltaY
+      this.isDragging = true
+
+      // this.scrollTo(lastDragPosition.x, lastDragPosition.y)
+      this.scrollTo(newX, newY)
+      console.log('onTouchMove')
     },
     /**
      * @private
@@ -250,7 +373,7 @@
           }
         }
 
-        translationY = -y
+        translationY = y
       }
 
       if (positionChanged) {
@@ -396,9 +519,8 @@
       translatable.setConfig({
         element: this.getElement(),
         listeners: {
-          animationframe: 'onAnimationFrame',
-          animationend: 'onAnimationEnd',
-          scope: this
+          animationframe: _.bind(this.onAnimationFrame, this),
+          animationend: _.bind(this.onAnimationEnd, this)
         }
       })
     },

@@ -6,13 +6,27 @@
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./component/simpleListItem'), require('./component/ListItem'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('../polyfill/array/remove'), require('underscore'), require('tau'))
+        return factory(require('../core/define'),
+          require('./dataView'),
+          require('../layout/Fit'),
+          require('../core/factory'),
+          require('./component/simpleListItem'),
+          require('./component/ListItem'),
+          require('./listItemHeader'),
+          require('../container'),
+          require('../util/positionMap'),
+          require('../env/browser'),
+          require('../polyfill/array/remove'),
+          require('underscore'),
+          require('modernizr'),
+          require('tau'),
+          require('jquery.mobile-events'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
     module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./component/simpleListItem'), require('./component/ListItem'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('../polyfill/array/remove'), require('underscore'), require('tau'))
   }
-}(this, function (define, DataView, Fit, factory, SimpleListItem, ListItem, ListItemHeader, Container, PositionMap, browser, remove, _, Tau) {
+}(this, function (define, DataView, Fit, factory, SimpleListItem, ListItem, ListItemHeader, Container, PositionMap, browser, remove, _, Modernizr, Tau) {
   return define('Tau.dataview.List', DataView, {
     config: {
       /**
@@ -348,16 +362,14 @@
 
       // Android 2.x not a direct child
       container.innerElement.$dom.on({
-        click: function () {
-          console.log('asdasd')
-        },
-        touchend: this.onItemTouchEnd,
+        touchstart: _.bind(this.onItemTouchStart, this),
+        touchend: _.bind(this.onItemTouchEnd, this),
         tap: this.onItemTap,
         taphold: this.onItemTapHold,
         singletap: this.onItemSingleTap,
         doubletap: this.onItemDoubleTap,
         swipe: this.onItemSwipe
-      })
+      }, '.' + Tau.baseCSSPrefix + 'list-item')
 
       //container.innerElement.$dom.trigger('touchstart')
 
@@ -401,23 +413,24 @@
     },
 
     onItemTouchStart: function (e) {
-      console.log('asdads')
-      this.container.innerElement.on({
-        touchmove: 'onItemTouchMove'/*,
+      this.container.innerElement.$dom.on({
+        touchmove: _.bind(this.onItemTouchMove, this)/*,
         delegate: '.' + Tau.baseCSSPrefix + 'list-item',
         single: true,
         scope: this*/
-      })
-      // this._super(e)
+      }, '.' + Tau.baseCSSPrefix + 'list-item')
+      this._super.apply(this, this.parseEvent(e))
     },
 
     onItemTouchEnd: function (e) {
-      this.container.innerElement.un({
-        touchmove: 'onItemTouchMove',
-        delegate: '.' + Tau.baseCSSPrefix + 'list-item',
-        scope: this
-      })
-      this.callParent(this.parseEvent(e))
+      this.container.innerElement.$dom.off({
+        touchmove: this.onItemTouchMove
+      }, '.' + Tau.baseCSSPrefix + 'list-item')
+      this._super.apply(this, this.parseEvent(e))
+    },
+
+    onItemTouchMove: function (e) {
+      this._super.apply(this, this.parseEvent(e))
     },
 
     onStoreClear: function () {
@@ -438,6 +451,14 @@
         scroller.position.y = 0
         me.updateAllListItems()
       }
+    },
+
+    parseEvent: function (e) {
+      var me = this
+      var target = $(e.target).parents('.' + Tau.baseCSSPrefix + 'list-item')
+      //var item = Ext.getCmp(target.id);
+
+      return [me, target, target.index(), e]
     },
 
     refreshScroller: function () {
