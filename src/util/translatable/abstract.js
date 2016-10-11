@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../../core/define', '../../evented', '../../animationQueue', 'underscore', 'tau', 'velocity'], factory)
+      define(['../../core/define', '../../evented', '../../animationQueue', 'underscore', 'tau', '../../fx/easing/easeout'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../../core/define'), require('../../evented'), require('../../animationQueue'), require('underscore'), require('tau'), require('velocity'))
+        return factory(require('../../core/define'), require('../../evented'), require('../../animationQueue'), require('underscore'), require('tau'), require('../../fx/easing/easeout'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../../core/define'), require('../../evented'), require('../../animationQueue'), require('underscore'), require('tau'), require('velocity'))
+    module.exports = factory(require('../../core/define'), require('../../evented'), require('../../animationQueue'), require('underscore'), require('tau'), require('../../fx/easing/easeout'))
   }
 }(this, function (define, Class, AnimationQueue, _, Tau) {
   return define('Tau.util.translatable.Abstract', Class, {
@@ -22,26 +22,27 @@
 
     animate: function (easingX, easingY, easingZ) {
       var me = this
-      this.activeEasingX = easingX
-      this.activeEasingY = easingY
+      me.activeEasingX = easingX
+      me.activeEasingY = easingY
 
-      this.isAnimating = true
-      this.lastX = null
-      this.lastY = null
+      me.isAnimating = true
+      me.lastX = null
+      me.lastY = null
 
-      //AnimationQueue.start(this.doAnimationFrame, this)
-      this.getElement().$dom.animate({
+      // AnimationQueue.start(this.doAnimationFrame, this)
+      me.getElement().$dom.animate({
         tween: 1000
       }, {
-        progress: _.bind(this.doAnimationFrame, this)/* function (animation, progress, remainingMs) {
+        progress: _.bind(me.doAnimationFrame, me),
+        /* function (animation, progress, remainingMs) {
           me.doTranslate(me.x - me.x * progress, me.y - me.y * progress)
-        }*/,
-        easing: "easein",
+        }*/
+        easing: 'easeout',
         duration: 200
       })
 
-      this.trigger('animationstart', this, this.x, this.y)
-      return this
+      me.trigger('animationstart', me, me.x, me.y)
+      return me
     },
 
     doAnimationFrame: function (animation, progress, remainingMs) {
