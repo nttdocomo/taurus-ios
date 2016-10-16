@@ -33,7 +33,13 @@
       me.getElement().$dom.animate({
         tween: 1000
       }, {
-        progress: _.bind(me.doAnimationFrame, me),
+        progress: function (animation, progress, remainingMs) {
+          var x = me.x + (easingX - me.x) * progress
+          var y = me.y + (easingY - me.y) * progress
+          me.doTranslate(x, y)
+
+          me.trigger('animationframe', me, x, y)
+        },// _.bind(me.doAnimationFrame, me),
         /* function (animation, progress, remainingMs) {
           me.doTranslate(me.x - me.x * progress, me.y - me.y * progress)
         }*/

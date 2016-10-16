@@ -99,7 +99,7 @@
       this.getContainer().$dom.on(this.listeners)
     },
     getAnimationEasing: function (axis) {
-      var currentPosition = this.position[axis]
+      var currentPosition = -this.position[axis]
       var minPosition = this.getMinPosition()[axis]
       var maxPosition = this.getMaxPosition()[axis]
       var boundValue = null
@@ -108,7 +108,7 @@
       } else if (currentPosition > maxPosition) {
         boundValue = maxPosition
       }
-      return boundValue
+      return -boundValue
     },
 
     /**
@@ -221,7 +221,6 @@
      * @private
      */
     onTouchStart: function (e) {
-      console.log('touchstart')
       var point = e.touches ? e.touches[0] : e
       var startPosition = this.startPosition
       var position = this.position
@@ -233,7 +232,6 @@
 
       startPosition.x = point.pageX
       startPosition.y = point.pageY
-      console.log(startPosition)
       $(window).on({
         touchmove: _.bind(this.onTouchMove, this) /*,
         delegate: '.' + Tau.baseCSSPrefix + 'list-item',
@@ -246,7 +244,6 @@
      * @private
      */
     onTouchEnd: function () {
-      console.log('touchend')
       var position = this.position
       var easingX, easingY
       if (!this.isDragging) {
@@ -276,7 +273,7 @@
       var point = e.touches ? e.touches[0] : e
       var startPosition = this.startPosition
       var position = this.position
-      var timestamp = (new Date).getTime()
+      var timestamp = Date.now()
       var deltaX, deltaY, newX, newY
       deltaX = point.pageX - startPosition.x
       // lastDragPosition.x = x
@@ -292,7 +289,6 @@
 
       // this.scrollTo(lastDragPosition.x, lastDragPosition.y)
       this.scrollTo(newX, newY)
-      console.log('onTouchMove')
     },
     /**
      * @private

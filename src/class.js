@@ -41,7 +41,8 @@
       // var prototype = me.constructor.prototype
       var initConfigList = me.initConfigList
       var initConfigMap = this.initConfigMap
-      var config = new me.configClass
+      var ConfigClass = me.configClass
+      var config = new ConfigClass()
       var defaultConfig = me.defaultConfig
       var nameMap
       var getName
@@ -75,7 +76,6 @@
           delete me[getName]
         }
       }
-    // console.log(me)
     },
 
     /**

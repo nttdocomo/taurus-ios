@@ -463,7 +463,6 @@
       }
     },
     create: function (attributes, domNode) {
-      console.log(arguments)
       if (!attributes) {
         attributes = {}
       }

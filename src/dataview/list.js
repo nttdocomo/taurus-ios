@@ -365,7 +365,7 @@
         touchstart: _.bind(this.onItemTouchStart, this),
         touchend: _.bind(this.onItemTouchEnd, this),
         tap: this.onItemTap,
-        taphold: this.onItemTapHold,
+        taphold: _.bind(this.onItemTapHold, this),
         singletap: this.onItemSingleTap,
         doubletap: this.onItemDoubleTap,
         swipe: this.onItemSwipe

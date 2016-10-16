@@ -127,8 +127,7 @@
       if (value <= 0) {
         offset = 0
         this.updateLength(this.applyLength(length + value * barLength))
-      }
-      else if (value >= 1) {
+      } else if (value >= 1) {
         extra = Math.round((value - 1) * barLength)
         newLength = this.applyLength(length - extra)
         extra = length - newLength

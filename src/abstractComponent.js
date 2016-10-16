@@ -102,8 +102,6 @@
       var renderElement = element.dom
       var i, ln
       this.setElement(renderElement)
-      console.log(elementConfig)
-      console.log(element)
       /* if (elementConfig.reference) {
         if (elementConfig.reference === 'element') {
           this.element = element

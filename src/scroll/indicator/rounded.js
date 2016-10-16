@@ -14,6 +14,9 @@
   }
 }(this, function (define, Abstract, Modernizr) {
   return define('Tau.scroll.indicator.Rounded', Abstract, {
+    config: {
+      cls: 'rounded'
+    },
 
     /**
      * @private

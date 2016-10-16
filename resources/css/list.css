@@ -31,6 +31,11 @@
   display: block;
   overflow: hidden;
 }
+.t-scroll-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
 .t-scroll-bar-grid>* {
   display: table-row;
 }
@@ -70,4 +75,11 @@
 }
 .t-scroll-bar-y.active {
     width: 6px;
+}
+.t-scroll-scroller {
+  position: absolute;
+  min-width: 100%;
+  min-height: 100%;
+  height: auto !important;
+  width: auto !important;
 }

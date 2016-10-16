@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './class', 'underscore', './polyfill/requestAnimationFrame'], factory)
+      define(['./core/define', './class', 'underscore', 'tau', './polyfill/requestAnimationFrame'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./class'), require('underscore'), require('./polyfill/requestAnimationFrame'))
+        return factory(require('./core/define'), require('./class'), require('underscore'), require('tau'), require('./polyfill/requestAnimationFrame'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./class'), require('underscore'), require('./polyfill/requestAnimationFrame'))
+    module.exports = factory(require('./core/define'), require('./class'), require('underscore'), require('tau'), require('./polyfill/requestAnimationFrame'))
   }
-}(this, function (define, Class, _) {
+}(this, function (define, Class, _, Tau) {
   var AnimationQueue = define('Tau.AnimationQueue', Class, {
     constructor: function () {
       this.queue = []
@@ -53,7 +53,6 @@
     onStop: Tau.emptyFn,
 
     run: function () {
-      console.log(this.isRunning)
       if (!this.isRunning) {
         return
       }

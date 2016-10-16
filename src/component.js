@@ -808,7 +808,6 @@
 
         if (tpl) {
           // tpl[tplWriteMode](me.getInnerHtmlElement(), newData)
-          console.log(me.getInnerHtmlElement())
           me.getInnerHtmlElement().$dom.html(_.template(tpl)(newData))
         }
 

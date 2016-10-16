@@ -25,6 +25,7 @@
           axis: 'y'
         }
       },
+      indicatorsHidingDelay: 100,
       scroller: {}
     },
     constructor: function (config) {
@@ -74,8 +75,38 @@
       }
     },
 
+    hideIndicators: function () {
+      var delay = this.getIndicatorsHidingDelay()
+
+      if (delay > 0) {
+        this.indicatorsHidingTimer = setTimeout(this.doHideIndicators, delay)
+      }else {
+        this.doHideIndicators()
+      }
+    },
+
     isAxisEnabled: function (axis) {
       return this.getScroller().isAxisEnabled(axis) && this.useIndicators[axis]
+    },
+
+    onScroll: function (scroller, x, y) {
+      this.setIndicatorValue('x', x)
+      this.setIndicatorValue('y', y)
+
+      // <debug>
+      if (this.isBenchmarking) {
+        this.framesCount++
+      }
+    // </debug>
+    },
+
+    onScrollEnd: function () {
+      this.hideIndicators()
+    },
+
+    onScrollStart: function () {
+      this.onScroll.apply(this, arguments)
+      this.showIndicators()
     },
 
     /**
@@ -144,6 +175,55 @@
       this.refreshIndicator('x')
       this.refreshIndicator('y')
     },
+    // </debug>
+
+    setIndicatorValue: function (axis, scrollerPosition) {
+      if (!this.isAxisEnabled(axis)) {
+        return this
+      }
+
+      var scroller = this.getScroller(),
+        scrollerMaxPosition = scroller.getMaxPosition()[axis],
+        scrollerContainerSize = scroller.getContainerSize()[axis],
+        value
+
+      if (scrollerMaxPosition === 0) {
+        value = scrollerPosition / scrollerContainerSize
+
+        if (scrollerPosition >= 0) {
+          value += 1
+        }
+      }else {
+        if (scrollerPosition > scrollerMaxPosition) {
+          value = 1 + ((scrollerPosition - scrollerMaxPosition) / scrollerContainerSize)
+        }
+        else if (scrollerPosition < 0) {
+          value = scrollerPosition / scrollerContainerSize
+        }else {
+          value = scrollerPosition / scrollerMaxPosition
+        }
+      }
+
+      this.getIndicators()[axis].setValue(value)
+    },
+
+    showIndicators: function () {
+      var indicators = this.getIndicators()
+
+      if (this.hasOwnProperty('indicatorsHidingTimer')) {
+        clearTimeout(this.indicatorsHidingTimer)
+        delete this.indicatorsHidingTimer
+      }
+
+      if (this.isAxisEnabled('x')) {
+        indicators.x.show()
+      }
+
+      if (this.isAxisEnabled('y')) {
+        console.log(indicators)
+        indicators.y.show()
+      }
+    },
 
     updateElement: function (element) {
       var scroller = this.getScroller()
@@ -183,6 +263,15 @@
       })
       this.indicatorsGrid.$dom.children(':first-child').children(':first-child').children(':last-child').append(indicators.y.barElement.$dom)
       this.indicatorsGrid.$dom.children(':first-child').children(':last-child').children(':first-child').append(indicators.x.barElement.$dom)
+    },
+
+    updateScroller: function (scroller) {
+      scroller.on({
+        scrollstart: _.bind(this.onScrollStart, this),
+        scroll: _.bind(this.onScroll, this),
+        scrollend: _.bind(this.onScrollEnd, this),
+        refresh: _.bind(this.refreshIndicators, this)
+      })
     }
   })
 }))

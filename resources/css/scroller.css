@@ -1,0 +1,11 @@
+.t-scroll-indicator {
+  background: #333;
+  position: absolute;
+  z-index: 3;
+}
+.t-scroll-indicator-y {
+  width: 100%;
+}
+.t-scroll-indicator.rounded.t-scroll-indicator-y>* {
+  width: 100%;
+}

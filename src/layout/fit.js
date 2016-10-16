@@ -54,6 +54,12 @@
       }
 
       container.innerElement.toggleCls('x-stretched', stretched)
+    },
+
+    onItemInnerStateChange: function (item, isInner) {
+      this._super.apply(this, arguments)
+      item.toggleCls(this.itemClass, isInner)
+      item.setLayoutSizeFlags(isInner ? this.container.getSizeFlags() : 0)
     }
   })
 }))

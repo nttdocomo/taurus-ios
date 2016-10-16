@@ -297,7 +297,7 @@
     onItemTapHold: function (container, target, index, e) {
       var me = this
       var store = me.getStore()
-      var record = store && store.getAt(index)
+      var record = store && store.at(index)
 
       me.trigger('itemtaphold', index, target, record, e)
     },
