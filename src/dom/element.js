@@ -337,6 +337,10 @@
 
       return this
     },
+    setTop: function (top) {
+      this.$dom.css('top', top)
+      return this
+    },
     setWidth: function (width) {
       this.$dom.width(width)
       return this

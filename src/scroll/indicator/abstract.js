@@ -48,12 +48,12 @@
 
     doUpdateLength: function (length) {
       if (!this.isDestroyed) {
-        var axis = this.getAxis(),
-          element = this.element
+        var axis = this.getAxis()
+        var element = this.element
 
         if (axis === 'x') {
           element.setWidth(length)
-        }else {
+        } else {
           element.setHeight(length)
         }
       }
@@ -67,12 +67,12 @@
     },
 
     refresh: function () {
-      var bar = this.barElement,
-        barDom = bar.dom,
-        ratio = this.getRatio(),
-        axis = this.getAxis(),
-        barLength = (axis === 'x') ? barDom.offsetWidth : barDom.offsetHeight,
-        length = barLength * ratio
+      var bar = this.barElement
+      var barDom = bar.dom
+      var ratio = this.getRatio()
+      var axis = this.getAxis()
+      var barLength = (axis === 'x') ? barDom.offsetWidth : barDom.offsetHeight
+      var length = barLength * ratio
 
       this.barLength = barLength
 
@@ -99,7 +99,7 @@
 
         if (axis === 'x') {
           element.translate(offset, 0)
-        }else {
+        } else {
           element.translate(0, offset)
         }
       }
@@ -133,7 +133,7 @@
         extra = length - newLength
         this.updateLength(newLength)
         offset = gapLength + extra
-      }else {
+      } else {
         offset = gapLength * value
       }
 

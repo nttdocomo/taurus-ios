@@ -46,6 +46,13 @@
        * @evented
        */
       hidden: null,
+      /**
+       * @cfg {String/Mixed} hideAnimation
+       * Animation effect to apply when the Component is being hidden.  Typically you want to use an
+       * outbound animation type such as 'fadeOut' or 'slideOut'. For more animations, check the {@link Ext.fx.Animation#type} config.
+       * @accessor
+       */
+      hideAnimation: null,
 
       /**
        * @cfg {String} [hiddenCls="x-item-hidden"] The CSS class to add to the component when it is hidden
@@ -503,8 +510,44 @@
 
       return behavior
     },
-    hide: function () {
-      this.$el.hide()
+
+    /**
+     * Hides this Component optionally using an animation.
+     * @param {Object/Boolean} [animation] You can specify an animation here or a bool to use the {@link #hideAnimation} config.
+     * @return {Ext.Component}
+     * @chainable
+     */
+    hide: function (animation) {
+      this.setCurrentAlignmentInfo(null)
+      if (this.activeAnimation) {
+        this.activeAnimation.on({
+          animationend: function () {
+            this.hide(animation)
+          },
+          scope: this,
+          single: true
+        })
+        return this
+      }
+
+      if (!this.getHidden()) {
+        if (animation === undefined || (animation && animation.isComponent)) {
+          animation = this.getHideAnimation()
+        }
+        if (animation) {
+          if (animation === true) {
+            animation = 'fadeOut'
+          }
+          this.onBefore({
+            hiddenchange: 'animateFn',
+            scope: this,
+            single: true,
+            args: [animation]
+          })
+        }
+        this.setHidden(true)
+      }
+      return this
     },
 
     /**
@@ -600,6 +643,14 @@
 
         this.setRendered(Boolean(dom.offsetParent))
       }
+    },
+
+    /**
+     * Sets the current Alignment information, called by alignTo
+     * @private
+     */
+    setCurrentAlignmentInfo: function (alignmentInfo) {
+      this.$currentAlignmentInfo = _.isEmpty(alignmentInfo) ? null : _.extend({}, alignmentInfo.stats ? alignmentInfo.stats : alignmentInfo)
     },
     setLayoutSizeFlags: function (flags) {
       this.layoutStretched = !!(flags & this.LAYOUT_STRETCHED)

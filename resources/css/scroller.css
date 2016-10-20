@@ -9,3 +9,22 @@
 .t-scroll-indicator.rounded.t-scroll-indicator-y>* {
   width: 100%;
 }
+.t-scroll-indicator.rounded>*{
+	position: absolute;
+}
+.t-scroll-indicator.rounded>:nth-child(2){
+	transform-origin: 0% 0%;
+	background-color:#333333;
+}
+.t-scroll-indicator.rounded.t-scroll-indicator-y>:nth-child(2) {
+  height: 1px;
+}
+.t-scroll-indicator.rounded.t-scroll-indicator-y>:first-child {
+  height: 3px;
+  -moz-border-radius-topleft: 3px;
+  -webkit-border-top-left-radius: 3px;
+  border-top-left-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -webkit-border-top-right-radius: 3px;
+  border-top-right-radius: 3px;
+}

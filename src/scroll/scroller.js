@@ -200,8 +200,8 @@
     onAnimationFrame: function (translatable, x, y) {
       var position = this.position
 
-      position.x = -x
-      position.y = -y
+      position.x = x
+      position.y = y
 
       this.trigger('scroll', this, position.x, position.y)
     },
@@ -253,10 +253,11 @@
       this.isTouching = false
       this.isDragging = false
 
+      easingX = this.getAnimationEasing('x')
       easingY = this.getAnimationEasing('y')
 
       this.getTranslatable().animate(null, easingY)
-      //this.getContainer().$dom.animate(easingX, easingY)
+      // this.getContainer().$dom.animate(easingX, easingY)
       /* if (easingX || easingY) {
         this.getTranslatable().animate(null, null)
       } else {
@@ -273,7 +274,6 @@
       var point = e.touches ? e.touches[0] : e
       var startPosition = this.startPosition
       var position = this.position
-      var timestamp = Date.now()
       var deltaX, deltaY, newX, newY
       deltaX = point.pageX - startPosition.x
       // lastDragPosition.x = x
@@ -526,9 +526,9 @@
      * @return {String}
      */
     applyDirection: function (direction) {
-      var minPosition = this.getMinPosition(),
-        maxPosition = this.getMaxPosition(),
-        isHorizontal, isVertical
+      var minPosition = this.getMinPosition()
+      var maxPosition = this.getMaxPosition()
+      var isHorizontal, isVertical
 
       this.givenDirection = direction
 
@@ -538,10 +538,9 @@
 
         if (isHorizontal && isVertical) {
           direction = 'both'
-        }
-        else if (isHorizontal) {
+        } else if (isHorizontal) {
           direction = 'horizontal'
-        }else {
+        } else {
           direction = 'vertical'
         }
       }
@@ -553,10 +552,10 @@
      * @private
      */
     updateDirection: function (direction, oldDirection) {
-      var isAxisEnabledFlags = this.isAxisEnabledFlags,
-        verticalCls = this.cls + '-vertical',
-        horizontalCls = this.cls + '-horizontal',
-        element = this.getElement()
+      var isAxisEnabledFlags = this.isAxisEnabledFlags
+      var verticalCls = this.cls + '-vertical'
+      var horizontalCls = this.cls + '-horizontal'
+      var element = this.getElement()
 
       if (oldDirection === 'both' || oldDirection === 'horizontal') {
         element.removeCls(horizontalCls)

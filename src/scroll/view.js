@@ -80,7 +80,7 @@
 
       if (delay > 0) {
         this.indicatorsHidingTimer = setTimeout(this.doHideIndicators, delay)
-      }else {
+      } else {
         this.doHideIndicators()
       }
     },
@@ -156,11 +156,11 @@
         return this
       }
 
-      var scroller = this.getScroller(),
-        indicator = this.getIndicators()[axis],
-        scrollerContainerSize = scroller.getContainerSize()[axis],
-        scrollerSize = scroller.getSize()[axis],
-        ratio = scrollerContainerSize / scrollerSize
+      var scroller = this.getScroller()
+      var indicator = this.getIndicators()[axis]
+      var scrollerContainerSize = scroller.getContainerSize()[axis]
+      var scrollerSize = scroller.getSize()[axis]
+      var ratio = scrollerContainerSize / scrollerSize
 
       indicator.setRatio(ratio)
       indicator.refresh()
@@ -181,11 +181,12 @@
       if (!this.isAxisEnabled(axis)) {
         return this
       }
+      scrollerPosition = scrollerPosition * -1
 
-      var scroller = this.getScroller(),
-        scrollerMaxPosition = scroller.getMaxPosition()[axis],
-        scrollerContainerSize = scroller.getContainerSize()[axis],
-        value
+      var scroller = this.getScroller()
+      var scrollerMaxPosition = scroller.getMaxPosition()[axis]
+      var scrollerContainerSize = scroller.getContainerSize()[axis]
+      var value
 
       if (scrollerMaxPosition === 0) {
         value = scrollerPosition / scrollerContainerSize
@@ -193,16 +194,17 @@
         if (scrollerPosition >= 0) {
           value += 1
         }
-      }else {
+      } else {
         if (scrollerPosition > scrollerMaxPosition) {
           value = 1 + ((scrollerPosition - scrollerMaxPosition) / scrollerContainerSize)
-        }
-        else if (scrollerPosition < 0) {
+        } else if (scrollerPosition < 0) {
+          console.log('asdadsad')
           value = scrollerPosition / scrollerContainerSize
-        }else {
+        } else {
           value = scrollerPosition / scrollerMaxPosition
         }
       }
+      console.log([scrollerPosition, scrollerContainerSize, value].join('---'))
 
       this.getIndicators()[axis].setValue(value)
     },
@@ -250,12 +252,12 @@
           children: [
             {
               children: [{}, {
-                /*children: [indicators.y.barElement]*/
+                /* children: [indicators.y.barElement]*/
               }]
             },
             {
               children: [{
-                /*children: [indicators.x.barElement]*/
+                /* children: [indicators.x.barElement]*/
               }, {}]
             }
           ]
