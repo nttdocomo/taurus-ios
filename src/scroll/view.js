@@ -198,13 +198,11 @@
         if (scrollerPosition > scrollerMaxPosition) {
           value = 1 + ((scrollerPosition - scrollerMaxPosition) / scrollerContainerSize)
         } else if (scrollerPosition < 0) {
-          console.log('asdadsad')
           value = scrollerPosition / scrollerContainerSize
         } else {
           value = scrollerPosition / scrollerMaxPosition
         }
       }
-      console.log([scrollerPosition, scrollerContainerSize, value].join('---'))
 
       this.getIndicators()[axis].setValue(value)
     },

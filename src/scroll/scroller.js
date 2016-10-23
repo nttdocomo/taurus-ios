@@ -232,12 +232,11 @@
 
       startPosition.x = point.pageX
       startPosition.y = point.pageY
-      $(window).on({
-        touchmove: _.bind(this.onTouchMove, this) /*,
+      $(window).on('touchmove.onTouchMove', _.bind(this.onTouchMove, this)) /*,
         delegate: '.' + Tau.baseCSSPrefix + 'list-item',
         single: true,
-        scope: this*/
-      })
+        scope: this
+      })*/
     },
 
     /**
@@ -266,9 +265,7 @@
       if (!this.isDragging /* && this.snapToSlot()*/) {
         this.trigger('scrollstart', position.x, position.y)
       }
-      $(window).off({
-        touchmove: _.bind(this.onTouchMove, this)
-      })
+      $(window).off('touchmove.onTouchMove')
     },
     onTouchMove: function (e) {
       var point = e.touches ? e.touches[0] : e
