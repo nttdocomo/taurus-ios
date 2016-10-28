@@ -220,7 +220,6 @@
       }
 
       if (this.isAxisEnabled('y')) {
-        console.log(indicators)
         indicators.y.show()
       }
     },

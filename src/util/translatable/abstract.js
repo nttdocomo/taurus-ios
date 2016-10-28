@@ -20,17 +20,19 @@
       this.initConfig(config)
     },
 
-    animate: function (easingX, easingY, easingZ) {
+    animate: function (prop, complete) {
       var me = this
-      me.activeEasingX = easingX
-      me.activeEasingY = easingY
+      var easingX = prop.easingX
+      var easingY = prop.easingY
+      me.activeEasingX = prop.easingX
+      me.activeEasingY = prop.easingY
 
       me.isAnimating = true
       me.lastX = null
       me.lastY = null
 
       // AnimationQueue.start(this.doAnimationFrame, this)
-      me.getElement().$dom.animate({
+      var animate = me.getElement().$dom.animate({
         tween: 1000
       }, {
         progress: function (animation, progress, remainingMs) {
@@ -44,11 +46,12 @@
           me.doTranslate(me.x - me.x * progress, me.y - me.y * progress)
         }*/
         easing: 'easeout',
-        duration: 200
+        duration: 200,
+        complete: complete
       })
 
       me.trigger('animationstart', me, me.x, me.y)
-      return me
+      return animate
     },
 
     doAnimationFrame: function (animation, progress, remainingMs) {
@@ -119,6 +122,7 @@
     },
 
     translate: function (x, y, animation) {
+      console.log(y)
       if (animation) {
         return this.translateAnimated(x, y, animation)
       }

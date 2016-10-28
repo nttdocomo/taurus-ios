@@ -28,3 +28,12 @@
   -webkit-border-top-right-radius: 3px;
   border-top-right-radius: 3px;
 }
+.t-scroll-indicator.rounded.t-scroll-indicator-y>:last-child {
+  height: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}

@@ -46,6 +46,18 @@
 
     barElement: null,
 
+    doSetHidden: function (hidden) {
+      var me = this
+
+      if (hidden) {
+        me.getAutoHide() && me.setOffset(-10000)
+      } else {
+        delete me.lastLength
+        delete me.lastOffset
+        me.updateValue(me.getValue())
+      }
+    },
+
     doUpdateLength: function (length) {
       if (!this.isDestroyed) {
         var axis = this.getAxis()

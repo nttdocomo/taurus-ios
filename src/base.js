@@ -22,6 +22,15 @@
       this.initialize()
     },
 
+    doSet: function (me, value, oldValue, options) {
+      var nameMap = options.nameMap
+
+      me[nameMap.internal] = value
+      if (me[nameMap.doSet]) {
+        me[nameMap.doSet].call(this, value, oldValue)
+      }
+    },
+
     initialize: function () {
       this.initConfig(this.initialConfig)
       this.initialized = true
@@ -65,6 +74,16 @@
 
         this[updaterName] = newUpdater
       }
+    },
+    triggerAction: function (eventName, args, fn, scope, options, order) {
+      var fnType = typeof fn
+      var arg = args.slice(0)
+      args.unshift(eventName)
+      this.trigger.apply(this, args)
+      arg.push(options)
+      if (fnType !== 'undefined') {
+        fn.apply(this, arg)
+      }
     }
   }, {
     generateSetter: function (nameMap) {
@@ -92,9 +111,9 @@
 
         if (value !== oldValue) {
           if (initialized) {
-            /* this.trigger(changeEventName, [this, value, oldValue], this.doSet, this, {
+            this.triggerAction(changeEventName, [this, value, oldValue], this.doSet, this, {
               nameMap: nameMap
-            })*/
+            })
           } else {
             this[internalName] = value
             if (this[doSetName]) {

@@ -41,6 +41,28 @@
        * @accessor
        */
       disabled: null,
+      /**
+       * @cfg {Number/Object} slotSnapSize
+       * The size of each slot to snap to in 'px', can be either an object with `x` and `y` values, i.e:
+       *
+       *      {
+       *          x: 50,
+       *          y: 100
+       *      }
+       *
+       * or a number value to be used for both directions. For example, a value of `50` will be treated as:
+       *
+       *      {
+       *          x: 50,
+       *          y: 50
+       *      }
+       *
+       * @accessor
+       */
+      slotSnapSize: {
+        x: 0,
+        y: 0
+      },
       translatable: {
         translationMethod: 'auto',
         useWrapper: false
@@ -174,6 +196,37 @@
 
       return minPosition
     },
+    /**
+     * @private
+     * @return {Number/null}
+     */
+    getSnapPosition: function (axis) {
+      var snapSize = this.getSlotSnapSize()[axis]
+      var snapPosition = null
+      var position, snapOffset, maxPosition, mod
+
+      if (snapSize !== 0 && this.isAxisEnabled(axis)) {
+        position = this.position[axis]
+        snapOffset = this.getSlotSnapOffset()[axis]
+        maxPosition = this.getMaxPosition()[axis]
+
+        mod = Math.floor((position - snapOffset) % snapSize)
+
+        if (mod !== 0) {
+          if (position !== maxPosition) {
+            if (Math.abs(mod) > snapSize / 2) {
+              snapPosition = Math.min(maxPosition, position + ((mod > 0) ? snapSize - mod : mod - snapSize))
+            } else {
+              snapPosition = position - mod
+            }
+          } else {
+            snapPosition = position - mod
+          }
+        }
+      }
+
+      return snapPosition
+    },
 
     /**
      * Returns `true` if a specified axis is enabled.
@@ -212,7 +265,7 @@
     onScrollEnd: function () {
       var position = this.position
 
-      if (this.isTouching/* || !this.snapToSlot()*/) {
+      if (this.isTouching || !this.snapToSlot()) {
         this.trigger('scrollend', this, position.x, position.y)
       }
     },
@@ -255,14 +308,17 @@
       easingX = this.getAnimationEasing('x')
       easingY = this.getAnimationEasing('y')
 
-      this.getTranslatable().animate(null, easingY)
+      this.getTranslatable().animate({
+        easingX: easingX,
+        easingY: easingY
+      }, _.bind(this.onScrollEnd, this))
       // this.getContainer().$dom.animate(easingX, easingY)
       /* if (easingX || easingY) {
         this.getTranslatable().animate(null, null)
       } else {
         this.onScrollEnd()
       }*/
-      if (!this.isDragging /* && this.snapToSlot()*/) {
+      if (!this.isDragging && this.snapToSlot()) {
         this.trigger('scrollstart', position.x, position.y)
       }
       $(window).off('touchmove.onTouchMove')
@@ -286,6 +342,7 @@
 
       // this.scrollTo(lastDragPosition.x, lastDragPosition.y)
       this.scrollTo(newX, newY)
+      this.trigger('scrollstart', newX, newY)
     },
     /**
      * @private
@@ -408,6 +465,18 @@
       }
 
       this.scrollTo(x, y)
+    },
+
+    snapToSlot: function () {
+      var snapX = this.getSnapPosition('x')
+      var snapY = this.getSnapPosition('y')
+      // var easing = this.getSlotSnapEasing()
+
+      if (snapX !== null || snapY !== null) {
+        return true
+      }
+
+      return false
     },
 
     /**

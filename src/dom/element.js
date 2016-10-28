@@ -5,17 +5,17 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', 'class', 'underscore', '../virtual-dom/h', '../virtual-dom/create-element', '../mixin/identifiable', 'jquery', '../core/tau/getDom', '../env/browser', 'tau', '../polyfill/array/remove'], factory)
+      define(['../core/define', 'class', 'underscore', '../virtual-dom/h', '../virtual-dom/create-element', '../mixin/identifiable', 'jquery', '../core/tau/getDom', '../env/browser', 'tau', 'modernizr', '../polyfill/array/remove'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('class'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('tau'), require('../polyfill/array/remove'))
+        return factory(require('../core/define'), require('class'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('tau'), require('modernizr'), require('../polyfill/array/remove'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('class'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('tau'), require('../polyfill/array/remove'))
+    module.exports = factory(require('../core/define'), require('class'), require('underscore'), require('../virtual-dom/h'), require('../virtual-dom/create-element'), require('../mixin/identifiable'), require('jquery'), require('../core/tau/getDom'), require('../env/browser'), require('tau'), require('modernizr'), require('../polyfill/array/remove'))
   }
-}(this, function (define, Class, _, h, createElement, Identifiable, $, getDom, Browser, Tau) {
+}(this, function (define, Class, _, h, createElement, Identifiable, $, getDom, Browser, Tau, Modernizr) {
   var Element = define('Tau.dom.Element', Class, {
     classNameSplitRegex: /[\s]+/,
     SEPARATOR: '-',
@@ -387,7 +387,7 @@
     },
 
     translate: function () {
-      var transformStyleName = 'webkitTransform' in document.createElement('div').style ? 'webkitTransform' : 'transform'
+      var transformStyleName = 'transform' in document.createElement('div').style ? 'transform' : Modernizr.prefixed('transform')
 
       return function (x, y, z) {
         this.dom.style[transformStyleName] = 'translate3d(' + (x || 0) + 'px, ' + (y || 0) + 'px, ' + (z || 0) + 'px)'

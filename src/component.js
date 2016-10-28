@@ -293,7 +293,14 @@
        * @accessor
        * @evented
        */
-      height: null
+      height: null,
+      /**
+       * @cfg {Boolean} hidden
+       * Whether or not this Component is hidden (its CSS `display` property is set to `none`)
+       * @accessor
+       * @evented
+       */
+      hidden: null
     },
     config: {
       /**
@@ -364,6 +371,10 @@
       }
 
       return cls
+    },
+
+    applyHidden: function (hidden) {
+      return Boolean(hidden)
     },
 
     applyTranslatable: function (config) {
@@ -529,7 +540,6 @@
         })
         return this
       }
-
       if (!this.getHidden()) {
         if (animation === undefined || (animation && animation.isComponent)) {
           animation = this.getHideAnimation()
@@ -765,7 +775,6 @@
             args: [animation]
           })
         }
-
         this.setHidden(false)
       }
 
