@@ -203,7 +203,6 @@
           value = scrollerPosition / scrollerMaxPosition
         }
       }
-
       this.getIndicators()[axis].setValue(value)
     },
 

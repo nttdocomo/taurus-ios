@@ -276,7 +276,7 @@
     onTouchStart: function (e) {
       var point = e.touches ? e.touches[0] : e
       var startPosition = this.startPosition
-      var position = this.position
+      // var position = this.position
       this.isTouching = true
       this.stopAnimation()
 
@@ -319,7 +319,7 @@
         this.onScrollEnd()
       }*/
       if (!this.isDragging && this.snapToSlot()) {
-        this.trigger('scrollstart', position.x, position.y)
+        this.trigger('scrollstart', this, position.x, position.y)
       }
       $(window).off('touchmove.onTouchMove')
     },
@@ -342,7 +342,7 @@
 
       // this.scrollTo(lastDragPosition.x, lastDragPosition.y)
       this.scrollTo(newX, newY)
-      this.trigger('scrollstart', newX, newY)
+      this.trigger('scrollstart', this, newX, newY)
     },
     /**
      * @private
