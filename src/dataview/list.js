@@ -2,7 +2,7 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './component/simpleListItem', './component/ListItem', './listItemHeader', '../container', '../util/positionMap', '../env/browser', '../polyfill/array/remove', 'underscore', 'tau'], factory)
+      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './component/simpleListItem', './component/ListItem', './listItemHeader', '../container', '../util/positionMap', '../env/browser', '../polyfill/array/remove', 'jquery', 'underscore', 'tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
@@ -17,6 +17,7 @@
           require('../util/positionMap'),
           require('../env/browser'),
           require('../polyfill/array/remove'),
+          require('jquery'),
           require('underscore'),
           require('modernizr'),
           require('tau'),
@@ -24,9 +25,9 @@
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./component/simpleListItem'), require('./component/ListItem'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('../polyfill/array/remove'), require('underscore'), require('tau'))
+    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./component/simpleListItem'), require('./component/ListItem'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('../polyfill/array/remove'), require('jquery'), require('underscore'), require('tau'))
   }
-}(this, function (define, DataView, Fit, factory, SimpleListItem, ListItem, ListItemHeader, Container, PositionMap, browser, remove, _, Modernizr, Tau) {
+}(this, function (define, DataView, Fit, factory, SimpleListItem, ListItem, ListItemHeader, Container, PositionMap, browser, remove, $, _, Modernizr, Tau) {
   return define('Tau.dataview.List', DataView, {
     config: {
       /**
@@ -364,14 +365,14 @@
       container.innerElement.$dom.on({
         touchstart: _.bind(this.onItemTouchStart, this),
         touchend: _.bind(this.onItemTouchEnd, this),
-        tap: this.onItemTap,
+        tap: _.bind(this.onItemTap, this),
         taphold: _.bind(this.onItemTapHold, this),
         singletap: this.onItemSingleTap,
         doubletap: this.onItemDoubleTap,
         swipe: this.onItemSwipe
       }, '.' + Tau.baseCSSPrefix + 'list-item')
 
-      //container.innerElement.$dom.trigger('touchstart')
+      // container.innerElement.$dom.trigger('touchstart')
 
       if (me.getStore()) {
         me.refresh()
@@ -409,7 +410,7 @@
     },
 
     onItemTap: function (e) {
-      this._super(this.parseEvent(e))
+      this._super.apply(this, this.parseEvent(e))
     },
 
     onItemTouchStart: function (e) {

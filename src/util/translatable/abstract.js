@@ -122,7 +122,7 @@
     },
 
     translate: function (x, y, animation) {
-      console.log(y)
+      // console.log(y)
       if (animation) {
         return this.translateAnimated(x, y, animation)
       }

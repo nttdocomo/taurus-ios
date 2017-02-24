@@ -212,7 +212,7 @@
       var store = me.getStore()
       var record = store && store.at(index)
 
-      //me.fireAction('itemtouchstart', [me, index, target, record, e], 'doItemTouchStart');
+      // me.fireAction('itemtouchstart', [me, index, target, record, e], 'doItemTouchStart');
       me.trigger('itemtouchstart', index, target, record, e)
       me.doItemTouchStart(index, target, record, e)
     },
@@ -268,6 +268,14 @@
         target.removeClass(me.getPressedCls())
       }
       me.trigger('itemtouchmove', index, target, record, e)
+    },
+
+    onItemTap: function (container, target, index, e) {
+      var me = this
+      var store = me.getStore()
+      var record = store && store.at(index)
+
+      me.trigger('itemtap', index, target, record, e)
     },
 
     onItemDoubleTap: function (container, target, index, e) {

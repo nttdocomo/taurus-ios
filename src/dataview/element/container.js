@@ -18,7 +18,7 @@
       this.element.on({
         touchstart: 'onItemTouchStart',
         touchend: 'onItemTouchEnd',
-        tap: 'onItemTap',
+        //tap: 'onItemTap',
         taphold: 'onItemTapHold',
         touchmove: 'onItemTouchMove',
         singletap: 'onItemSingleTap',
