@@ -49,6 +49,7 @@ define(function (require) {
     }
   })
   application({
+    views: ['Main'],
     controllers: [Application],
     launch: function () {
       var viewport = new Viewport()
