@@ -2,19 +2,20 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./chaplin/application'], factory)
+      define(factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./chaplin/application'))
+        return factory()
       })
     }
   } else if (typeof module === 'object' && module.exports) {
     module.exports = factory()
   }
-}(this, function (Application) {
-  return function (config) {
-    /* eslint-disable no-new */
-    new Application(config)
+}(this, function () {
+  return {
+    escapeRegExp: function (str) {
+      String(str || '').replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1')
+    }
   }
 }))

@@ -1,9 +1,10 @@
 /*global define*/
 define(function (require) {
-  var application = require('../../src/application')
-  var Application = require('./controller/application')
+  // var application = require('../../src/application')
+  var Application = require('../../src/chaplin/application')
   var View = require('../../src/navigation/view')
-  var Viewport = require('../../src/viewport/viewport')
+  var routes = require('./routes')
+  // var Viewport = require('../../src/viewport/viewport')
   var Button = require('../../src/button')
   var Contacts = require('./contacts')
   require('../../src/env/feature')
@@ -48,16 +49,19 @@ define(function (require) {
       }]
     }
   })
-  application({
-    views: ['Main'],
-    controllers: [Application],
-    launch: function () {
+  NavigationView
+  var app = new Application({
+    title: 'My Application',
+    root: document.location.pathname,
+    routes: routes/* ,
+    start: function () {
       var viewport = new Viewport()
       viewport.add({
         xclass: NavigationView
       })
-    }
+    }*/
   })
+  return app
   // var Contacts = define()
   /* Tau.doc.ready(function () {
     var viewport = new Viewport()
