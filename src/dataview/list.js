@@ -2,7 +2,7 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './component/simpleListItem', './component/ListItem', './listItemHeader', '../container', '../util/positionMap', '../env/browser', '../polyfill/array/remove', 'jquery', 'underscore', 'tau'], factory)
+      define(['../core/define', './dataView', '../layout/Fit', '../core/factory', './component/simpleListItem', './component/ListItem', './listItemHeader', '../container', '../util/positionMap', '../env/browser', '../polyfill/array/remove', '../jquery', '../underscore', '../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
@@ -17,15 +17,15 @@
           require('../util/positionMap'),
           require('../env/browser'),
           require('../polyfill/array/remove'),
-          require('jquery'),
-          require('underscore'),
-          require('modernizr'),
-          require('tau'),
-          require('jquery.mobile-events'))
+          require('../jquery'),
+          require('../underscore'),
+          require('../modernizr'),
+          require('../tau'),
+          require('../jquery.mobile-events'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./component/simpleListItem'), require('./component/ListItem'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('../polyfill/array/remove'), require('jquery'), require('underscore'), require('tau'))
+    module.exports = factory(require('../core/define'), require('./dataView'), require('../layout/Fit'), require('../core/factory'), require('./component/simpleListItem'), require('./component/ListItem'), require('./listItemHeader'), require('../container'), require('../util/positionMap'), require('../env/browser'), require('../polyfill/array/remove'), require('../jquery'), require('../underscore'), require('../tau'))
   }
 }(this, function (define, DataView, Fit, factory, SimpleListItem, ListItem, ListItemHeader, Container, PositionMap, browser, remove, $, _, Modernizr, Tau) {
   return define('Tau.dataview.List', DataView, {

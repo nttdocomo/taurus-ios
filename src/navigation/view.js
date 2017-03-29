@@ -5,15 +5,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../container', './bar', '../layout/card', '../core/factory', 'tau'], factory)
+      define(['../core/define', '../container', './bar', '../layout/card', '../core/factory', '../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../container'), require('./bar'), require('../layout/card'), require('../core/factory'), require('tau'))
+        return factory(require('../core/define'), require('../container'), require('./bar'), require('../layout/card'), require('../core/factory'), require('../tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../container'), require('./bar'), require('../layout/card'), require('../core/factory'), require('tau'))
+    module.exports = factory(require('../core/define'), require('../container'), require('./bar'), require('../layout/card'), require('../core/factory'), require('../tau'))
   }
 }(this, function (define, Component, Bar, Card, factory, Tau) {
   return define('Tau.navigation.View', Component, {

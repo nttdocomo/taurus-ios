@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../core/factory', '../titleBar', '../button', 'tau'], factory)
+      define(['../core/define', '../core/factory', '../titleBar', '../button', '../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../core/factory'), require('../titleBar'), require('../button'), require('tau'))
+        return factory(require('../core/define'), require('../core/factory'), require('../titleBar'), require('../button'), require('../tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../core/factory'), require('../titleBar'), require('../button'), require('tau'))
+    module.exports = factory(require('../core/define'), require('../core/factory'), require('../titleBar'), require('../button'), require('../tau'))
   }
 }(this, function (define, factory, TitleBar, Button, Tau) {
   return define(TitleBar, {

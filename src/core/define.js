@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['underscore', 'tau', '../util/namespace', '../underscore/deepClone', '../polyfill/object/create'], factory)
+      define(['../underscore', '../tau', '../util/namespace', '../underscore/deepClone', '../polyfill/object/create'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('underscore'), require('tau'), require('../util/namespace'), require('../underscore/deepClone'), require('../polyfill/object/create'))
+        return factory(require('../underscore'), require('../tau'), require('../util/namespace'), require('../underscore/deepClone'), require('../polyfill/object/create'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('underscore'), require('tau'), require('../util/namespace'), require('../underscore/deepClone'), require('../polyfill/object/create'))
+    module.exports = factory(require('../underscore'), require('../tau'), require('../util/namespace'), require('../underscore/deepClone'), require('../polyfill/object/create'))
   }
 }(this, function (_, Tau, createNS) {
   var define = function (className, Class, data, classProps) {

@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./util/namespace', 'tau'], factory)
+      define(['./util/namespace', './tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./util/namespace'), require('tau'))
+        return factory(require('./util/namespace'), require('./tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./util/namespace'), require('tau'))
+    module.exports = factory(require('./util/namespace'), require('./tau'))
   }
 }(this, function (define, Tau) {
   return define('Tau.Function', {

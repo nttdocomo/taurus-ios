@@ -5,13 +5,13 @@
     // value to the root (window) and returning it as well to
     // the AMD loader.
     if (define.amd) {
-      define(['../core/define', 'base', 'underscore', '../mixin/observable', 'backbone-super'], function () {
+      define(['../core/define', '../base', '../underscore', '../mixin/observable', '../backbone-super'], function () {
         return (root.Class = factory())
       })
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return (root.Class = factory(require('../core/define'), require('base'), require('underscore'), require('../mixin/observable'), require('backbone-super')))
+        return (root.Class = factory(require('../core/define'), require('../base'), require('../underscore'), require('../mixin/observable'), require('../backbone-super')))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -19,7 +19,7 @@
     // run into a scenario where plain modules depend on CommonJS
     // *and* I happen to be loading in a CJS browser environment
     // but I'm including it for the sake of being thorough
-    module.exports = (root.Class = factory(require('../core/define'), require('base'), require('underscore'), require('../mixin/observable'), require('backbone-super')))
+    module.exports = (root.Class = factory(require('../core/define'), require('../base'), require('../underscore'), require('../mixin/observable'), require('../backbone-super')))
   } else {
     root.Class = factory()
   }

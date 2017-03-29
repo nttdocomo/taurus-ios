@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../base', '../polyfill/object/merge', '../util/translatable', '../dom/element', '../core/factory', 'jquery', 'underscore', 'tau'], factory)
+      define(['../core/define', '../base', '../polyfill/object/merge', '../util/translatable', '../dom/element', '../core/factory', '../jquery', '../underscore', '../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../base'), require('../polyfill/object/merge'), require('../util/translatable'), require('../dom/element'), require('../core/factory'), require('jquery'), require('underscore'), require('tau'))
+        return factory(require('../core/define'), require('../base'), require('../polyfill/object/merge'), require('../util/translatable'), require('../dom/element'), require('../core/factory'), require('../jquery'), require('../underscore'), require('../tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../base'), require('../polyfill/object/merge'), require('../util/translatable'), require('../dom/element'), require('../core/factory'), require('jquery'), require('underscore'), require('tau'), require('../fx/easing/easeout'))
+    module.exports = factory(require('../core/define'), require('../base'), require('../polyfill/object/merge'), require('../util/translatable'), require('../dom/element'), require('../core/factory'), require('../jquery'), require('../underscore'), require('../tau'))
   }
 }(this, function (define, Base, merge, Translatable, Element, factory, $, _, Tau) {
   return define('Tau.scroll.Scroller', Base, {

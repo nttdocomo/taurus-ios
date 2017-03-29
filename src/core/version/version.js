@@ -2,21 +2,21 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../class', 'tau'], factory)
+      define(['../core/define', '../class', '../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../class'), require('tau'))
+        return factory(require('../core/define'), require('../class'), require('../tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../class'), require('tau'))
+    module.exports = factory(require('../core/define'), require('../class'), require('../tau'))
   }
 }(this, function (define, Class, Tau) {
   var OS = define('Tau.Version', Class, {
     constructor: function (userAgent, platform, browserScope) {
       var prefixes = this.constructor.prefixes
-      var is, i, prefix, match, name, names, match1, version
+      var is, i, prefix, match, name, names
       for (i in prefixes) {
         if (prefixes.hasOwnProperty(i)) {
           prefix = prefixes[i]

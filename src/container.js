@@ -5,15 +5,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './component', './itemCollection', 'underscore', './core/factory', './layout/default', './behavior/scrollable', 'tau'], factory)
+      define(['./core/define', './component', './itemCollection', './underscore', './core/factory', './layout/default', './behavior/scrollable', './tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'), require('./behavior/scrollable'), require('tau'))
+        return factory(require('./core/define'), require('./component'), require('./itemCollection'), require('./underscore'), require('./core/factory'), require('./layout/default'), require('./behavior/scrollable'), require('./tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./component'), require('./itemCollection'), require('underscore'), require('./core/factory'), require('./layout/default'), require('./behavior/scrollable'), require('tau'))
+    module.exports = factory(require('./core/define'), require('./component'), require('./itemCollection'), require('./underscore'), require('./core/factory'), require('./layout/default'), require('./behavior/scrollable'), require('./tau'))
   }
 }(this, function (define, Component, ItemCollection, _, factory, Default, Scrollable, Tau) {
   return define(Component, {

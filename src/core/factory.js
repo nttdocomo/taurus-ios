@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['underscore', 'tau'], factory)
+      define(['../underscore', '../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('underscore'), require('tau'))
+        return factory(require('../underscore'), require('../tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('underscore'), require('tau'))
+    module.exports = factory(require('../underscore'), require('../tau'))
   }
 }(this, function (_, Tau) {
   return function (config, ClassReference, instance) {

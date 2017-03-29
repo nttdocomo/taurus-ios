@@ -5,15 +5,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', './dom/element', './abstractComponent', './behavior/translatable', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', 'renderQueue', './dom2hscript/index', 'underscore', 'tau', 'backbone-super', './jquery/replaceClass'], factory)
+      define(['./core/define', './dom/element', './abstractComponent', './behavior/translatable', './virtual-dom/h', './virtual-dom/diff', './virtual-dom/patch', './virtual-dom/create-element', './renderQueue', './dom2hscript/index', './underscore', './tau', './backbone-super', './jquery/replaceClass'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./behavior/translatable'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('tau'), require('backbone-super'), require('./jquery/replaceClass'))
+        return factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./behavior/translatable'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('./renderQueue'), require('./dom2hscript/index'), require('./underscore'), require('./tau'), require('./backbone-super'), require('./jquery/replaceClass'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./behavior/translatable'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('renderQueue'), require('./dom2hscript/index'), require('underscore'), require('tau'), require('backbone-super'), require('./jquery/replaceClass'))
+    module.exports = factory(require('./core/define'), require('./dom/element'), require('./abstractComponent'), require('./behavior/translatable'), require('./virtual-dom/h'), require('./virtual-dom/diff'), require('./virtual-dom/patch'), require('./virtual-dom/create-element'), require('./renderQueue'), require('./dom2hscript/index'), require('./underscore'), require('./tau'), require('./backbone-super'), require('./jquery/replaceClass'))
   }
 }(this, function (define, Element, AbstractComponent, Translatable, h, diff, patch, createElement, renderQueue, dom2hscript, _, Tau) {
   return define('Tau.Component', AbstractComponent, {

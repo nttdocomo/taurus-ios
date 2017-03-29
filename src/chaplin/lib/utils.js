@@ -6,21 +6,19 @@
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory()
+        return factory(require, exports, module)
       })
     }
   } else if (typeof module === 'object' && module.exports) {
     module.exports = factory()
   }
-}(this, function () {
+}(this, function (require, exports, module) {
   return {
     escapeRegExp: function (str) {
       String(str || '').replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1')
     },
     loadModule: (function () {
-      var define, enqueue, require
-      define = window.define
-      require = window.require
+      var enqueue
       if (typeof define === 'function') {
         if (define.amd) {
           return function (moduleName, handler) {

@@ -28,6 +28,25 @@
       })
       return me.subscribeEvent('router:match', me.dispatch)
     },
+    controllerLoaded: function (route, params, options, Controller) {
+      var controller, prev, previous
+      this.nextPreviousRoute = this.currentRoute
+      if (this.nextPreviousRoute) {
+        previous = _.extend({}, this.nextPreviousRoute)
+        if (this.currentParams != null) {
+          previous.params = this.currentParams
+        }
+        if (previous.previous) {
+          delete previous.previous
+        }
+        prev = {
+          previous: previous
+        }
+      }
+      this.nextCurrentRoute = _.extend({}, route, prev)
+      controller = new Controller(params, this.nextCurrentRoute, options)
+      return this.executeBeforeAction(controller, this.nextCurrentRoute, params, options)
+    },
     dispatch: function (route, params, options) {
       var ref, ref1
       var me = this

@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['underscore', 'tau'], factory)
+      define(factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('underscore'), require('tau'))
+        return factory()
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('underscore'), require('tau'))
+    module.exports = factory()
   }
 }(this, function (_, Tau) {
   var get = function (name) {

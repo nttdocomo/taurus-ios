@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', './behavior', '../scroll/view', '../env/feature', 'underscore', 'tau'], factory)
+      define(['../core/define', './behavior', '../scroll/view', '../env/feature', '../underscore', '../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('./behavior'), require('../scroll/view'), require('../env/feature'), require('underscore'), require('tau'))
+        return factory(require('../core/define'), require('./behavior'), require('../scroll/view'), require('../env/feature'), require('../underscore'), require('../tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('./behavior'), require('../scroll/view'), require('../env/feature'), require('underscore'), require('tau'))
+    module.exports = factory(require('../core/define'), require('./behavior'), require('../scroll/view'), require('../env/feature'), require('../underscore'), require('../tau'))
   }
 }(this, function (define, Behavior, View, feature, _, Tau) {
   return define('Tau.behavior.Scrollable', Behavior, {

@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../class', 'tau', './browser'], factory)
+      define(['../core/define', '../class', '../tau', './browser'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('../class'), require('tau'), require('./browser'))
+        return factory(require('../core/define'), require('../class'), require('../tau'), require('./browser'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('../class'), require('tau'), require('./browser'))
+    module.exports = factory(require('../core/define'), require('../class'), require('../tau'), require('./browser'))
   }
 }(this, function (define, Class, Tau, browser) {
   var OS = define('Tau.env.OS', Class, {

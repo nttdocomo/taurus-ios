@@ -5,13 +5,13 @@
     // value to the root (window) and returning it as well to
     // the AMD loader.
     if (define.amd) {
-      define(['./core/define', 'backbone', 'underscore', 'tau', './polyfill/object/classify', 'backbone-super', './polyfill/object/merge'], function () {
+      define(['./core/define', './backbone', './underscore', './tau', './polyfill/object/classify', './backbone-super', './polyfill/object/merge'], function () {
         return (root.Class = factory())
       })
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return (root.Class = factory(require('./core/define'), require('backbone'), require('underscore'), require('tau'), require('./polyfill/object/classify'), require('backbone-super'), require('./polyfill/object/merge')))
+        return (root.Class = factory(require('./core/define'), require('./backbone'), require('./underscore'), require('./tau'), require('./polyfill/object/classify'), require('./backbone-super'), require('./polyfill/object/merge')))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -19,7 +19,7 @@
     // run into a scenario where plain modules depend on CommonJS
     // *and* I happen to be loading in a CJS browser environment
     // but I'm including it for the sake of being thorough
-    module.exports = (root.Class = factory(require('./core/define'), require('backbone'), require('underscore'), require('tau'), require('./polyfill/object/classify'), require('backbone-super'), require('./polyfill/object/merge')))
+    module.exports = (root.Class = factory(require('./core/define'), require('./backbone'), require('./underscore'), require('./tau'), require('./polyfill/object/classify'), require('./backbone-super'), require('./polyfill/object/merge')))
   } else {
     root.Class = factory()
   }
