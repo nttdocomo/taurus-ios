@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', 'class', 'underscore', './mixin/observable', './mixin/identifiable', './taurus', './jquery', './backbone-super', './underscore/deepClone', './core/lang/string'], factory)
+      define(['./core/define', './class', './underscore', './mixin/observable', './mixin/identifiable', './taurus', './jquery', './backbone-super', './underscore/deepClone', './core/lang/string'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('./taurus'), require('./jquery'), require('./backbone-super'), require('./underscore/deepClone'), require('./core/lang/string'))
+        return factory(require('./core/define'), require('./class'), require('./underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('./taurus'), require('./jquery'), require('./backbone-super'), require('./underscore/deepClone'), require('./core/lang/string'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('./taurus'), require('./jquery'), require('./backbone-super'), require('./underscore/deepClone'), require('./core/lang/string'))
+    module.exports = factory(require('./core/define'), require('./class'), require('./underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('./taurus'), require('./jquery'), require('./backbone-super'), require('./underscore/deepClone'), require('./core/lang/string'))
   }
 }(this, function (define, Class, _, Observable, Identifiable, Tau, $) {
   var Base = define(Class, {

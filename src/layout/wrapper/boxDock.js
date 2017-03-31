@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../../core/define', 'class', '../../dom/element', 'tau'], factory)
+      define(['../../core/define', '../../class', '../../dom/element', '../../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../../core/define'), require('class'), require('../../dom/element'), require('tau'))
+        return factory(require('../../core/define'), require('../../class'), require('../../dom/element'), require('../../tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../../core/define'), require('class'), require('../../dom/element'), require('tau'))
+    module.exports = factory(require('../../core/define'), require('../../class'), require('../../dom/element'), require('../../tau'))
   }
 }(this, function (define, Class, Element, Tau) {
   return define('Tau.layout.wrapper.BoxDock', Class, {

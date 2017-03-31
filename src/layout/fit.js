@@ -5,13 +5,13 @@
     // value to the root (window) and returning it as well to
     // the AMD loader.
     if (define.amd) {
-      define(['../core/define', './default', 'tau'], function () {
+      define(['../core/define', './default', '../tau'], function () {
         return (root.Class = factory())
       })
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return (root.Class = factory(require('../core/define'), require('./default'), require('tau')))
+        return (root.Class = factory(require('../core/define'), require('./default'), require('../tau')))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
@@ -19,7 +19,7 @@
     // run into a scenario where plain modules depend on CommonJS
     // *and* I happen to be loading in a CJS browser environment
     // but I'm including it for the sake of being thorough
-    module.exports = (root.Class = factory(require('../core/define'), require('./default'), require('tau')))
+    module.exports = (root.Class = factory(require('../core/define'), require('./default'), require('../tau')))
   } else {
     root.Class = factory()
   }

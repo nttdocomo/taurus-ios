@@ -5,15 +5,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', 'class', 'underscore', '../dom/element'], factory)
+      define(['../core/define', '../class', '../underscore', '../dom/element'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('class'), require('underscore'), require('../dom/element'))
+        return factory(require('../core/define'), require('../class'), require('../underscore'), require('../dom/element'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('class'), require('underscore'), require('../dom/element'))
+    module.exports = factory(require('../core/define'), require('../class'), require('../underscore'), require('../dom/element'))
   }
 }(this, function (define, Class, _, Element) {
   return define('Tau.util.Wrapper', Class, {

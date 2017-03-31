@@ -2,7 +2,7 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', '../class', '../tau'], factory)
+      define(['../core/define', '../../class', '../tau'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
@@ -25,7 +25,7 @@
 
           if (match) {
             name = names[i]
-            match1 = match[1]
+            // match1 = match[1]
 
             // This is here because some HTC android devices show an OSX Snow Leopard userAgent by default.
             // And the Kindle Fire doesn't have any indicator of Android as the OS in its User Agent
@@ -74,17 +74,17 @@
       android: '(Android |HTC_|Silk/)', // Some HTC devices ship with an OSX userAgent by default,
       // so we need to add a direct check for HTC_
       windowsPhone: 'Windows Phone ',
-      blackberry: '(?:BlackBerry|BB)(?:.*)Version\/',
+      blackberry: '(?:BlackBerry|BB)(?:.*)Version\\/',
       rimTablet: 'RIM Tablet OS ',
-      webos: '(?:webOS|hpwOS)\/',
-      bada: 'Bada\/',
+      webos: '(?:webOS|hpwOS)\\/',
+      bada: 'Bada\\/',
       chrome: 'CrOS '
     }
   })
   var navigation = window.navigator
   var userAgent = navigation.userAgent
-  var osEnv, osName
-  Tau.os = osEnv = new OS(userAgent, navigation.platform)
-  osName = osEnv.name
+  // var osEnv , osName
+  Tau.os = /* osEnv = */new OS(userAgent, navigation.platform)
+  // osName = osEnv.name
   return OS
 }))

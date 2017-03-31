@@ -5,15 +5,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../core/define', 'class', 'underscore', '../mixin/observable', 'backbone-super'], factory)
+      define(['../core/define', '../class', '../underscore', '../mixin/observable'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../core/define'), require('class'), require('underscore'), require('../mixin/observable'), require('backbone-super'))
+        return factory(require('../core/define'), require('../class'), require('../underscore'), require('../mixin/observable'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../core/define'), require('class'), require('underscore'), require('../mixin/observable'), require('backbone-super'))
+    module.exports = factory(require('../core/define'), require('../class'), require('../underscore'), require('../mixin/observable'))
   }
 }(this, function (define, Class, _, Observable, inherits) {
   return define('Tau.util.AbstractMixedCollection', Class, {
@@ -82,7 +82,7 @@
      * @param {Object} o The item to find the index of.
      * @return {Number} index of the item. Returns -1 if not found.
      */
-    indexOf: function(o){
+    indexOf: function (o) {
       return _.indexOf(this.items, o)
     }
   }).mixin(Observable)

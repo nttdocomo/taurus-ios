@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['./core/define', 'class', 'underscore', './mixin/observable', './mixin/identifiable', 'backbone-super', './underscore/deepClone'], factory)
+      define(['./core/define', './class', './underscore', './mixin/observable', './mixin/identifiable', './backbone-super', './underscore/deepClone'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('backbone-super'), require('./underscore/deepClone'))
+        return factory(require('./core/define'), require('./class'), require('./underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('./backbone-super'), require('./underscore/deepClone'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('./core/define'), require('class'), require('underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('backbone-super'), require('./underscore/deepClone'))
+    module.exports = factory(require('./core/define'), require('./class'), require('./underscore'), require('./mixin/observable'), require('./mixin/identifiable'), require('./backbone-super'), require('./underscore/deepClone'))
   }
 }(this, function (define, Class, _, Observable, Identifiable) {
   return define('Tau.Evented', Class, {
@@ -40,9 +40,9 @@
         return
       }
 
-      var config = data.config,
-        eventedConfig = data.eventedConfig,
-        name, nameMap
+      var config = data.config
+      var eventedConfig = data.eventedConfig
+      var name, nameMap
 
       data.config = (config) ? _.extend(config, eventedConfig) : eventedConfig
 
@@ -67,20 +67,20 @@
     }
   }, {
     generateSetter: function (nameMap) {
-      var internalName = nameMap.internal,
-        applyName = nameMap.apply,
-        changeEventName = nameMap.changeEvent,
-        doSetName = nameMap.doSet
+      var internalName = nameMap.internal
+      var applyName = nameMap.apply
+      var changeEventName = nameMap.changeEvent
+      var doSetName = nameMap.doSet
 
       return function (value) {
-        var initialized = this.initialized,
-          oldValue = this[internalName],
-          applier = this[applyName]
+        var initialized = this.initialized
+        var oldValue = this[internalName]
+        var applier = this[applyName]
 
         if (applier) {
           value = applier.call(this, value, oldValue)
 
-          if (typeof value == 'undefined') {
+          if (typeof value === 'undefined') {
             return this
           }
         }
@@ -94,10 +94,10 @@
             this.fireAction(changeEventName, [this, value, oldValue], this.doSet, this, {
               nameMap: nameMap
             })
-          }else {
+          } else {
             this[internalName] = value
             if (this[doSetName]) {
-              this[doSetName].call(this, value, oldValue)
+              this[doSetName](value, oldValue)
             }
           }
         }
