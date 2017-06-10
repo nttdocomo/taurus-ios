@@ -95,6 +95,25 @@
       }
       return params
     },
+    matches: function (criteria) {
+      var i, invalidParamsCount, len, name, propertiesCount, property, ref
+      if (typeof criteria === 'string') {
+        return criteria === this.name
+      } else {
+        propertiesCount = 0
+        ref = ['name', 'action', 'controller']
+        for (i = 0, len = ref.length; i < len; i++) {
+          name = ref[i]
+          propertiesCount++
+          property = criteria[name]
+          if (property && property !== this[name]) {
+            return false
+          }
+        }
+        invalidParamsCount = propertiesCount === 1 && (name === 'action' || name === 'controller')
+        return !invalidParamsCount
+      }
+    },
     paramCapturePattern: function (param) {
       if (param[0] === ':') {
         return '([^\\/\\?]+)'

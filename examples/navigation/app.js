@@ -4,7 +4,7 @@ define(function (require) {
   var Application = require('../../src/chaplin/application')
   var View = require('../../src/navigation/view')
   var routes = require('./routes')
-  // var Viewport = require('../../src/viewport/viewport')
+  var Viewport = require('../../src/viewport/viewport')
   var Button = require('../../src/button')
   var Contacts = require('./contacts')
   require('../../src/env/feature')
@@ -44,16 +44,21 @@ define(function (require) {
 	        }*/
         }]
       },
-      items: [{
-        xclass: Contacts
-      }]
+      items: [new Contacts]
     }
   })
-  NavigationView
-  var app = new Application({
+  var App = Application.extend({
+    start: function () {
+      this._super()
+      var viewport = this.viewport = new Viewport()
+      var navigationView = this.main = new NavigationView()
+      viewport.add(navigationView)
+    }
+  })
+  var app = new App({
     title: 'My Application',
     root: document.location.pathname,
-    controllerPath: 'http://dev.taurus-ios.com/examples/navigation/controller/',
+    controllerPath: '/examples/navigation/controller/',
     routes: routes/* ,
     start: function () {
       var viewport = new Viewport()

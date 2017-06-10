@@ -2,15 +2,15 @@
 ;(function (root, factory) {
   if (typeof define === 'function') {
     if (define.amd) {
-      define(['../../core/define', '../../evented', '../../animationQueue', '../../underscore', '../../tau'], factory)
+      define(['../../core/define', '../../evented', '../../animationQueue', '../../underscore', '../../tau', '../../fx/easing/easeout'], factory)
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory(require('../../core/define'), require('../../evented'), require('../../animationQueue'), require('../../underscore'), require('../../tau'))
+        return factory(require('../../core/define'), require('../../evented'), require('../../animationQueue'), require('../../underscore'), require('../../tau'), require('../../fx/easing/easeout'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('../../core/define'), require('../../evented'), require('../../animationQueue'), require('../../underscore'), require('../../tau'))
+    module.exports = factory(require('../../core/define'), require('../../evented'), require('../../animationQueue'), require('../../underscore'), require('../../tau'), require('../../fx/easing/easeout'))
   }
 }(this, function (define, Class, AnimationQueue, _, Tau) {
   return define('Tau.util.translatable.Abstract', Class, {

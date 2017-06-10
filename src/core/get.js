@@ -6,7 +6,7 @@
     }
     if (define.cmd) {
       define(function (require, exports, module) {
-        return factory()
+        return factory(require('../underscore'), require('../tau'))
       })
     }
   } else if (typeof module === 'object' && module.exports) {

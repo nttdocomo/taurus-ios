@@ -43,6 +43,16 @@
       Backbone.history = new History()
       return Backbone.history
     },
+    findHandler: function (predicate) {
+      var handler, i, len
+      var ref = Backbone.history.handlers
+      for (i = 0, len = ref.length; i < len; i++) {
+        handler = ref[i]
+        if (predicate(handler)) {
+          return handler
+        }
+      }
+    },
     startHistory: function () {
       return Backbone.history.start(this.options)
     },
@@ -92,7 +102,7 @@
       route = new Route(pattern, controller, action, options)
       Backbone.history.handlers.push({
         route: route,
-        callback: route.handler
+        callback: _.bind(route.handler, route)
       })
       return route
     },

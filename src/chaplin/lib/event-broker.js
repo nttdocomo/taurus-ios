@@ -33,6 +33,9 @@
         throw new TypeError('EventBroker#publishEvent: ' + 'type argument must be a string')
       }
       return mediator.publish.apply(mediator, [type].concat(slice.call(args)))
+    },
+    unsubscribeAllEvents: function () {
+      return mediator.unsubscribe(null, null, this)
     }
   }
   return EventBroker
