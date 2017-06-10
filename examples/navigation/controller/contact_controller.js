@@ -1,3 +1,3 @@
 define(function (require) {
-  require('./chaplin/controller/controller')
+  require('chaplin/controller/controller')
 })

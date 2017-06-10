@@ -21,14 +21,10 @@
       var enqueue
       if (typeof define === 'function') {
         if (define.amd) {
-          return function (moduleName, handler) {
-            return require([moduleName], handler)
-          }
+          return require
         }
         if (define.cmd) {
-          return function (moduleName, handler) {
-            return require.async([moduleName], handler)
-          }
+          return require.async
         }
       } else {
         enqueue = typeof setImmediate !== 'undefined' && setImmediate !== null ? setImmediate : setTimeout

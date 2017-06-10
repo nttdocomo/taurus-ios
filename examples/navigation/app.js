@@ -53,7 +53,7 @@ define(function (require) {
   var app = new Application({
     title: 'My Application',
     root: document.location.pathname,
-    controllerPath: './controller/',
+    controllerPath: 'http://dev.taurus-ios.com/examples/navigation/controller/',
     routes: routes/* ,
     start: function () {
       var viewport = new Viewport()
