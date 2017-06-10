@@ -255,6 +255,15 @@
     },
 
     /**
+     * Pushes a new view into this navigation view using the default animation that this view has.
+     * @param {Object} view The view to push.
+     * @return {Ext.Component} The new item you just pushed.
+     */
+    push: function (view) {
+        return this.add(view)
+    },
+
+    /**
      * @private
      * Updates the title of the titleContainer, if it exists
      */

@@ -1,12 +1,13 @@
 /* global define */
 define(function (require) {
-  var Container = require('../../src/container')
-  var define = require('../../src/core/define')
-  define(Container, {
+  var Container = require('../../../../src/container')
+  var define = require('../../../../src/core/define')
+  var VBox = require('../../../../src/layout/vbox')
+  return define(Container, {
     config: {
       title: 'Information',
       baseCls: 'x-show-contact',
-      layout: 'vbox',
+      layout: VBox,
 
       items: [
         {

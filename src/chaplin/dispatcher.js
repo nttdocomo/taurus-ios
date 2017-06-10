@@ -65,6 +65,49 @@
         return me.controllerLoaded(route, params, options, Controller)
       })
     },
+    executeAction: function (controller, route, params, options) {
+      if (this.currentController) {
+        this.publishEvent('beforeControllerDispose', this.currentController)
+        this.currentController.dispose(params, route, options)
+      }
+      this.currentController = controller
+      this.currentParams = _.extend({}, params)
+      this.currentQuery = _.extend({}, options.query)
+      controller[route.action](params, route, options)
+      if (controller.redirected) {
+        return
+      }
+      return this.publishEvent('dispatcher:dispatch', this.currentController, params, route, options)
+    },
+    executeBeforeAction: function (controller, route, params, options) {
+      var me = this
+      var before = controller.beforeAction
+      var executeAction = function () {
+        if (controller.redirected || me.currentRoute && route === me.currentRoute) {
+          me.nextPreviousRoute = me.nextCurrentRoute = null
+          controller.dispose()
+          return
+        }
+        me.previousRoute = me.nextPreviousRoute
+        me.currentRoute = me.nextCurrentRoute
+        me.nextPreviousRoute = me.nextCurrentRoute = null
+        return me.executeAction(controller, route, params, options)
+      }
+      var promise
+      if (!before) {
+        executeAction()
+        return
+      }
+      if (typeof before !== 'function') {
+        throw new TypeError('Controller#beforeAction: function expected. ' + 'Old object-like form is not supported.')
+      }
+      promise = controller.beforeAction(params, route, options)
+      if (typeof (promise != null ? promise.then : void 0) === 'function') {
+        return promise.then(executeAction)
+      } else {
+        return executeAction()
+      }
+    },
     loadController: function (name, handler) {
       var fileName, moduleName
       if (name === Object(name)) {

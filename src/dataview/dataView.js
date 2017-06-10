@@ -191,9 +191,8 @@
         itemtouchmove: 'onItemTouchMove',
         itemsingletap: 'onItemSingleTap',
         itemdoubletap: 'onItemDoubleTap',
-        itemswipe: 'onItemSwipe',
-        scope: me
-      })
+        itemswipe: 'onItemSwipe'
+      }, me)
 
       if (me.getStore()) {
         if (me.isPainted()) {
@@ -281,7 +280,7 @@
     onItemDoubleTap: function (container, target, index, e) {
       var me = this
       var store = me.getStore()
-      var record = store && store.getAt(index)
+      var record = store && store.at(index)
 
       me.trigger('itemdoubletap', index, target, record, e)
     },
@@ -289,7 +288,7 @@
     onItemSingleTap: function (container, target, index, e) {
       var me = this
       var store = me.getStore()
-      var record = store && store.getAt(index)
+      var record = store && store.at(index)
 
       me.trigger('itemsingletap', index, target, record, e)
     },

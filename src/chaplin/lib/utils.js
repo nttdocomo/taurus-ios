@@ -15,7 +15,12 @@
 }(this, function (require, exports, module) {
   return {
     escapeRegExp: function (str) {
-      String(str || '').replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1')
+      return String(str || '').replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1')
+    },
+    redirectTo: function (pathDesc, params, options) {
+      return require.async(['../mediator'], function (mediator) {
+        mediator.execute('router:route', pathDesc, params, options)
+      })
     },
     loadModule: (function () {
       var enqueue

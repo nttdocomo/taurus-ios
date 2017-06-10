@@ -367,8 +367,8 @@
         touchend: _.bind(this.onItemTouchEnd, this),
         tap: _.bind(this.onItemTap, this),
         taphold: _.bind(this.onItemTapHold, this),
-        singletap: this.onItemSingleTap,
-        doubletap: this.onItemDoubleTap,
+        singletap: _.bind(this.onItemSingleTap, this),
+        doubletap: _.bind(this.onItemDoubleTap, this),
         swipe: this.onItemSwipe
       }, '.' + Tau.baseCSSPrefix + 'list-item')
 
@@ -410,6 +410,10 @@
     },
 
     onItemTap: function (e) {
+      this._super.apply(this, this.parseEvent(e))
+    },
+
+    onItemSingleTap: function (e) {
       this._super.apply(this, this.parseEvent(e))
     },
 

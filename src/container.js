@@ -16,7 +16,7 @@
     module.exports = factory(require('./core/define'), require('./component'), require('./itemCollection'), require('./underscore'), require('./core/factory'), require('./layout/default'), require('./behavior/scrollable'), require('./tau'))
   }
 }(this, function (define, Component, ItemCollection, _, factory, Default, Scrollable, Tau) {
-  return define(Component, {
+  var Container = define(Component, {
     eventedConfig: {
       /**
        * @cfg {Object/String/Number} activeItem The item from the {@link #cfg-items} collection that will be active first. This is
@@ -498,4 +498,6 @@
       }
     }
   })
+  Container.prototype.defaultItemClass = Container
+  return Container
 }))
