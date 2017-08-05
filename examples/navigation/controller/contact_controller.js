@@ -1,5 +1,5 @@
 define(function (require) {
-  require('chaplin/controller/controller')
+  require('chaplin/controllers/controller')
   var app = require('../app')
   var Show = require('../view/contact/show')
   return Controller.extend({
